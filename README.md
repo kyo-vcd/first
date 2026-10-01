@@ -43,6 +43,9 @@ git config user.name "kyo-vcd"
 git config user.email "kyo.vcd@gmail.com"
 ```
 
+연결 정보(계정 ID, 프로젝트, 저장소 ID 등)는 `.env`에 있다. `CLOUDFLARE_API_TOKEN`을 채우면
+Wrangler가 로그인 없이 동작한다. 저장소는 비공개이며, 공개로 바꾸기 전에 `.env`를 지우고 토큰을 폐기한다.
+
 로컬 확인은 `public/index.html`을 브라우저로 열거나 아래처럼 띄운다.
 
 ```sh
