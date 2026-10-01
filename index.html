@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First Sample</title>
+  <style>
+    :root {
+      --bg: #f7f7f8;
+      --fg: #1f2328;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111317;
+        --fg: #e6e7ea;
+        --muted: #9ca3af;
+        --card: #1a1d23;
+        --accent: #60a5fa;
+        --border: #2a2e36;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    header, main, footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    header { padding-top: 48px; }
+    h1 { margin: 0 0 8px; font-size: 2rem; }
+    .subtitle { margin: 0; color: var(--muted); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 32px 0;
+    }
+    .counter { display: flex; align-items: center; gap: 16px; }
+    .count { font-size: 2rem; font-variant-numeric: tabular-nums; min-width: 3ch; text-align: center; }
+    button {
+      font: inherit;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--fg);
+      cursor: pointer;
+    }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    button:hover { opacity: 0.85; }
+    footer { padding-bottom: 48px; color: var(--muted); font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>안녕하세요 👋</h1>
+    <p class="subtitle">샘플 index.html 페이지입니다.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>카운터 예제</h2>
+      <div class="counter">
+        <button id="dec" aria-label="감소">−</button>
+        <span id="count" class="count">0</span>
+        <button id="inc" class="primary" aria-label="증가">+</button>
+        <button id="reset">초기화</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> First</p>
+  </footer>
+
+  <script>
+    let count = 0;
+    const countEl = document.getElementById('count');
+    const render = () => { countEl.textContent = count; };
+
+    document.getElementById('inc').addEventListener('click', () => { count++; render(); });
+    document.getElementById('dec').addEventListener('click', () => { count--; render(); });
+    document.getElementById('reset').addEventListener('click', () => { count = 0; render(); });
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
