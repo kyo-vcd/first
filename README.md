@@ -9,7 +9,8 @@
 
 ```
 public/        # 배포되는 파일 (Pages 출력 디렉터리)
-  index.html
+  index.html     # 메인: 모션 그래픽 페이지
+  sample.html    # 이전 카운터 샘플
 .gitignore
 ```
 

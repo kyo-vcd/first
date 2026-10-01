@@ -3,96 +3,293 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>First Sample</title>
+  <title>Kyo First</title>
+  <meta name="theme-color" content="#07060b">
   <style>
     :root {
-      --bg: #f7f7f8;
-      --fg: #1f2328;
-      --muted: #6b7280;
-      --card: #ffffff;
-      --accent: #2563eb;
-      --border: #e5e7eb;
+      --bg: #07060b;
+      --fg: #f4f2ff;
+      --muted: #8d89a6;
+      --a: #7c5cff;
+      --b: #ff4fd8;
+      --c: #22e3ff;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111317;
-        --fg: #e6e7ea;
-        --muted: #9ca3af;
-        --card: #1a1d23;
-        --accent: #60a5fa;
-        --border: #2a2e36;
-      }
-    }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
       background: var(--bg);
       color: var(--fg);
-      line-height: 1.6;
+      font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+      overflow-x: hidden;
     }
-    header, main, footer {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 16px;
+
+    /* ---------- Aurora background ---------- */
+    .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .aurora span {
+      position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
+      filter: blur(90px); opacity: .35; mix-blend-mode: screen;
+      animation: drift 18s ease-in-out infinite alternate;
     }
-    header { padding-top: 48px; }
-    h1 { margin: 0 0 8px; font-size: 2rem; }
-    .subtitle { margin: 0; color: var(--muted); }
+    .aurora span:nth-child(1) { background: var(--a); top: -20vmax; left: -10vmax; }
+    .aurora span:nth-child(2) { background: var(--b); bottom: -25vmax; right: -15vmax; animation-duration: 22s; }
+    .aurora span:nth-child(3) { background: var(--c); top: 30%; left: 40%; width: 40vmax; height: 40vmax; animation-duration: 26s; opacity: .22; }
+    @keyframes drift {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(10vw, 8vh) scale(1.15); }
+      100% { transform: translate(-8vw, -6vh) scale(.95); }
+    }
+    .grain {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .07;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ---------- Hero: particle text ---------- */
+    .hero { position: relative; z-index: 2; height: 100svh; display: grid; place-items: center; }
+    #particles { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; }
+    .hint {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      color: var(--muted); font-size: 13px; letter-spacing: .2em; text-transform: uppercase;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: .35; } }
+
+    /* ---------- Marquee ---------- */
+    .marquee {
+      position: relative; z-index: 2; overflow: hidden; padding: 28px 0;
+      border-block: 1px solid rgba(255,255,255,.08);
+      transform: rotate(-3deg) scale(1.05); background: rgba(7,6,11,.6); backdrop-filter: blur(6px);
+    }
+    .marquee + .marquee { transform: rotate(2deg) scale(1.05); margin-top: -12px; }
+    .track { display: flex; width: max-content; animation: scroll 24s linear infinite; }
+    .marquee.reverse .track { animation-direction: reverse; animation-duration: 30s; }
+    .track span {
+      font-size: clamp(40px, 9vw, 120px); font-weight: 900; letter-spacing: -.03em;
+      padding-right: .5em; white-space: nowrap; line-height: 1;
+    }
+    .track span:nth-child(even) { color: transparent; -webkit-text-stroke: 1.5px rgba(244,242,255,.55); }
+    .track span:nth-child(odd) {
+      background: linear-gradient(90deg, var(--a), var(--b), var(--c));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    @keyframes scroll { to { transform: translateX(-50%); } }
+
+    /* ---------- Scroll reveal words ---------- */
+    .statement {
+      position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; padding: 22vh 16px;
+      font-size: clamp(32px, 6vw, 76px); font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
+    }
+    .statement .w { display: inline-block; opacity: .12; transform: translateY(.3em); transition: opacity .6s, transform .6s; }
+    .statement .w.on { opacity: 1; transform: none; }
+    .statement .w.hl {
+      background: linear-gradient(90deg, var(--b), var(--c));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    /* ---------- Tilt cards ---------- */
+    .cards {
+      position: relative; z-index: 2; display: grid; gap: 20px; max-width: 1100px;
+      margin: 0 auto; padding: 0 16px 20vh; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      perspective: 1000px;
+    }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      margin: 32px 0;
+      position: relative; padding: 32px; min-height: 240px; border-radius: 24px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+      backdrop-filter: blur(10px); transform-style: preserve-3d;
+      transition: transform .15s ease-out; overflow: hidden;
     }
-    .counter { display: flex; align-items: center; gap: 16px; }
-    .count { font-size: 2rem; font-variant-numeric: tabular-nums; min-width: 3ch; text-align: center; }
-    button {
-      font: inherit;
-      padding: 8px 16px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--card);
-      color: var(--fg);
-      cursor: pointer;
+    .card::before {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(124,92,255,.35), transparent 40%);
+      opacity: 0; transition: opacity .3s;
     }
-    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-    button:hover { opacity: 0.85; }
-    footer { padding-bottom: 48px; color: var(--muted); font-size: 0.875rem; }
+    .card:hover::before { opacity: 1; }
+    .card .num { font-size: 13px; color: var(--muted); letter-spacing: .2em; }
+    .card h3 { font-size: 28px; margin: 48px 0 10px; transform: translateZ(40px); }
+    .card p { color: var(--muted); line-height: 1.6; transform: translateZ(20px); }
+
+    footer { position: relative; z-index: 2; text-align: center; padding: 40px 16px; color: var(--muted); font-size: 13px; }
+    footer a { color: var(--fg); }
+
+    /* ---------- Cursor glow ---------- */
+    .glow {
+      position: fixed; z-index: 3; width: 22px; height: 22px; border-radius: 50%;
+      pointer-events: none; mix-blend-mode: difference; background: #fff;
+      transform: translate(-50%, -50%); transition: width .2s, height .2s; left: -100px; top: -100px;
+    }
+    @media (hover: none) { .glow { display: none; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .aurora span, .track, .hint { animation: none; }
+      .statement .w { opacity: 1; transform: none; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>안녕하세요 👋</h1>
-    <p class="subtitle">샘플 index.html 페이지입니다.</p>
-  </header>
+  <div class="aurora"><span></span><span></span><span></span></div>
+  <div class="grain"></div>
+  <div class="glow" id="glow"></div>
 
-  <main>
-    <section class="card">
-      <h2>카운터 예제</h2>
-      <div class="counter">
-        <button id="dec" aria-label="감소">−</button>
-        <span id="count" class="count">0</span>
-        <button id="inc" class="primary" aria-label="증가">+</button>
-        <button id="reset">초기화</button>
-      </div>
-    </section>
-  </main>
+  <section class="hero">
+    <canvas id="particles" aria-label="KYO FIRST 파티클 타이포그래피"></canvas>
+    <div class="hint">Move · Touch · Scroll</div>
+  </section>
 
-  <footer>
-    <p>&copy; <span id="year"></span> First</p>
-  </footer>
+  <div class="marquee"><div class="track">
+    <span>MOTION</span><span>IS</span><span>THE</span><span>MESSAGE</span>
+    <span>MOTION</span><span>IS</span><span>THE</span><span>MESSAGE</span>
+  </div></div>
+  <div class="marquee reverse"><div class="track">
+    <span>KYO</span><span>FIRST</span><span>2026</span><span>✦</span>
+    <span>KYO</span><span>FIRST</span><span>2026</span><span>✦</span>
+  </div></div>
+
+  <p class="statement" id="statement">
+    작은 <span class="hl">점</span> 수천 개가 모여 글자가 되고, 손끝이 닿으면 흩어졌다가 다시 <span class="hl">제자리</span>로 돌아온다.
+  </p>
+
+  <section class="cards">
+    <article class="card"><span class="num">01</span><h3>Particles</h3><p>글자를 이루는 점들이 커서를 피해 흩어지고 스프링처럼 돌아옵니다.</p></article>
+    <article class="card"><span class="num">02</span><h3>Kinetic Type</h3><p>기울어진 띠 위로 큰 글자가 끝없이 흘러갑니다.</p></article>
+    <article class="card"><span class="num">03</span><h3>Depth</h3><p>카드를 움직여 보세요. 마우스를 따라 3D로 기울어집니다.</p></article>
+  </section>
+
+  <footer>© <span id="year"></span> Kyo First · <a href="sample.html">이전 샘플</a></footer>
 
   <script>
-    let count = 0;
-    const countEl = document.getElementById('count');
-    const render = () => { countEl.textContent = count; };
-
-    document.getElementById('inc').addEventListener('click', () => { count++; render(); });
-    document.getElementById('dec').addEventListener('click', () => { count--; render(); });
-    document.getElementById('reset').addEventListener('click', () => { count = 0; render(); });
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ---------- Particle text ---------- */
+    (() => {
+      const canvas = document.getElementById('particles');
+      const ctx = canvas.getContext('2d');
+      const pointer = { x: -9999, y: -9999 };
+      let particles = [], w, h, dpr;
+
+      function build() {
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        w = canvas.clientWidth; h = canvas.clientHeight;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // 글자를 오프스크린에 그려 픽셀 좌표를 샘플링
+        const off = document.createElement('canvas');
+        off.width = w; off.height = h;
+        const o = off.getContext('2d');
+        const lines = w < 640 ? ['KYO', 'FIRST'] : ['KYO FIRST'];
+        const size = Math.min(w / (lines[0].length * 0.62), h / (lines.length * 1.6));
+        o.font = `900 ${size}px system-ui, sans-serif`;
+        o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillStyle = '#fff';
+        lines.forEach((t, i) => o.fillText(t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * size * 1.05));
+
+        const data = o.getImageData(0, 0, w, h).data;
+        const gap = w < 640 ? 4 : 5;
+        const next = [];
+        for (let y = 0; y < h; y += gap) {
+          for (let x = 0; x < w; x += gap) {
+            if (data[(y * w + x) * 4 + 3] > 128) {
+              const t = x / w;
+              next.push({
+                hx: x, hy: y,
+                x: Math.random() * w, y: Math.random() * h,
+                vx: 0, vy: 0,
+                hue: 255 + t * 110,
+                r: Math.random() * 0.8 + 1,
+              });
+            }
+          }
+        }
+        particles = next;
+      }
+
+      function frame() {
+        ctx.clearRect(0, 0, w, h);
+        const R = Math.max(80, w * 0.09);
+        for (const p of particles) {
+          const dx = p.x - pointer.x, dy = p.y - pointer.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < R * R) {
+            const d = Math.sqrt(d2) || 1, f = (R - d) / R;
+            p.vx += (dx / d) * f * 6; p.vy += (dy / d) * f * 6;
+          }
+          p.vx += (p.hx - p.x) * 0.06; p.vy += (p.hy - p.y) * 0.06;
+          p.vx *= 0.82; p.vy *= 0.82;
+          p.x += p.vx; p.y += p.vy;
+          const speed = Math.min(Math.abs(p.vx) + Math.abs(p.vy), 20);
+          ctx.fillStyle = `hsl(${p.hue + speed * 4}, 100%, ${65 + speed}%)`;
+          ctx.fillRect(p.x, p.y, p.r + speed * 0.08, p.r + speed * 0.08);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      const setPointer = (e) => {
+        const r = canvas.getBoundingClientRect();
+        const t = e.touches ? e.touches[0] : e;
+        pointer.x = t.clientX - r.left; pointer.y = t.clientY - r.top;
+      };
+      const clearPointer = () => { pointer.x = pointer.y = -9999; };
+      canvas.addEventListener('pointermove', setPointer);
+      canvas.addEventListener('pointerleave', clearPointer);
+      canvas.addEventListener('touchmove', setPointer, { passive: true });
+      canvas.addEventListener('touchend', clearPointer);
+
+      let rt;
+      addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
+      build();
+      if (reduce) particles.forEach(p => { p.x = p.hx; p.y = p.hy; });
+      frame();
+    })();
+
+    /* ---------- Scroll reveal words ---------- */
+    (() => {
+      const el = document.getElementById('statement');
+      const out = [];
+      el.childNodes.forEach(n => {
+        if (n.nodeType === 3) {
+          n.textContent.split(/(\s+)/).forEach(t => out.push(t.trim() ? `<span class="w">${t}</span>` : t));
+        } else {
+          out.push(`<span class="w hl">${n.textContent}</span>`);
+        }
+      });
+      el.innerHTML = out.join('');
+      const words = [...el.querySelectorAll('.w')];
+      const update = () => {
+        const r = el.getBoundingClientRect();
+        const progress = (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.3);
+        const n = Math.round(progress * words.length);
+        words.forEach((w, i) => w.classList.toggle('on', i < n));
+      };
+      addEventListener('scroll', update, { passive: true });
+      update();
+    })();
+
+    /* ---------- Tilt cards ---------- */
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        card.style.setProperty('--mx', `${x * 100}%`);
+        card.style.setProperty('--my', `${y * 100}%`);
+        if (!reduce) card.style.transform = `rotateY(${(x - .5) * 16}deg) rotateX(${(.5 - y) * 16}deg)`;
+      });
+      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+    });
+
+    /* ---------- Cursor glow ---------- */
+    (() => {
+      const g = document.getElementById('glow');
+      let x = -100, y = -100, tx = -100, ty = -100;
+      addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; });
+      document.querySelectorAll('a, .card').forEach(el => {
+        el.addEventListener('pointerenter', () => { g.style.width = g.style.height = '56px'; });
+        el.addEventListener('pointerleave', () => { g.style.width = g.style.height = '22px'; });
+      });
+      (function loop() {
+        x += (tx - x) * 0.2; y += (ty - y) * 0.2;
+        g.style.left = x + 'px'; g.style.top = y + 'px';
+        requestAnimationFrame(loop);
+      })();
+    })();
   </script>
 </body>
 </html>
