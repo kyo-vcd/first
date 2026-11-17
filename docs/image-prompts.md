@@ -1,6 +1,7 @@
 # ChatGPT 이미지 생성 프롬프트 (SCENE 01 소스)
 
 > 생성 완료: 원본은 `docs/ref/images/assets/`, 사이트에 쓰는 가공본은 `public/img/` (연결 위치는 `docs/scenes/S01.md` 비주얼 표).
+> 배경 · 바닥 · 동전은 이후 Codex CLI로 시안에 더 가깝게 다시 만들었다: `docs/ref/images/assets/codex/prompts.sh`.
 
 시안(첨부 이미지 4장)과 같은 느낌의 **소스 이미지**를 ChatGPT로 만든다.
 완성 화면이 아니라 재료를 따로 만들어야 웹에서 움직임·반응형을 유지할 수 있다.
