@@ -15,10 +15,12 @@
    상태 변화
      STATE 01 후원 금액 설정   (클릭)      슬라이더로 금액 선택, 빈 수조 3개
      STATE 02 코인 드롭·누적   (클릭)      후원하기 → 동전이 떨어져 86% 수조에 압도적으로 쌓임
-     STATE 03 분배 확인       0.24~0.40   86% 수조 금빛 강조, 10%·4% 어둡게, 제목 교체
-     STATE 04 결과 확인       0.54~0.70   86% 수조만 중앙에 남고 "10,000원 중 8,600원" 강조
-     다음 장면 연결           0.80~0.92   "8,600원은 어떤 물품이 될까요?" 질문
-   버튼을 누르지 않고 스크롤하면 0.18 지점에서 기본 금액으로 자동 후원한다.
+     STATE 03 분배 확인       0.22~0.48   첫 제목이 빠진 뒤 둘째 제목 등장, 86% 금빛 강조, 10%·4% 어둡게, 배지
+     STATE 04 결과 확인       0.52~0.70   옆 수조가 먼저 사라지고, 86% 수조가 가운데로, 결과 제목 등장
+     다음 장면 연결           0.78~0.88   수조가 아래로 빠지고 "8,600원은 어떤 물품이 될까요?" 질문
+     장면 끝                  0.93~1.00   화면이 어두워진다
+   버튼을 누르지 않고 스크롤하면 0.08 지점에서 기본 금액으로 빠르게 자동 후원한다.
+   화면에 쓰는 진행률은 js/script.js 가 부드럽게 보간해 넘겨준다.
    위로 스크롤하면 STATE 03·04 변화가 그대로 거꾸로 돌아간다.
    ========================================================= */
 
@@ -27,17 +29,25 @@
 
   var u = Story.util;
 
-  /* 스크롤 진행률 구간 */
+  /* 스크롤 진행률 구간
+     사라지는 요소와 나타나는 요소가 같은 순간에 겹치지 않도록 구간을 순서대로 나눈다. */
   var STEP = {
-    autoDonate: 0.18,
-    control: [0.14, 0.24],
-    split: [0.24, 0.40],
-    badge: [0.36, 0.46],
-    result: [0.54, 0.70],
-    next: [0.80, 0.92]
+    autoDonate: 0.08,              // 버튼을 안 눌렀으면 여기서 빠르게 자동 후원
+    control: [0.10, 0.20],         // 컨트롤이 사라지고, 제목·수조가 빈자리를 채운다
+    askOut: [0.22, 0.30],          // STATE 03: 첫 제목이 위로 빠진다
+    highlight: [0.26, 0.40],       //           86% 금빛 강조, 10%·4% 어둡게
+    splitIn: [0.32, 0.40],         //           두 번째 제목이 아래에서 올라온다
+    badge: [0.40, 0.48],           //           금액 배지
+    splitOut: [0.52, 0.58],        // STATE 04: 두 번째 제목이 빠진다
+    sideOut: [0.52, 0.58],         //           10%·4% 수조가 먼저 사라진다
+    fieldMove: [0.57, 0.70],       //           그다음 86% 수조가 가운데로
+    resultIn: [0.62, 0.70],        //           결과 제목이 올라온다
+    next: [0.78, 0.88],            // 다음 장면 질문: 수조는 아래로 빠지고 질문 등장
+    curtain: [0.93, 1.00]          // 장면 끝: 화면이 어두워진다
   };
 
   var DROP_MS = 1600;   // 동전이 모두 떨어지기까지 걸리는 시간
+  var AUTO_DROP_MS = 700; // 스크롤로 자동 후원할 때는 더 빠르게
   var GRAVITY = 2600;   // px/s²
 
   var COLORS = {
@@ -60,6 +70,8 @@
       badge: $('.s01-tank-badge'),
       next: $('.s01-next'),
       hint: $('.s01-hint'),
+      headlines: $('.s01-headlines'),
+      curtain: $('.scene-curtain'),
       live: $('.s01-live'),
       total: $('.s01-total'),
       fieldAmounts: $$('.s01-field-amount')
@@ -95,6 +107,7 @@
       dpr: 1,
       sprites: null,
       fieldOffset: 0,
+      controlSpace: 0,
       progress: 0,
       activeTitle: 0,
       raf: 0,
@@ -170,6 +183,8 @@
       });
       // STATE 04 에서 86% 수조를 화면 가운데로 옮길 거리 (transform 영향 없는 offset 값 사용)
       state.fieldOffset = el.stage.clientWidth / 2 - (field.node.offsetLeft + field.node.offsetWidth / 2);
+      // 컨트롤이 사라진 뒤 제목과 수조가 나눠서 채울 공간 (컨트롤 높이 + 위아래 간격)
+      state.controlSpace = el.stage.offsetTop - (el.headlines.offsetTop + el.headlines.offsetHeight);
     }
 
     /* 동전 크기는 86% 수조가 목표 높이(fill)만큼 차도록 정한다 */
@@ -203,7 +218,8 @@
     }
 
     /* ---------- STATE 01 → 02 : 후원하기 ---------- */
-    function donate(instant) {
+    /* mode: 'click' 버튼, 'auto' 스크롤 자동 후원, 'instant' 애니메이션 없이 */
+    function donate(mode) {
       var amount = parseInt(el.amount.value, 10);
       var k = amount / 10000;                       // 1 ~ 10
       var n = Math.round(100 + (k - 1) * 20);         // 동전 개수 100 ~ 280
@@ -221,11 +237,12 @@
       });
       computeRadius();
 
+      var dropMs = mode === 'auto' ? AUTO_DROP_MS : DROP_MS;
       tanks.forEach(function (t) {
         for (var i = 0; i < t.count; i++) {
           t.coins.push({
             tx: 0, ty: 0, x: 0, y: 0, vy: 0,
-            delay: (i / t.count) * DROP_MS + Math.random() * 160,
+            delay: (i / t.count) * dropMs + Math.random() * dropMs * 0.1,
             state: 0                                   // 0 대기, 1 낙하, 2 정지
           });
         }
@@ -241,7 +258,7 @@
 
       updateTexts();
 
-      if (instant || u.reducedMotion) {
+      if (mode === 'instant' || u.reducedMotion) {
         tanks.forEach(function (t) {
           t.coins.forEach(function (c) { c.x = c.tx; c.y = c.ty; c.state = 2; });
         });
@@ -349,54 +366,73 @@
       el.hint.style.opacity = state.progress < 0.08 && !state.dropping ? 1 : 0;
     }
 
+    function seg(p, key, ease) {
+      var t = u.range(p, STEP[key][0], STEP[key][1]);
+      return (ease || u.easeInOut)(t);
+    }
+
     function update(p) {
       state.progress = p;
-      if (!state.donated && p > STEP.autoDonate) donate(true);
+      if (!state.donated && p > STEP.autoDonate) donate('auto');
 
-      var ctrl = u.range(p, STEP.control[0], STEP.control[1]);
-      var s3 = u.easeInOut(u.range(p, STEP.split[0], STEP.split[1]));
-      var bd = u.easeOut(u.range(p, STEP.badge[0], STEP.badge[1]));
-      var s4 = u.easeInOut(u.range(p, STEP.result[0], STEP.result[1]));
-      var nx = u.easeOut(u.range(p, STEP.next[0], STEP.next[1]));
+      var ctrl = seg(p, 'control');
+      var askOut = seg(p, 'askOut');
+      var hl = seg(p, 'highlight');
+      var splitIn = seg(p, 'splitIn', u.easeOut);
+      var bd = seg(p, 'badge', u.easeOut);
+      var splitOut = seg(p, 'splitOut');
+      var sideOut = seg(p, 'sideOut');
+      var move = seg(p, 'fieldMove');
+      var resultIn = seg(p, 'resultIn', u.easeOut);
+      var nx = seg(p, 'next');
+      var curtain = seg(p, 'curtain');
 
-      // 제목 교체
-      fade(el.titles[0], 1 - s3, -24 * s3);
-      fade(el.titles[1], s3 * (1 - s4), 24 * (1 - s3) - 24 * s4);
-      fade(el.titles[2], s4, 24 * (1 - s4));
-      var active = s4 > 0.5 ? 2 : s3 > 0.5 ? 1 : 0;
+      // 제목 교체: 앞 제목이 위로 빠진 뒤에 다음 제목이 아래에서 올라온다
+      fade(el.titles[0], 1 - askOut, -32 * askOut);
+      fade(el.titles[1], splitIn * (1 - splitOut), 32 * (1 - splitIn) - 32 * splitOut);
+      fade(el.titles[2], resultIn, 32 * (1 - resultIn));
+      var active = resultIn > 0.5 ? 2 : splitIn > 0.5 && splitOut < 0.5 ? 1 : askOut < 0.5 ? 0 : state.activeTitle;
       if (active !== state.activeTitle) {
         state.activeTitle = active;
         el.titles.forEach(function (t, i) { t.setAttribute('aria-hidden', i === active ? 'false' : 'true'); });
       }
 
-      // 후원 컨트롤은 분배 확인 전에 사라진다
+      // 후원 컨트롤이 사라지면 제목은 아래로, 수조는 위로 와서 빈자리를 나눠 채운다
+      var half = state.controlSpace / 2 * ctrl;
       fade(el.form, 1 - ctrl, -12 * ctrl);
       el.form.style.visibility = ctrl >= 1 ? 'hidden' : '';
+      el.headlines.style.transform = 'translateY(' + half.toFixed(1) + 'px)';
 
       // 수조 강조
       var mixChanged = false;
       tanks.forEach(function (t) {
-        if (Math.abs(t.mix - s3) > 0.001) mixChanged = true;
-        t.mix = s3;
+        if (Math.abs(t.mix - hl) > 0.001) mixChanged = true;
+        t.mix = hl;
         if (t.isField) {
-          t.node.style.setProperty('--hl', s3.toFixed(3));
-          t.rateLabel.style.opacity = s3.toFixed(3);
+          t.node.style.setProperty('--hl', hl.toFixed(3));
+          t.rateLabel.style.opacity = (hl * (1 - nx)).toFixed(3);
           t.node.style.transform =
-            'translateX(' + (state.fieldOffset * s4).toFixed(1) + 'px) scale(' + (1 + 0.06 * s4).toFixed(3) + ')';
+            'translateX(' + (state.fieldOffset * move).toFixed(1) + 'px) scale(' + (1 + 0.06 * move).toFixed(3) + ')';
         } else {
-          t.rateLabel.style.opacity = (s3 * (1 - s4)).toFixed(3);
-          t.node.style.opacity = (1 - s4).toFixed(3);
+          // 옆 수조는 86% 수조가 움직이기 전에 먼저 사라진다
+          t.rateLabel.style.opacity = (hl * (1 - sideOut)).toFixed(3);
+          t.node.style.opacity = (1 - sideOut).toFixed(3);
+          t.node.style.transform = 'translateY(' + (24 * sideOut).toFixed(1) + 'px)';
         }
       });
       if (mixChanged && !state.raf) render();
 
       // 금액 배지
-      el.badge.style.opacity = bd.toFixed(3);
+      el.badge.style.opacity = (bd * (1 - nx)).toFixed(3);
       el.badge.style.transform = 'translate(-50%, ' + (8 * (1 - bd)).toFixed(1) + 'px)';
 
-      // 다음 장면 질문: 수조는 물러나고 질문이 떠오른다
-      el.stage.style.opacity = (1 - 0.75 * nx).toFixed(3);
-      fade(el.next, nx, 16 * (1 - nx));
+      // 다음 장면 질문: 수조가 아래로 빠지며 어두워진 뒤 질문이 가운데 떠오른다
+      el.stage.style.transform = 'translateY(' + (-half + el.stage.clientHeight * 0.4 * nx).toFixed(1) + 'px)';
+      el.stage.style.opacity = (1 - 0.88 * nx).toFixed(3);
+      fade(el.next, u.range(nx, 0.35, 1), 24 * (1 - nx));
+
+      // 장면 끝: 화면 전체가 어두워진다
+      el.curtain.style.opacity = curtain.toFixed(3);
 
       applyHint();
     }
@@ -417,7 +453,7 @@
 
     el.form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!state.dropping) donate(false);
+      if (!state.dropping) donate('click');
     });
 
     el.titles.forEach(function (t, i) { t.setAttribute('aria-hidden', i === 0 ? 'false' : 'true'); });

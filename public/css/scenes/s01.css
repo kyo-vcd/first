@@ -206,7 +206,8 @@
   position: absolute;
   left: var(--gutter);
   right: var(--gutter);
-  bottom: 22%;
+  top: 50%;
+  margin-top: -1.45em;
   text-align: center;
   font-size: clamp(20px, 2.6vw, 34px);
   font-weight: 700;

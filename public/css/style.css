@@ -87,6 +87,16 @@ button, input, output { font: inherit; color: inherit; }
   z-index: -1;
 }
 
+/* 장면이 끝날 때 화면을 어둡게 덮는 막 (투명도는 장면 스크립트가 조절) */
+.scene-curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+}
+
 .scroll-hint {
   position: absolute;
   left: 50%;

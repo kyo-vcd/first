@@ -77,21 +77,38 @@
     }
   };
 
-  /* ---------- 스크롤·리사이즈 처리 ---------- */
-  function tick() {
+  /* ---------- 스크롤·리사이즈 처리 ----------
+     스크롤 위치로 구한 진행률(target)을 화면에 바로 쓰지 않고,
+     화면용 진행률(progress)이 매 프레임 target 을 조금씩 따라가게 한다.
+     휠 한 칸에 진행률이 몇 %씩 건너뛰어도 변화가 끊기지 않고 이어진다. */
+  var SMOOTH = 0.14;        // 1프레임(60fps)에 남은 거리의 14%를 따라간다
+  var lastTime = 0;
+
+  function tick(now) {
     ticking = false;
+    var dt = lastTime ? Math.min((now - lastTime) / 16.67, 4) : 1;
+    lastTime = now;
+    var k = util.reducedMotion ? 1 : 1 - Math.pow(1 - SMOOTH, dt);
     var vh = window.innerHeight;
+    var moving = false;
+
     scenes.forEach(function (s) {
       var rect = s.el.getBoundingClientRect();
       // 화면 근처에 있는 장면만 갱신한다
       if (rect.bottom < -vh || rect.top > vh * 2) return;
-      var p = progressOf(s.el);
+      s.target = progressOf(s.el);
+      var p = s.dirty ? s.target : s.progress + (s.target - s.progress) * k;
+      if (Math.abs(s.target - p) < 0.0005) p = s.target;
+      else moving = true;
       if (p === s.progress && !s.dirty) return;
       s.progress = p;
       s.dirty = false;
       s.api.update(p);
     });
     header.update();
+
+    if (moving) requestTick();
+    else lastTime = 0;
   }
 
   function requestTick() {
