@@ -182,11 +182,7 @@
   window.Story = {
     register: register,
     util: util,
-    progressOf: progressOf,
-    // 구성: js/compare.js 가 정한 값, 없으면 <html data-variant="N"> (제출본처럼 고정한 경우)
-    variant: typeof window.STORY_VARIANT === 'number'
-      ? window.STORY_VARIANT
-      : parseInt(document.documentElement.dataset.variant || '0', 10) || 0
+    progressOf: progressOf
   };
 
   if (document.readyState === 'loading') {

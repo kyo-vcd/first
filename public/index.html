@@ -15,9 +15,6 @@
   <!-- 장면별 스타일: 장면을 추가하면 여기에 한 줄 추가 -->
   <link rel="stylesheet" href="css/scenes/s01.css">
 
-  <!-- compare:start  구성 비교: 화면을 그리기 전에 <html data-variant> 를 정한다 -->
-  <script src="js/compare.js"></script>
-  <!-- compare:end -->
 </head>
 <body>
 
@@ -59,17 +56,6 @@
     </ol>
   </header>
 
-  <!-- compare:start  구성 비교용 플로팅 영역 (제출본·확정본에서는 이 블록과 js/compare.js 를 뺀다) -->
-  <nav class="compare" aria-label="구성 비교">
-    <div class="compare-tabs" role="group" aria-label="구성 선택">
-      <button class="compare-tab" type="button" data-v="0" data-desc="처음 구성 · 동전이 수조로 바로 떨어집니다">현재</button>
-      <button class="compare-tab" type="button" data-v="1" data-desc="핀 분배 · 동전이 핀에 튕기며 86 · 10 · 4로 갈라집니다">개선1</button>
-      <button class="compare-tab" type="button" data-v="2" data-desc="개선1 + 레버 후원 · 상태 진행 표시 · 수조별 금액 미리보기">개선2</button>
-    </div>
-    <p class="compare-desc"></p>
-  </nav>
-  <!-- compare:end -->
-
   <main class="story">
 
     <!-- =========================================================
@@ -95,25 +81,7 @@
           <button class="s01-donate" type="submit"><span>후원하기</span></button>
         </form>
 
-        <!-- [개선2] 상태 진행 표시: 지금 상태와 상태 안에서의 스크롤 진행 -->
-        <ol class="s01-states" aria-label="장면 진행 상태">
-          <li class="s01-state"><span class="s01-state-no">01</span><span class="s01-state-name">금액 설정</span></li>
-          <li class="s01-state"><span class="s01-state-no">02</span><span class="s01-state-name">동전 분배</span></li>
-          <li class="s01-state"><span class="s01-state-no">03</span><span class="s01-state-name">분배 확인</span></li>
-          <li class="s01-state"><span class="s01-state-no">04</span><span class="s01-state-name">결과 확인</span></li>
-          <li class="s01-state"><span class="s01-state-no">→</span><span class="s01-state-name">다음 장면</span></li>
-        </ol>
-
         <div class="s01-stage">
-          <!-- [개선1·2] 핀 판과 낙하 중인 동전을 그리는 canvas (수조 전체 위에 겹침) -->
-          <canvas class="s01-flow" aria-hidden="true"></canvas>
-
-          <!-- [개선2] 아래로 당기는 후원 레버 -->
-          <button class="s01-lever" type="button" aria-label="레버를 당겨 후원하기">
-            <span class="s01-lever-track"><span class="s01-lever-knob"></span></span>
-            <span class="s01-lever-label">당겨서<br>후원</span>
-          </button>
-
           <div class="s01-tank s01-tank--field" data-rate="0.86">
             <div class="s01-tank-body">
               <span class="s01-tank-rate">86%</span>
@@ -126,7 +94,7 @@
               <canvas class="s01-coins" aria-hidden="true"></canvas>
               <span class="s01-tank-badge">8,600원</span>
             </div>
-            <p class="s01-tank-label">현장 의료 물자 <span class="s01-tank-amount">8,600원</span></p>
+            <p class="s01-tank-label">현장 의료 물자</p>
           </div>
           <div class="s01-tank s01-tank--fund" data-rate="0.10">
             <div class="s01-tank-body">
@@ -138,7 +106,7 @@
               </div>
               <canvas class="s01-coins" aria-hidden="true"></canvas>
             </div>
-            <p class="s01-tank-label">모금 <span class="s01-tank-amount">1,000원</span></p>
+            <p class="s01-tank-label">모금</p>
           </div>
           <div class="s01-tank s01-tank--ops" data-rate="0.04">
             <div class="s01-tank-body">
@@ -149,7 +117,7 @@
               </div>
               <canvas class="s01-coins" aria-hidden="true"></canvas>
             </div>
-            <p class="s01-tank-label">운영비 <span class="s01-tank-amount">400원</span></p>
+            <p class="s01-tank-label">운영비</p>
           </div>
         </div>
 
@@ -159,9 +127,6 @@
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v11M3 8l5 5 5-5"/></svg>
           스크롤해서 계속
         </p>
-
-        <!-- [개선1·2] 수치 표기 -->
-        <p class="s01-source">※ 86 · 10 · 4% 비율은 기획안 기준 예시 수치입니다.</p>
 
         <p class="visually-hidden s01-live" aria-live="polite"></p>
         <div class="scene-curtain" aria-hidden="true"></div>
