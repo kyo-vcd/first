@@ -109,11 +109,9 @@
   -webkit-appearance: none;
   width: 22px;
   height: 24px;
-  margin-top: -10px;
+  margin-top: -9px;
   border: 0;
-  border-radius: 50% 50% 46% 54% / 56% 50% 50% 44%;
-  background: var(--red);
-  box-shadow: 0 4px 0 -2px #a8191c;
+  background: url("../../img/s01/thumb.png") center / contain no-repeat;   /* 핏방울 */
 }
 
 .s01-amount::-moz-range-track { height: 4px; border-radius: 2px; background: #d9cfbf; }
@@ -122,8 +120,8 @@
   width: 22px;
   height: 24px;
   border: 0;
-  border-radius: 50% 50% 46% 54% / 56% 50% 50% 44%;
-  background: var(--red);
+  border-radius: 0;
+  background: url("../../img/s01/thumb.png") center / contain no-repeat;
 }
 
 .s01-amount:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; }
@@ -156,26 +154,22 @@
   transition: transform 0.2s var(--ease);
 }
 
-/* 거칠게 잘린 붉은 종이 */
+/* 거칠게 찢긴 붉은 종이 (img/s01/stamp.png) */
 .s01-donate::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -4px -6px;
   z-index: -1;
-  background: var(--red);
-  clip-path: polygon(1% 6%, 22% 0, 48% 4%, 76% 0, 99% 5%, 100% 52%, 98% 96%, 70% 100%, 41% 95%, 15% 100%, 0 94%, 2% 48%);
-  background-image: var(--tex-grain-dark);   /* 종이 위 잉크처럼 고운 점 */
-  background-blend-mode: multiply;
-  filter: url(#fx-rough);
-  transition: background-color 0.2s;
+  background: url("../../img/s01/stamp.png") center / 100% 100% no-repeat;
+  transition: filter 0.2s;
 }
 
 .s01-donate span { display: inline-block; text-shadow: 0 1px 0 rgba(90, 8, 8, 0.6); }
-.s01-donate:hover::before { background: #f23a3e; }
+.s01-donate:hover::before { filter: brightness(1.12); }
 .s01-donate:active { transform: rotate(-1.2deg) scale(0.96); }
 .s01-donate:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 .s01-donate:disabled { color: var(--muted); cursor: default; }
-.s01-donate:disabled::before { background: #4a2523; }
+.s01-donate:disabled::before { filter: grayscale(0.7) brightness(0.4); }
 
 /* ---------- 3개의 수조: 손으로 그은 붉은 선 ---------- */
 
@@ -248,26 +242,17 @@
   border-bottom: 0;
 }
 
-/* 바닥 선에서 흘러내린 자국 */
+/* 바닥 선에서 흘러내린 자국 (img/s01/drip-1~3.png) */
 .s01-drip {
   position: absolute;
-  top: 100%;
-  width: 3px;
-  height: var(--h, 18px);
-  background: var(--red);
-  border-radius: 0 0 2px 2px;
+  top: calc(100% - 1px);
+  width: 5px;
+  height: calc(var(--h, 18px) + 6px);
+  margin-left: -1px;
+  background: url("../../img/s01/drip-1.png") top center / 100% 100% no-repeat;
 }
 
-.s01-drip::after {
-  content: "";
-  position: absolute;
-  left: -2px;
-  bottom: -4px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--red);
-}
+.s01-drip--long { background-image: url("../../img/s01/drip-2.png"); }
 
 .s01-coins {
   position: absolute;
@@ -503,7 +488,7 @@
   display: block;
   position: absolute;
   left: var(--gutter);
-  bottom: calc(clamp(70px, 10vh, 110px) + 6px);   /* 붉은 바닥 위 */
+  bottom: calc(clamp(70px, 10vh, 112px) * 0.7 + 6px);   /* 붉은 바닥 위 */
   font-size: 12px;
   color: var(--muted);
   transition: opacity var(--t) ease;

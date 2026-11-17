@@ -45,8 +45,21 @@
     dim:    { halo: 'rgba(10, 8, 6, 0.45)', light: '#5d4f43', face: '#4b3f35', edge: '#3a3029',
               rim: '#2f261f90', groove: '#2c241d', speck: '#17120e', blood: '#5b2b25' }
   };
-  var COIN_SEEDS = [11, 23, 37, 41, 59, 73, 89, 97];   // 같은 번호는 색이 바뀌어도 무늬가 같다
-  var BLOOD_FROM = 7;                                 // 8개 중 마지막 1개는 핏자국 (약 1/8, 시안)
+  /* 동전 종류 16개: 금화 이미지 4장 × 회전 14개 + 핏자국 금화 2개 (약 1/8, 시안).
+     같은 번호는 색이 바뀌어도 무늬가 같다. 이미지를 못 불러오면 아래 COLORS 로 직접 그린다. */
+  var COIN_KINDS = 16;
+  var BLOOD_FROM = 14;
+  var COIN_SEEDS = [11, 23, 37, 41, 59, 73, 89, 97, 101, 113, 127, 131, 149, 157, 163, 173];
+  var COIN_SRC = ['gold-1', 'gold-2', 'gold-3', 'gold-4', 'blood-1', 'blood-4'];
+  var TINT = {                    // 이미지 동전 색 (canvas filter)
+    gold: 'none',
+    bright: 'brightness(1.12) saturate(1.06)',
+    dim: 'grayscale(0.55) brightness(0.42)'
+  };
+  var TINT_FALLBACK = {           // filter 를 못 쓰는 브라우저: 동전 위에 색을 덮는다
+    bright: 'rgba(255, 214, 120, 0.14)',
+    dim: 'rgba(18, 13, 10, 0.62)'
+  };
   var COINS_PER_ROW = 12.2;                   // 1만 원일 때 86% 수조 한 줄 동전 수 (시안)
 
   /* 구성 비교 (js/compare.js)
@@ -111,6 +124,7 @@
       r: 10,
       dpr: 1,
       sprites: null,
+      coinImgs: null,            // 불러온 동전 이미지 (img/s01/coin-*.png)
       mix: 0, mixFrom: 0, mixTo: 0, mixStart: 0,   // 동전 강조 정도 0~1 (시간 기반 전환)
       raf: 0,
       last: 0,
@@ -195,14 +209,64 @@
       return { img: cv, size: size / dpr, off: o };
     }
 
+    /* 이미지 동전: 그림자 + 회전한 동전 이미지 + 상태별 색 */
+    function makeImageSprite(r, dpr, key, kind) {
+      var pad = Math.max(2, r * 0.12);
+      var o = r + pad;
+      var size = Math.ceil(o * 2 * dpr);
+      var cv = document.createElement('canvas');
+      cv.width = cv.height = size;
+      var g = cv.getContext('2d');
+      g.scale(dpr, dpr);
+      g.beginPath(); g.arc(o, o + pad * 0.3, r + pad * 0.85, 0, Math.PI * 2);
+      g.fillStyle = COLORS[key].halo; g.fill();
+
+      var blood = kind >= BLOOD_FROM;
+      var img = state.coinImgs[blood ? 4 + (kind - BLOOD_FROM) : kind % 4];
+      var coin = document.createElement('canvas');
+      coin.width = coin.height = size;
+      var c = coin.getContext('2d');
+      c.imageSmoothingQuality = 'high';
+      var useFilter = 'filter' in c;
+      if (useFilter) c.filter = TINT[key];
+      c.translate(o * dpr, o * dpr);
+      c.rotate(kind * 2.39996);                     // 황금각: 같은 그림도 회전이 모두 다르다
+      c.drawImage(img, -r * dpr, -r * dpr, r * 2 * dpr, r * 2 * dpr);
+      if (!useFilter && TINT_FALLBACK[key]) {
+        c.setTransform(1, 0, 0, 1, 0, 0);
+        c.globalCompositeOperation = 'source-atop';
+        c.fillStyle = TINT_FALLBACK[key];
+        c.fillRect(0, 0, size, size);
+      }
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.drawImage(coin, 0, 0);
+      return { img: cv, size: size / dpr, off: o };
+    }
+
     function buildSprites() {
       var set = {};
       Object.keys(COLORS).forEach(function (key) {
         set[key] = COIN_SEEDS.map(function (seed, i) {
-          return makeSprite(state.r, state.dpr, COLORS[key], seed, i >= BLOOD_FROM);
+          return state.coinImgs
+            ? makeImageSprite(state.r, state.dpr, key, i)
+            : makeSprite(state.r, state.dpr, COLORS[key], seed, i >= BLOOD_FROM);
         });
       });
       state.sprites = set;
+    }
+
+    function loadCoinImages() {
+      var left = COIN_SRC.length;
+      var imgs = COIN_SRC.map(function (name) {
+        var img = new Image();
+        img.onload = function () {
+          if (--left) return;
+          state.coinImgs = imgs;
+          if (state.sprites) { buildSprites(); render(); }
+        };
+        img.src = 'img/s01/coin-' + name + '.png';
+        return img;
+      });
     }
 
     /* ---------- 동전이 쌓일 자리: 가운데가 높은 동전 산 ---------- */
@@ -450,7 +514,7 @@
           t.coins.push({
             tx: 0, ty: 0, x: 0, y: 0, vy: 0,
             delay: (i / t.count) * dropMs + Math.random() * dropMs * 0.1,
-            v: Math.floor(Math.random() * COIN_SEEDS.length),   // 무늬 번호 (일부는 핏자국)
+            v: Math.floor(Math.random() * COIN_KINDS),   // 무늬 번호 (일부는 핏자국)
             state: 0                                   // 0 대기, 1 낙하, 2 정지
           });
         }
@@ -738,6 +802,7 @@
     }
 
     updateAmounts(parseInt(el.amount.value, 10));
+    loadCoinImages();
 
     el.form.addEventListener('submit', function (e) {
       e.preventDefault();
