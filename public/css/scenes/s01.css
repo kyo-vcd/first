@@ -1,12 +1,23 @@
 /* =========================================================
    SCENE 01 — 1만 원의 경로 (후원금 흐름)
+   방식: 상태 단계형
    부모 영역 : .scene-01  (스크롤 구간 400vh)
    고정 화면 : .scene-01 > .sticky-screen
-   변경 대상 : .s01-title / .s01-control / .s01-tank / .s01-tank-badge / .s01-next
-   상태 값(투명도·이동·강조)은 js/scenes/s01.js 가 스크롤 진행률로 계산해 넣는다.
+   상태 클래스: js/script.js 가 스크롤 진행률에 따라 .scene-01 에
+              is-step-1 ~ is-step-4 를 누적해서 붙인다.
+              보이는 변화는 아래 transition 이 항상 같은 시간으로 재생한다.
+   순서 규칙 : 사라지는 요소가 먼저, 나타나는 요소는 transition-delay 로 뒤에.
+              되돌아갈 때는 기본 규칙의 delay 가 쓰이므로 순서가 거꾸로 된다.
    ========================================================= */
 
-.scene-01 { --scene-length: 400vh; }
+.scene-01 {
+  --scene-length: 400vh;
+  --s01-shift: 0px;          /* 컨트롤이 사라진 뒤 제목·수조가 이동할 거리 (JS) */
+  --s01-field-offset: 0px;   /* 86% 수조를 가운데로 옮길 거리 (JS) */
+  --t-fast: 0.45s;
+  --t: 0.7s;
+  --t-slow: 0.9s;
+}
 
 .scene-01 .sticky-screen {
   display: flex;
@@ -16,12 +27,17 @@
   padding: calc(var(--header-h) + 2vh) var(--gutter) clamp(48px, 8vh, 80px);
 }
 
+/* =========================================================
+   요소 기본 모양
+   ========================================================= */
+
 /* ---------- 제목: 세 문장이 같은 자리에서 교체된다 ---------- */
 
 .s01-headlines {
   display: grid;
   width: 100%;
   text-align: center;
+  transition: transform var(--t-slow) var(--ease);
 }
 
 .s01-title {
@@ -31,14 +47,11 @@
   font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.02em;
-  will-change: opacity, transform;
+  transition: opacity var(--t-fast) ease, transform var(--t) var(--ease);
 }
 
 .s01-title em,
 .s01-title strong { color: var(--red); font-weight: 900; }
-
-.s01-title--split,
-.s01-title--result { opacity: 0; }
 
 .s01-title--result strong {
   display: inline-block;
@@ -59,7 +72,7 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(12, 12, 12, 0.7);
-  will-change: opacity, transform;
+  transition: opacity var(--t-fast) ease, transform var(--t) var(--ease), visibility 0s;
 }
 
 .s01-control-label { font-size: 15px; color: var(--muted); }
@@ -106,19 +119,23 @@
   display: flex;
   align-items: stretch;
   gap: clamp(10px, 3vw, 40px);
+  transition: transform var(--t-slow) var(--ease), opacity var(--t) ease;
 }
 
 .s01-tank {
-  --hl: 0;                 /* 0~1 : 금빛 강조 정도 (JS) */
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   flex: 1 1 0;
-  will-change: opacity, transform;
+  transition: opacity var(--t-fast) ease, transform var(--t) var(--ease);
 }
 
-.s01-tank--field { flex: 3.4 1 0; transform-origin: 50% 100%; }
+.s01-tank--field {
+  flex: 3.4 1 0;
+  transform-origin: 50% 100%;
+  transition: transform var(--t-slow) var(--ease);
+}
 
 .s01-tank-body {
   position: relative;
@@ -146,7 +163,8 @@
   border-top: 0;
   border-radius: inherit;
   box-shadow: 0 40px 140px -30px rgba(242, 184, 75, 0.55);
-  opacity: var(--hl);
+  opacity: 0;
+  transition: opacity var(--t) ease;
 }
 
 .s01-coins {
@@ -161,12 +179,13 @@
   position: absolute;
   left: 50%;
   bottom: calc(72% + 10px);
-  transform: translateX(-50%);
+  transform: translate(-50%, 8px);
   font-size: clamp(18px, 2.4vw, 32px);
   font-weight: 800;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   opacity: 0;
+  transition: opacity var(--t-fast) ease, transform var(--t) var(--ease);
 }
 
 .s01-tank--field .s01-tank-rate { color: var(--red); }
@@ -187,7 +206,8 @@
   font-variant-numeric: tabular-nums;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: translate(-50%, 8px);
+  transform: translate(-50%, 10px) scale(0.9);
+  transition: opacity var(--t-fast) ease, transform var(--t) var(--ease);
 }
 
 .s01-tank-label {
@@ -215,12 +235,138 @@
   letter-spacing: -0.01em;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.9);
   opacity: 0;
+  transform: translateY(24px);
   pointer-events: none;
+  transition: opacity var(--t) ease, transform var(--t) var(--ease);
 }
 
 .s01-next em { color: var(--gold); }
 
-.s01-hint { opacity: 0; transition: opacity 0.4s; }
+.s01-hint { transition: opacity 0.4s; }
+
+.scene-01 .scene-curtain { transition: opacity var(--t-slow) ease; }
+
+/* =========================================================
+   상태별 변화
+   ========================================================= */
+
+/* ---------- step 0 : STATE 01·02 (기본 상태) ----------
+   되돌아올 때의 순서: 다른 요소가 먼저 빠진 뒤 나타나도록 delay 를 준다 */
+.s01-title--split,
+.s01-title--result { opacity: 0; transform: translateY(32px); }
+
+.s01-title--ask { transition-delay: 0.3s; }
+.s01-control { transition-delay: 0.3s; }
+.s01-tank--fund,
+.s01-tank--ops { transition-delay: 0.35s; }
+
+.is-dropping .s01-hint { opacity: 0; }
+
+/* ---------- step 1 : STATE 03 분배 확인 ---------- */
+
+/* 컨트롤과 첫 제목이 먼저 빠진다 */
+.is-step-1 .s01-control {
+  opacity: 0;
+  transform: translateY(-12px);
+  visibility: hidden;
+  transition-delay: 0s, 0s, var(--t-fast);
+}
+
+.is-step-1 .s01-title--ask {
+  opacity: 0;
+  transform: translateY(-32px);
+  transition-delay: 0s;
+}
+
+.is-step-1 .s01-hint { opacity: 0; }
+
+/* 빈자리를 제목과 수조가 나눠 채운다 */
+.is-step-1 .s01-headlines { transform: translateY(var(--s01-shift)); }
+.is-step-1 .s01-stage { transform: translateY(calc(var(--s01-shift) * -1)); }
+
+/* 그다음 둘째 제목이 아래에서 올라온다 */
+.is-step-1 .s01-title--split {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.35s;
+}
+
+/* 86% 수조 금빛 강조 (동전 색은 JS 가 같은 시간으로 바꾼다) */
+.is-step-1 .s01-tank--field .s01-tank-box::after { opacity: 1; }
+
+.is-step-1 .s01-tank-rate {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0.25s;
+}
+
+.is-step-1 .s01-tank-badge {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition-delay: 0.6s;
+}
+
+/* ---------- step 2 : STATE 04 결과 확인 ---------- */
+
+/* 둘째 제목과 옆 수조가 먼저 빠진다 */
+.is-step-2 .s01-title--split {
+  opacity: 0;
+  transform: translateY(-32px);
+  transition-delay: 0s;
+}
+
+.is-step-2 .s01-tank--fund,
+.is-step-2 .s01-tank--ops {
+  opacity: 0;
+  transform: translateY(24px);
+  transition-delay: 0s;
+}
+
+/* 그다음 86% 수조가 가운데로 */
+.is-step-2 .s01-tank--field {
+  transform: translateX(var(--s01-field-offset)) scale(1.06);
+  transition-delay: 0.3s;
+}
+
+/* 결과 제목이 올라온다 */
+.is-step-2 .s01-title--result {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.55s;
+}
+
+/* ---------- step 3 : 다음 장면 질문 ---------- */
+
+/* 수조가 아래로 물러나며 어두워진다 */
+.is-step-3 .s01-stage {
+  opacity: 0.12;
+  transform: translateY(calc(40% - var(--s01-shift)));
+}
+
+.is-step-3 .s01-tank--field .s01-tank-rate,
+.is-step-3 .s01-tank-badge { opacity: 0; transition-delay: 0s; }
+
+.is-step-3 .s01-next {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.4s;
+}
+
+/* 동전이 떨어지는 동안에는 배지를 띄우지 않는다 (쌓인 뒤 등장) */
+.is-dropping .s01-tank-badge { opacity: 0; transition-delay: 0s; }
+
+/* ---------- step 4 : 장면 끝 ---------- */
+
+.is-step-4 .scene-curtain { opacity: 1; }
+
+/* ---------- 움직임 줄이기 설정 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .scene-01 * ,
+  .scene-01 *::after {
+    transition-duration: 0.01s !important;
+    transition-delay: 0s !important;
+  }
+}
 
 @media (max-width: 640px) {
   .s01-control { border-radius: 20px; padding: 14px 16px; }

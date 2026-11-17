@@ -37,7 +37,19 @@ docs/
 ```
 
 - `.scene`의 높이(`--scene-length`, 예: `400vh`)가 스크롤 구간 길이다.
-- `js/script.js`가 섹션마다 진행률을 0~1로 계산해 장면의 `update(progress)`를 부른다. 위로 스크롤하면 진행률이 줄어 변화가 되돌아간다.
+- `js/script.js`가 섹션마다 진행률을 0~1로 계산한다. 위로 스크롤하면 진행률이 줄어 변화가 되돌아간다.
+
+### 스크롤 애니메이션 방식 (class11 21쪽 · 38쪽)
+
+장면마다 내용에 맞는 방식을 고른다.
+
+| 방식 | 등록 | 동작 | 쓰는 곳 |
+| --- | --- | --- | --- |
+| 상태 단계형 | `steps: [0.12, 0.40, …]`, `onStep(step)` | 진행률이 경계를 넘으면 `<section>`에 `data-step`과 누적 클래스 `is-step-N`이 붙고, CSS `transition`이 같은 시간으로 전환을 재생한다. 스크롤 속도와 무관하다. | 문장을 읽게 하는 장면, 단계가 넘어가는 장면 (S01·S02·S03·S07) |
+| 스크롤 연동형 | `update(progress)` | 진행률(부드럽게 보간)을 매 프레임 받아 값을 비례해서 바꾼다. | 스크롤 위치 자체가 의미인 변화 (S04 타임라인 등) |
+
+단계형 CSS 규칙: 사라지는 요소가 먼저, 나타나는 요소는 `transition-delay`로 뒤에 둔다.
+되돌아갈 때는 기본 규칙의 delay가 쓰이므로 기본 규칙에도 역순 delay를 준다. 예시는 `css/scenes/s01.css`.
 - 장면 안의 요소만 다루고, 다른 장면에는 영향을 주지 않는다.
 
 ### 새 장면 추가 (예: SCENE 02)
@@ -45,7 +57,7 @@ docs/
 1. `docs/scenes/S02.md`에 적용 범위, 상태 변화(시작·종료 상태, 진행률 구간), 유지 조건을 적는다.
 2. `index.html`의 `<!-- 다음 장면 자리 -->`에 `<section class="scene scene-02" data-scene="s02" …>`을 추가한다.
 3. `css/scenes/s02.css`, `js/scenes/s02.js`를 만들고 `index.html`의 `<link>`, `<script>` 목록에 한 줄씩 추가한다.
-4. `js/scenes/s02.js`에서 `Story.register('s02', function (root) { return { update: function (p) { … } }; })`로 등록한다.
+4. `js/scenes/s02.js`에서 `Story.register('s02', function (root) { return { steps: […], onStep: … }; })`처럼 등록한다 (연동형이면 `update`).
 5. 푸터의 "다음 장면" 문구를 갱신한다.
 
 ## 배포

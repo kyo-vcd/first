@@ -6,18 +6,31 @@
        <div class="sticky-screen"> … </div>      ← 고정 화면
      </section>
 
-   장면 스크립트(js/scenes/sXX.js)는 아래처럼 등록한다.
+   스크롤 애니메이션은 두 가지 방식을 지원한다 (class11 38쪽).
+
+   1) 상태 단계형 (스크롤 트리거 + 시간 고정 전환)
+      스크롤 진행률은 "지금 몇 번째 상태인가"만 정한다.
+      상태가 바뀌면 <section>에 data-step="2" 와 누적 클래스 is-step-1, is-step-2 가 붙고
+      실제 전환은 CSS transition 이 항상 같은 시간으로 재생한다.
+      → 스크롤 속도와 상관없이 글자·이미지가 같은 속도로 바뀐다.
+      문장을 읽게 하는 장면, 단계가 넘어가는 장면에 쓴다.
+
+   2) 스크롤 연동형
+      update(progress) 로 진행률 0~1 을 매 프레임 받아 값을 비례해서 바꾼다.
+      스크롤 위치 자체가 의미인 변화(타임라인, 수치 증가)에 쓴다.
+      진행률은 실제 스크롤 값을 부드럽게 따라가도록 보간해서 넘겨준다.
+
+   장면 스크립트(js/scenes/sXX.js) 등록 예
      Story.register('s01', function (root) {
-       // root = 해당 <section> 요소. 이 안의 요소만 다룬다.
        return {
-         update: function (progress) { … },   // 0~1 스크롤 진행률
-         resize: function () { … }            // (선택) 화면 크기 변경 시
+         steps: [0.12, 0.40, 0.68],            // (단계형) 상태가 넘어가는 진행률
+         onStep: function (step, prev) { … },  // (단계형) 상태가 바뀔 때 1번 호출
+         update: function (progress) { … },    // (연동형) 매 프레임 호출
+         resize: function () { … }             // (선택) 화면 크기 변경 시
        };
      });
 
-   진행률은 섹션 윗변이 화면 위에 닿을 때 0,
-   섹션 아랫변이 화면 아래에 닿을 때 1 이다.
-   위로 스크롤하면 진행률이 줄어들어 모든 변화가 거꾸로 돌아간다.
+   위로 스크롤하면 진행률이 줄어 이전 상태로 되돌아간다.
    ========================================================= */
 
 (function (window, document) {
@@ -51,6 +64,25 @@
     return util.clamp(-rect.top / total, 0, 1);
   }
 
+  /* 진행률이 지나간 경계 수 = 현재 상태 번호 (0부터) */
+  function stepOf(p, steps) {
+    var n = 0;
+    for (var i = 0; i < steps.length; i++) if (p >= steps[i]) n = i + 1;
+    return n;
+  }
+
+  /* ---------- 단계형: 상태 클래스 적용 ---------- */
+  function applyStep(s, step) {
+    if (step === s.step) return;
+    var prev = s.step;
+    s.step = step;
+    s.el.dataset.step = String(step);
+    for (var i = 1; i <= s.api.steps.length; i++) {
+      s.el.classList.toggle('is-step-' + i, i <= step);
+    }
+    if (s.api.onStep) s.api.onStep(step, prev);
+  }
+
   /* ---------- 공통 헤더 ---------- */
   var header = {
     no: null, title: null, steps: [],
@@ -71,17 +103,14 @@
       if (this.title) this.title.textContent = active.el.dataset.title || '';
       var index = parseInt(active.el.dataset.no, 10) - 1;
       this.steps.forEach(function (step, i) {
-        var fill = i < index ? 1 : i === index ? active.progress : 0;
+        var fill = i < index ? 1 : i === index ? active.target : 0;
         step.style.setProperty('--fill', fill.toFixed(3));
       });
     }
   };
 
-  /* ---------- 스크롤·리사이즈 처리 ----------
-     스크롤 위치로 구한 진행률(target)을 화면에 바로 쓰지 않고,
-     화면용 진행률(progress)이 매 프레임 target 을 조금씩 따라가게 한다.
-     휠 한 칸에 진행률이 몇 %씩 건너뛰어도 변화가 끊기지 않고 이어진다. */
-  var SMOOTH = 0.14;        // 1프레임(60fps)에 남은 거리의 14%를 따라간다
+  /* ---------- 스크롤·리사이즈 처리 ---------- */
+  var SMOOTH = 0.14;        // 연동형: 1프레임(60fps)에 남은 거리의 14%를 따라간다
   var lastTime = 0;
 
   function tick(now) {
@@ -97,13 +126,21 @@
       // 화면 근처에 있는 장면만 갱신한다
       if (rect.bottom < -vh || rect.top > vh * 2) return;
       s.target = progressOf(s.el);
-      var p = s.dirty ? s.target : s.progress + (s.target - s.progress) * k;
-      if (Math.abs(s.target - p) < 0.0005) p = s.target;
-      else moving = true;
-      if (p === s.progress && !s.dirty) return;
-      s.progress = p;
+
+      // 단계형: 실제 스크롤 위치로 바로 상태를 정한다 (전환 속도는 CSS 가 정함)
+      if (s.api.steps) applyStep(s, stepOf(s.target, s.api.steps));
+
+      // 연동형: 보간한 진행률을 넘긴다
+      if (s.api.update) {
+        var p = s.dirty ? s.target : s.progress + (s.target - s.progress) * k;
+        if (Math.abs(s.target - p) < 0.0005) p = s.target;
+        else moving = true;
+        if (p !== s.progress || s.dirty) {
+          s.progress = p;
+          s.api.update(p);
+        }
+      }
       s.dirty = false;
-      s.api.update(p);
     });
     header.update();
 
@@ -133,8 +170,9 @@
       var factory = factories[el.dataset.scene];
       if (!factory) return;
       var api = factory(el) || {};
-      if (!api.update) api.update = function () {};
-      scenes.push({ el: el, api: api, progress: -1, dirty: true });
+      var s = { el: el, api: api, progress: -1, target: 0, step: -1, dirty: true };
+      scenes.push(s);
+      if (api.steps) applyStep(s, 0);
     });
     window.addEventListener('scroll', requestTick, { passive: true });
     window.addEventListener('resize', onResize);

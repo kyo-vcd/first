@@ -1,8 +1,9 @@
 /* =========================================================
    SCENE 01 — 1만 원의 경로 (후원금 흐름)
+   방식: 상태 단계형 (스크롤 트리거 + 시간 고정 전환)
    ---------------------------------------------------------
    적용 범위
-     부모 영역 : .scene-01        (스크롤 구간, 진행률 0~1 계산 기준)
+     부모 영역 : .scene-01        (스크롤 구간, 진행률로 상태 번호를 정함)
      고정 화면 : .sticky-screen   (구간 동안 화면에 고정)
    변경 대상
      .s01-title--ask / --split / --result  제목 3개 (같은 자리에서 교체)
@@ -12,16 +13,15 @@
      .s01-tank-badge                        86% 동전 산 위 금액 배지
      .s01-next                              다음 장면으로 잇는 질문
 
-   상태 변화
-     STATE 01 후원 금액 설정   (클릭)      슬라이더로 금액 선택, 빈 수조 3개
-     STATE 02 코인 드롭·누적   (클릭)      후원하기 → 동전이 떨어져 86% 수조에 압도적으로 쌓임
-     STATE 03 분배 확인       0.22~0.48   첫 제목이 빠진 뒤 둘째 제목 등장, 86% 금빛 강조, 10%·4% 어둡게, 배지
-     STATE 04 결과 확인       0.52~0.70   옆 수조가 먼저 사라지고, 86% 수조가 가운데로, 결과 제목 등장
-     다음 장면 연결           0.78~0.88   수조가 아래로 빠지고 "8,600원은 어떤 물품이 될까요?" 질문
-     장면 끝                  0.93~1.00   화면이 어두워진다
-   버튼을 누르지 않고 스크롤하면 0.08 지점에서 기본 금액으로 빠르게 자동 후원한다.
-   화면에 쓰는 진행률은 js/script.js 가 부드럽게 보간해 넘겨준다.
-   위로 스크롤하면 STATE 03·04 변화가 그대로 거꾸로 돌아간다.
+   상태 (진행률이 경계를 넘으면 .scene-01 에 is-step-N 클래스가 붙고,
+         보이는 변화는 css/scenes/s01.css 의 transition 이 같은 속도로 재생한다)
+     step 0  ~0.12   STATE 01·02  금액 선택, 후원하기 → 동전 낙하 (클릭)
+     step 1  0.12~   STATE 03     분배 확인: 86% 금빛 강조, 10%·4% 어둡게, 제목 교체, 배지
+     step 2  0.40~   STATE 04     결과 확인: 옆 수조가 사라지고 86% 수조가 가운데로, 결과 제목
+     step 3  0.68~   다음 장면    수조가 물러나고 "8,600원은 어떤 물품이 될까요?" 질문
+     step 4  0.90~   장면 끝      화면이 어두워진다
+   버튼을 누르지 않고 step 1 에 들어오면 기본 금액으로 동전을 빠르게 떨어뜨린다.
+   위로 스크롤하면 이전 상태 클래스로 돌아가 변화가 거꾸로 재생된다.
    ========================================================= */
 
 (function () {
@@ -29,26 +29,12 @@
 
   var u = Story.util;
 
-  /* 스크롤 진행률 구간
-     사라지는 요소와 나타나는 요소가 같은 순간에 겹치지 않도록 구간을 순서대로 나눈다. */
-  var STEP = {
-    autoDonate: 0.08,              // 버튼을 안 눌렀으면 여기서 빠르게 자동 후원
-    control: [0.10, 0.20],         // 컨트롤이 사라지고, 제목·수조가 빈자리를 채운다
-    askOut: [0.22, 0.30],          // STATE 03: 첫 제목이 위로 빠진다
-    highlight: [0.26, 0.40],       //           86% 금빛 강조, 10%·4% 어둡게
-    splitIn: [0.32, 0.40],         //           두 번째 제목이 아래에서 올라온다
-    badge: [0.40, 0.48],           //           금액 배지
-    splitOut: [0.52, 0.58],        // STATE 04: 두 번째 제목이 빠진다
-    sideOut: [0.52, 0.58],         //           10%·4% 수조가 먼저 사라진다
-    fieldMove: [0.57, 0.70],       //           그다음 86% 수조가 가운데로
-    resultIn: [0.62, 0.70],        //           결과 제목이 올라온다
-    next: [0.78, 0.88],            // 다음 장면 질문: 수조는 아래로 빠지고 질문 등장
-    curtain: [0.93, 1.00]          // 장면 끝: 화면이 어두워진다
-  };
+  var STEPS = [0.12, 0.40, 0.68, 0.90];
 
-  var DROP_MS = 1600;   // 동전이 모두 떨어지기까지 걸리는 시간
-  var AUTO_DROP_MS = 700; // 스크롤로 자동 후원할 때는 더 빠르게
-  var GRAVITY = 2600;   // px/s²
+  var DROP_MS = 1600;     // 버튼으로 후원할 때 동전이 모두 떨어지는 시간
+  var AUTO_DROP_MS = 700; // 스크롤로 자동 후원할 때
+  var MIX_MS = 700;       // 동전 색이 금빛/회색으로 바뀌는 시간 (CSS 전환과 맞춘다)
+  var GRAVITY = 2600;     // px/s²
 
   var COLORS = {
     gold: { face: '#F2B84B', edge: '#B98424', ring: '#D49B35', shine: 'rgba(255,255,255,0.35)' },
@@ -67,11 +53,8 @@
       amountValue: $('.s01-amount-value'),
       donate: $('.s01-donate'),
       stage: $('.s01-stage'),
-      badge: $('.s01-tank-badge'),
-      next: $('.s01-next'),
-      hint: $('.s01-hint'),
       headlines: $('.s01-headlines'),
-      curtain: $('.scene-curtain'),
+      badge: $('.s01-tank-badge'),
       live: $('.s01-live'),
       total: $('.s01-total'),
       fieldAmounts: $$('.s01-field-amount')
@@ -83,14 +66,11 @@
       return {
         node: node,
         isField: isField,
-        rate: parseFloat(node.dataset.rate),
         body: node.querySelector('.s01-tank-body'),
         box: node.querySelector('.s01-tank-box'),
-        rateLabel: node.querySelector('.s01-tank-rate'),
         canvas: canvas,
         ctx: canvas.getContext('2d'),
-        target: isField ? 'bright' : 'dim',  // 강조 단계에서 바뀌는 색
-        mix: 0,
+        target: isField ? 'bright' : 'dim',  // 강조 상태에서 바뀌는 색
         count: 0,
         coins: [],
         w: 0, h: 0, boxH: 0
@@ -99,6 +79,7 @@
     var field = tanks[0];
 
     var state = {
+      step: 0,
       donated: false,
       dropping: false,
       amount: 10000,
@@ -106,10 +87,7 @@
       r: 10,
       dpr: 1,
       sprites: null,
-      fieldOffset: 0,
-      controlSpace: 0,
-      progress: 0,
-      activeTitle: 0,
+      mix: 0, mixFrom: 0, mixTo: 0, mixStart: 0,   // 동전 강조 정도 0~1 (시간 기반 전환)
       raf: 0,
       last: 0,
       dropStart: 0
@@ -181,10 +159,11 @@
         t.canvas.width = Math.round(t.w * state.dpr);
         t.canvas.height = Math.round(t.h * state.dpr);
       });
-      // STATE 04 에서 86% 수조를 화면 가운데로 옮길 거리 (transform 영향 없는 offset 값 사용)
-      state.fieldOffset = el.stage.clientWidth / 2 - (field.node.offsetLeft + field.node.offsetWidth / 2);
-      // 컨트롤이 사라진 뒤 제목과 수조가 나눠서 채울 공간 (컨트롤 높이 + 위아래 간격)
-      state.controlSpace = el.stage.offsetTop - (el.headlines.offsetTop + el.headlines.offsetHeight);
+      // CSS 전환에서 쓰는 거리 (transform 영향을 받지 않는 offset 값으로 잰다)
+      var fieldOffset = el.stage.clientWidth / 2 - (field.node.offsetLeft + field.node.offsetWidth / 2);
+      var controlSpace = el.stage.offsetTop - (el.headlines.offsetTop + el.headlines.offsetHeight);
+      root.style.setProperty('--s01-field-offset', fieldOffset.toFixed(1) + 'px');
+      root.style.setProperty('--s01-shift', (controlSpace / 2).toFixed(1) + 'px');
     }
 
     /* 동전 크기는 86% 수조가 목표 높이(fill)만큼 차도록 정한다 */
@@ -217,8 +196,8 @@
       el.badge.style.bottom = (field.h - top + 14) + 'px';
     }
 
-    /* ---------- STATE 01 → 02 : 후원하기 ---------- */
-    /* mode: 'click' 버튼, 'auto' 스크롤 자동 후원, 'instant' 애니메이션 없이 */
+    /* ---------- STATE 01 → 02 : 후원하기 ----------
+       mode: 'click' 버튼, 'auto' 스크롤 자동 후원, 'instant' 애니메이션 없이 */
     function donate(mode) {
       var amount = parseInt(el.amount.value, 10);
       var k = amount / 10000;                       // 1 ~ 10
@@ -266,6 +245,7 @@
         render();
       } else {
         state.dropping = true;
+        root.classList.add('is-dropping');
         el.donate.disabled = true;
         run();
       }
@@ -281,13 +261,13 @@
 
     function settle() {
       state.dropping = false;
+      root.classList.remove('is-dropping');
       el.donate.disabled = false;
       el.donate.textContent = '다시 후원하기';
-      applyHint();
     }
 
-    /* ---------- 낙하 애니메이션 ---------- */
-    function step(dt, elapsed) {
+    /* ---------- 애니메이션 루프: 동전 낙하 + 동전 색 전환 ---------- */
+    function stepCoins(dt, elapsed) {
       var moving = false;
       tanks.forEach(function (t) {
         t.coins.forEach(function (c) {
@@ -313,16 +293,25 @@
       return moving;
     }
 
+    function stepMix(now) {
+      if (state.mix === state.mixTo) return false;
+      var t = u.reducedMotion ? 1 : u.clamp((now - state.mixStart) / MIX_MS, 0, 1);
+      state.mix = u.lerp(state.mixFrom, state.mixTo, u.easeInOut(t));
+      if (t >= 1) state.mix = state.mixTo;
+      return state.mix !== state.mixTo;
+    }
+
     function loop(now) {
       var dt = Math.min((now - state.last) / 1000, 1 / 30);
       state.last = now;
-      var moving = step(dt, now - state.dropStart);
+      var dropping = state.dropping && stepCoins(dt, now - state.dropStart);
+      var mixing = stepMix(now);
       render();
-      if (moving) {
+      if (state.dropping && !dropping) settle();
+      if (dropping || mixing) {
         state.raf = window.requestAnimationFrame(loop);
       } else {
         state.raf = 0;
-        settle();
       }
     }
 
@@ -347,8 +336,8 @@
           if (c.state === 0) return;
           ctx.globalAlpha = 1;
           ctx.drawImage(s.gold.img, c.x - off, c.y - off, size, size);
-          if (t.mix > 0.01) {
-            ctx.globalAlpha = t.mix;
+          if (state.mix > 0.01) {
+            ctx.globalAlpha = state.mix;
             ctx.drawImage(over.img, c.x - off, c.y - off, size, size);
           }
         });
@@ -356,85 +345,26 @@
       });
     }
 
-    /* ---------- 스크롤 상태 (STATE 03 · 04) ---------- */
-    function fade(node, opacity, y) {
-      node.style.opacity = opacity.toFixed(3);
-      node.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
-    }
+    /* ---------- 상태가 바뀔 때 (CSS 로 할 수 없는 부분만 처리) ---------- */
+    function onStep(step) {
+      state.step = step;
 
-    function applyHint() {
-      el.hint.style.opacity = state.progress < 0.08 && !state.dropping ? 1 : 0;
-    }
+      // 버튼을 누르지 않고 분배 확인 상태로 오면 자동 후원
+      if (step >= 1 && !state.donated) donate('auto');
 
-    function seg(p, key, ease) {
-      var t = u.range(p, STEP[key][0], STEP[key][1]);
-      return (ease || u.easeInOut)(t);
-    }
-
-    function update(p) {
-      state.progress = p;
-      if (!state.donated && p > STEP.autoDonate) donate('auto');
-
-      var ctrl = seg(p, 'control');
-      var askOut = seg(p, 'askOut');
-      var hl = seg(p, 'highlight');
-      var splitIn = seg(p, 'splitIn', u.easeOut);
-      var bd = seg(p, 'badge', u.easeOut);
-      var splitOut = seg(p, 'splitOut');
-      var sideOut = seg(p, 'sideOut');
-      var move = seg(p, 'fieldMove');
-      var resultIn = seg(p, 'resultIn', u.easeOut);
-      var nx = seg(p, 'next');
-      var curtain = seg(p, 'curtain');
-
-      // 제목 교체: 앞 제목이 위로 빠진 뒤에 다음 제목이 아래에서 올라온다
-      fade(el.titles[0], 1 - askOut, -32 * askOut);
-      fade(el.titles[1], splitIn * (1 - splitOut), 32 * (1 - splitIn) - 32 * splitOut);
-      fade(el.titles[2], resultIn, 32 * (1 - resultIn));
-      var active = resultIn > 0.5 ? 2 : splitIn > 0.5 && splitOut < 0.5 ? 1 : askOut < 0.5 ? 0 : state.activeTitle;
-      if (active !== state.activeTitle) {
-        state.activeTitle = active;
-        el.titles.forEach(function (t, i) { t.setAttribute('aria-hidden', i === active ? 'false' : 'true'); });
+      // 동전 색: STATE 03 부터 86% 금빛, 10%·4% 회색
+      var mixTo = step >= 1 ? 1 : 0;
+      if (mixTo !== state.mixTo) {
+        state.mixFrom = state.mix;
+        state.mixTo = mixTo;
+        state.mixStart = performance.now();
+        run();
       }
 
-      // 후원 컨트롤이 사라지면 제목은 아래로, 수조는 위로 와서 빈자리를 나눠 채운다
-      var half = state.controlSpace / 2 * ctrl;
-      fade(el.form, 1 - ctrl, -12 * ctrl);
-      el.form.style.visibility = ctrl >= 1 ? 'hidden' : '';
-      el.headlines.style.transform = 'translateY(' + half.toFixed(1) + 'px)';
-
-      // 수조 강조
-      var mixChanged = false;
-      tanks.forEach(function (t) {
-        if (Math.abs(t.mix - hl) > 0.001) mixChanged = true;
-        t.mix = hl;
-        if (t.isField) {
-          t.node.style.setProperty('--hl', hl.toFixed(3));
-          t.rateLabel.style.opacity = (hl * (1 - nx)).toFixed(3);
-          t.node.style.transform =
-            'translateX(' + (state.fieldOffset * move).toFixed(1) + 'px) scale(' + (1 + 0.06 * move).toFixed(3) + ')';
-        } else {
-          // 옆 수조는 86% 수조가 움직이기 전에 먼저 사라진다
-          t.rateLabel.style.opacity = (hl * (1 - sideOut)).toFixed(3);
-          t.node.style.opacity = (1 - sideOut).toFixed(3);
-          t.node.style.transform = 'translateY(' + (24 * sideOut).toFixed(1) + 'px)';
-        }
-      });
-      if (mixChanged && !state.raf) render();
-
-      // 금액 배지
-      el.badge.style.opacity = (bd * (1 - nx)).toFixed(3);
-      el.badge.style.transform = 'translate(-50%, ' + (8 * (1 - bd)).toFixed(1) + 'px)';
-
-      // 다음 장면 질문: 수조가 아래로 빠지며 어두워진 뒤 질문이 가운데 떠오른다
-      el.stage.style.transform = 'translateY(' + (-half + el.stage.clientHeight * 0.4 * nx).toFixed(1) + 'px)';
-      el.stage.style.opacity = (1 - 0.88 * nx).toFixed(3);
-      fade(el.next, u.range(nx, 0.35, 1), 24 * (1 - nx));
-
-      // 장면 끝: 화면 전체가 어두워진다
-      el.curtain.style.opacity = curtain.toFixed(3);
-
-      applyHint();
+      // 화면에서 숨은 제목과 컨트롤은 보조기기와 키보드 탐색에서도 숨긴다
+      var active = step >= 2 ? 2 : step === 1 ? 1 : 0;
+      el.titles.forEach(function (t, i) { t.setAttribute('aria-hidden', i === active ? 'false' : 'true'); });
+      el.form.inert = step >= 1;
     }
 
     function resize() {
@@ -456,8 +386,6 @@
       if (!state.dropping) donate('click');
     });
 
-    el.titles.forEach(function (t, i) { t.setAttribute('aria-hidden', i === 0 ? 'false' : 'true'); });
-
-    return { update: update, resize: resize };
+    return { steps: STEPS, onStep: onStep, resize: resize };
   });
 })();
