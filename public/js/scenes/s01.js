@@ -166,12 +166,21 @@
       root.style.setProperty('--s01-shift', (controlSpace / 2).toFixed(1) + 'px');
     }
 
-    /* 동전 크기는 86% 수조가 목표 높이(fill)만큼 차도록 정한다 */
+    /* 동전 크기는 86% 수조가 목표 높이(fill)만큼 차도록 정한다.
+       화면이 낮아 동전 산 위에 배지 자리가 없으면 동전을 조금씩 줄여 자리를 만든다. */
     function computeRadius() {
       if (!field.count) return;
       var area = field.w * field.boxH * state.fill;
-      var r = Math.sqrt(area / (field.count * 3.46));
-      state.r = u.clamp(r, 4, 18);
+      var r = u.clamp(Math.sqrt(area / (field.count * 3.46)), 4, 18);
+      var room = field.boxH - el.badge.offsetHeight - 24;   // 동전 산이 차지할 수 있는 높이
+      for (var i = 0; i < 12 && r > 4; i++) {
+        var slots = pileSlots(field.w, field.h, r, field.count, 5);
+        var top = field.h;
+        slots.forEach(function (s) { top = Math.min(top, s.y - r); });
+        if (field.h - top <= room) break;
+        r = Math.max(4, r * 0.94);
+      }
+      state.r = r;
       buildSprites();
     }
 
@@ -193,7 +202,10 @@
       if (!field.coins.length) return;
       var top = field.h;
       field.coins.forEach(function (c) { top = Math.min(top, c.ty - state.r); });
-      el.badge.style.bottom = (field.h - top + 14) + 'px';
+      // 동전 산 바로 위에 두되, 수조 틀 위로 넘어가 비율(86%)과 겹치지 않게 제한한다
+      var bottom = field.h - top + 14;
+      var max = field.boxH - el.badge.offsetHeight - 10;
+      el.badge.style.bottom = Math.max(0, Math.min(bottom, max)) + 'px';
     }
 
     /* ---------- STATE 01 → 02 : 후원하기 ----------
@@ -206,7 +218,7 @@
       counts.push(Math.max(1, n - counts[0] - counts[1]));
 
       state.amount = amount;
-      state.fill = 0.5 + 0.38 * (k - 1) / 9;         // 금액이 클수록 높이 쌓인다
+      state.fill = 0.45 + 0.2 * (k - 1) / 9;         // 금액이 클수록 높이 쌓인다 (가운데 봉우리가 수조를 넘지 않게)
       state.donated = true;
       state.dropStart = performance.now();
 
