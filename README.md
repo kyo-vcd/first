@@ -15,6 +15,7 @@ public/                  # 배포되는 파일 (Pages 출력 디렉터리)
   css/scenes/s01.css       # 장면별 스타일
   js/script.js             # 공통: 스크롤 진행률(0~1) 계산, 장면 등록(Story.register)
   js/scenes/s01.js         # 장면별 상태 변화
+  fonts/                   # Noto Sans KR (페이지에 쓰인 글자만, tools/build_fonts.py로 생성)
   img/                     # 이미지 (제출 형식에 맞춰 img): 공통 bg.jpg · floor.png, 장면별 img/s01/
 docs/
   assignment.md            # 과제 요건 · 제출 방법 · 강의 내용 대응
@@ -23,10 +24,12 @@ docs/
   scenes/S01.md            # 장면별 구현 명세 (적용 범위·상태 변화·유지 조건)
 tools/
   make_submission.py       # 과제 제출 폴더(학번_이름) 만들기 → dist/
+  build_fonts.py           # 글꼴 다시 만들기 (문구를 바꾸거나 장면을 추가한 뒤 실행)
 ```
 
 빌드 단계는 없다. `public/` 안의 파일이 그대로 공개된다. 저장소 루트를 공개하지 않도록 사이트 파일은 반드시 `public/`에 둔다.
 외부 라이브러리 없이 HTML·CSS·JavaScript만 쓴다.
+글꼴은 `public/fonts/`에 포함되어 있어 인터넷 없이도 같은 글꼴로 보인다. 새 글자가 생기면 `pip install fonttools brotli` 후 `python3 tools/build_fonts.py`를 실행한다.
 
 ### 장면 구조
 

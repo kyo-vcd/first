@@ -6,6 +6,13 @@
    장면 고유의 스타일은 css/scenes/sXX.css 에 둔다.
    ========================================================= */
 
+/* 글꼴: Noto Sans KR (public/fonts, 페이지에 쓰인 글자만 포함 → tools/build_fonts.py) */
+@font-face { font-family: "Noto Sans KR"; font-weight: 400; font-style: normal; font-display: swap; src: url("../fonts/noto-sans-kr-400.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans KR"; font-weight: 500; font-style: normal; font-display: swap; src: url("../fonts/noto-sans-kr-500.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans KR"; font-weight: 700; font-style: normal; font-display: swap; src: url("../fonts/noto-sans-kr-700.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans KR"; font-weight: 800; font-style: normal; font-display: swap; src: url("../fonts/noto-sans-kr-800.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans KR"; font-weight: 900; font-style: normal; font-display: swap; src: url("../fonts/noto-sans-kr-900.woff2") format("woff2"); }
+
 :root {
   /* 시안 색: 탄 종이 같은 검은 배경, 크림색 글자, 선명한 피 빨강, 낡은 금 */
   --bg: #16110f;
