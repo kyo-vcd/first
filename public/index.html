@@ -3,915 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kyo First</title>
-  <meta name="theme-color" content="#05040a">
-  <style>
-    :root {
-      --bg: #05040a;
-      --fg: #f6f4ff;
-      --muted: #8d89a6;
-      --a: #7c5cff;
-      --b: #ff3cc7;
-      --c: #22e3ff;
-      --d: #ffd23f;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { overflow-x: clip; }
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
-      overflow-x: clip;
-    }
+  <title>1만 원의 경로 — 전장의 병원은 안전한가</title>
+  <meta name="description" content="후원금 1만 원이 전장의 병원에 닿기까지, 그리고 그 병원이 공격받을 때 일어나는 일을 스크롤로 따라가는 인터랙티브 스토리.">
+  <meta name="theme-color" content="#121212">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
 
-    /* ---------- Background layers ---------- */
-    #stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
-    .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-    .aurora span {
-      position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
-      filter: blur(100px); opacity: .32; mix-blend-mode: screen;
-      animation: drift 16s ease-in-out infinite alternate, hue 12s linear infinite;
-    }
-    .aurora span:nth-child(1) { background: var(--a); top: -20vmax; left: -10vmax; }
-    .aurora span:nth-child(2) { background: var(--b); bottom: -25vmax; right: -15vmax; animation-duration: 20s, 12s; }
-    .aurora span:nth-child(3) { background: var(--c); top: 30%; left: 40%; width: 40vmax; height: 40vmax; animation-duration: 24s, 12s; opacity: .22; }
-    @keyframes drift {
-      0%   { transform: translate(0, 0) scale(1); }
-      50%  { transform: translate(10vw, 8vh) scale(1.2); }
-      100% { transform: translate(-8vw, -6vh) scale(.9); }
-    }
-    @keyframes hue { to { filter: blur(100px) hue-rotate(360deg); } }
-    .grain {
-      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .08;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-    #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 90; pointer-events: none; }
-
-    /* ---------- Hero ---------- */
-    .hero { position: relative; z-index: 2; height: 100svh; }
-    #particles { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; cursor: crosshair; }
-    .hero-top {
-      position: absolute; top: 28px; left: 0; right: 0; text-align: center; pointer-events: none;
-      font-size: 12px; letter-spacing: .5em; text-transform: uppercase; color: var(--muted);
-    }
-    .hint {
-      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); pointer-events: none;
-      color: var(--muted); font-size: 12px; letter-spacing: .3em; text-transform: uppercase; white-space: nowrap;
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes pulse { 50% { opacity: .3; } }
-
-    /* ---------- Glitch title ---------- */
-    .glitch-wrap { position: relative; z-index: 2; text-align: center; padding: 18vh 16px 10vh; }
-    .glitch {
-      position: relative; display: inline-block;
-      font-size: clamp(56px, 14vw, 200px); font-weight: 900; letter-spacing: -.05em; line-height: .9;
-      background: linear-gradient(90deg, var(--a), var(--b), var(--d), var(--c), var(--a));
-      background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-      animation: flow 6s linear infinite;
-    }
-    .glitch::before, .glitch::after {
-      content: attr(data-text); position: absolute; inset: 0; background: inherit;
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-    }
-    .glitch::before { text-shadow: none; animation: glitchA 2.8s infinite steps(1); }
-    .glitch::after  { animation: glitchB 3.4s infinite steps(1); }
-    @keyframes flow { to { background-position: 300% 0; } }
-    @keyframes glitchA {
-      0%, 86%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
-      87% { clip-path: inset(10% 0 60% 0); transform: translate(-8px, 2px); filter: hue-rotate(90deg); }
-      90% { clip-path: inset(55% 0 20% 0); transform: translate(10px, -3px); filter: hue-rotate(180deg); }
-      93% { clip-path: inset(30% 0 45% 0); transform: translate(-5px, 0); }
-    }
-    @keyframes glitchB {
-      0%, 80%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
-      81% { clip-path: inset(70% 0 5% 0); transform: translate(9px, 1px); filter: hue-rotate(-120deg); }
-      84% { clip-path: inset(5% 0 75% 0); transform: translate(-12px, -2px); }
-    }
-    .sub { margin-top: 24px; color: var(--muted); font-size: clamp(14px, 2vw, 18px); letter-spacing: .1em; }
-
-    /* ---------- Marquee ---------- */
-    .marquee {
-      position: relative; z-index: 2; overflow: hidden; padding: 24px 0;
-      transform: rotate(-4deg) scale(1.08);
-      background: linear-gradient(90deg, var(--a), var(--b), var(--d), var(--c), var(--a));
-      background-size: 300% 100%; animation: flow 10s linear infinite;
-      box-shadow: 0 0 80px rgba(255,60,199,.45);
-    }
-    .marquee.reverse {
-      transform: rotate(3deg) scale(1.08); margin-top: -16px;
-      background: #0b0912; box-shadow: 0 0 60px rgba(34,227,255,.25); border-block: 1px solid rgba(255,255,255,.12);
-    }
-    .track { display: flex; width: max-content; animation: scroll 18s linear infinite; }
-    .marquee.reverse .track { animation-direction: reverse; animation-duration: 24s; }
-    .track span {
-      font-size: clamp(40px, 9vw, 120px); font-weight: 900; letter-spacing: -.03em;
-      padding-right: .45em; white-space: nowrap; line-height: 1; color: #05040a;
-    }
-    .marquee.reverse .track span:nth-child(odd) { color: transparent; -webkit-text-stroke: 1.5px var(--c); }
-    .marquee.reverse .track span:nth-child(even) { color: var(--fg); text-shadow: 0 0 24px var(--b); }
-    @keyframes scroll { to { transform: translateX(-50%); } }
-
-    /* ---------- 3D word ring ---------- */
-    .ring-wrap { position: relative; z-index: 2; height: 70vh; display: grid; place-items: center; perspective: 1200px; overflow: hidden; }
-    .ring { position: relative; width: 1px; height: 1px; transform-style: preserve-3d; animation: spin 20s linear infinite; }
-    .ring span {
-      position: absolute; left: 50%; top: 50%; white-space: nowrap;
-      font-size: clamp(22px, 4vw, 44px); font-weight: 900; letter-spacing: .05em;
-      transform: translate(-50%, -50%) rotateY(calc(var(--i) * 30deg)) translateZ(var(--r));
-      background: linear-gradient(90deg, var(--c), var(--b));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      backface-visibility: visible;
-    }
-    .ring-wrap { --r: min(40vw, 380px); }
-    @keyframes spin { from { transform: rotateX(-14deg) rotateY(0); } to { transform: rotateX(-14deg) rotateY(360deg); } }
-    .ring-core {
-      position: absolute; width: 140px; height: 140px; border-radius: 50%;
-      background: radial-gradient(circle, #fff, var(--b) 30%, var(--a) 60%, transparent 70%);
-      filter: blur(6px); animation: beat 1.6s ease-in-out infinite;
-    }
-    @keyframes beat { 50% { transform: scale(1.35); opacity: .7; } }
-
-    /* ---------- Scroll reveal words ---------- */
-    .statement {
-      position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; padding: 18vh 16px;
-      font-size: clamp(32px, 6vw, 76px); font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
-    }
-    .statement .w { display: inline-block; opacity: .1; transform: translateY(.4em) scale(.9); filter: blur(6px); transition: opacity .6s, transform .6s, filter .6s; }
-    .statement .w.on { opacity: 1; transform: none; filter: none; }
-    .statement .w.hl {
-      background: linear-gradient(90deg, var(--b), var(--d), var(--c)); background-size: 200% 100%;
-      -webkit-background-clip: text; background-clip: text; color: transparent; animation: flow 4s linear infinite;
-    }
-
-    /* ---------- Stats ---------- */
-    .stats {
-      position: relative; z-index: 2; display: grid; gap: 16px; max-width: 1100px; margin: 0 auto 12vh; padding: 0 16px;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); text-align: center;
-    }
-    .stat b {
-      display: block; font-size: clamp(48px, 7vw, 88px); font-weight: 900; font-variant-numeric: tabular-nums;
-      background: linear-gradient(180deg, #fff, var(--a)); -webkit-background-clip: text; background-clip: text; color: transparent;
-    }
-    .stat span { color: var(--muted); font-size: 13px; letter-spacing: .25em; text-transform: uppercase; }
-
-    /* ---------- Tilt cards with spinning border ---------- */
-    @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-    .cards {
-      position: relative; z-index: 2; display: grid; gap: 24px; max-width: 1100px;
-      margin: 0 auto; padding: 0 16px 18vh; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      perspective: 1000px;
-    }
-    .card {
-      position: relative; padding: 32px; min-height: 260px; border-radius: 24px;
-      background: #0d0b16; transform-style: preserve-3d; transition: transform .15s ease-out;
-      isolation: isolate;
-    }
-    .card::before {
-      content: ""; position: absolute; inset: -2px; border-radius: 26px; z-index: -2;
-      background: conic-gradient(from var(--ang), var(--a), var(--b), var(--d), var(--c), var(--a));
-      animation: rot 4s linear infinite;
-    }
-    .card::after {
-      content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
-      background:
-        radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgba(255,60,199,.28), transparent 45%),
-        #0d0b16;
-    }
-    .card .glowbg {
-      position: absolute; inset: -2px; border-radius: 26px; z-index: -3; filter: blur(28px); opacity: .55;
-      background: conic-gradient(from var(--ang), var(--a), var(--b), var(--d), var(--c), var(--a));
-      animation: rot 4s linear infinite;
-    }
-    @keyframes rot { to { --ang: 360deg; } }
-    .card .num { font-size: 13px; color: var(--muted); letter-spacing: .25em; }
-    .card .icon { font-size: 40px; margin-top: 28px; display: inline-block; transform: translateZ(60px); animation: bob 3s ease-in-out infinite; }
-    @keyframes bob { 50% { transform: translateZ(60px) translateY(-8px) rotate(8deg); } }
-    .card h3 { font-size: 28px; margin: 16px 0 10px; transform: translateZ(40px); }
-    .card p { color: var(--muted); line-height: 1.6; transform: translateZ(20px); }
-
-    /* ---------- CTA ---------- */
-    .cta-wrap { position: relative; z-index: 2; text-align: center; padding: 0 16px 16vh; }
-    .cta {
-      position: relative; font: inherit; font-size: 20px; font-weight: 800; letter-spacing: .05em;
-      padding: 22px 48px; border: 0; border-radius: 999px; color: #05040a; cursor: pointer;
-      background: linear-gradient(90deg, var(--d), var(--b), var(--c), var(--d)); background-size: 300% 100%;
-      animation: flow 4s linear infinite; box-shadow: 0 0 40px rgba(255,60,199,.6), 0 0 100px rgba(124,92,255,.4);
-      transition: transform .15s;
-    }
-    .cta:hover { transform: scale(1.06); }
-    .cta:active { transform: scale(.96); }
-
-    /* ---------- Section heading ---------- */
-    .sec-title {
-      position: relative; z-index: 2; text-align: center; padding: 0 16px; margin-bottom: 40px;
-      font-size: clamp(32px, 6vw, 72px); font-weight: 900; letter-spacing: -.03em;
-    }
-    .sec-title small { display: block; font-size: 12px; letter-spacing: .4em; color: var(--muted); font-weight: 600; margin-bottom: 12px; }
-
-    /* ---------- Horizontal scroll gallery ---------- */
-    .hscroll { position: relative; z-index: 2; height: 400vh; }
-    .hscroll .sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center; }
-    .hscroll .htrack { display: flex; gap: 4vw; padding: 0 8vw; will-change: transform; }
-    .panel {
-      flex: 0 0 auto; width: min(70vw, 560px); height: min(70svh, 520px); border-radius: 32px;
-      position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 32px;
-      background: var(--g); box-shadow: 0 30px 80px -20px var(--s);
-    }
-    .panel::before {
-      content: ""; position: absolute; inset: -50%; pointer-events: none;
-      background: conic-gradient(from 0deg, transparent, rgba(255,255,255,.35), transparent 30%);
-      animation: spinbg 6s linear infinite;
-    }
-    @keyframes spinbg { to { transform: rotate(360deg); } }
-    .panel b { position: absolute; top: 16px; right: 28px; font-size: clamp(100px, 18vw, 220px); font-weight: 900; line-height: 1; color: rgba(255,255,255,.18); }
-    .panel h3 { position: relative; font-size: clamp(28px, 4vw, 48px); font-weight: 900; color: #fff; }
-    .panel p { position: relative; color: rgba(255,255,255,.8); margin-top: 8px; }
-
-    /* ---------- Scramble text ---------- */
-    .scramble-wrap { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 18vh 16px; display: grid; gap: 8px; }
-    .scramble {
-      font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 800;
-      font-size: clamp(28px, 6.5vw, 84px); letter-spacing: -.02em; line-height: 1.1; cursor: default; white-space: nowrap;
-    }
-    .scramble:nth-child(1) { color: var(--c); }
-    .scramble:nth-child(2) { color: var(--fg); padding-left: 8vw; }
-    .scramble:nth-child(3) { color: var(--b); padding-left: 16vw; }
-    .scramble .x { color: var(--d); opacity: .8; }
-
-    /* ---------- Goo blobs ---------- */
-    .goo-wrap { position: relative; z-index: 2; height: 80vh; margin: 0 16px 16vh; border-radius: 40px; overflow: hidden; background: #0b0912; border: 1px solid rgba(255,255,255,.08); touch-action: pan-y; }
-    .goo { position: absolute; inset: 0; filter: url(#gooey); }
-    .blob { position: absolute; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: 50%; background: var(--col); }
-    .goo-label {
-      position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center;
-      font-size: clamp(36px, 8vw, 110px); font-weight: 900; mix-blend-mode: difference; color: #fff; letter-spacing: -.03em;
-    }
-
-    /* ---------- Morph buttons → modals ---------- */
-    .morph-wrap { position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 0 16px 10vh; }
-    .mbtn {
-      font: inherit; font-weight: 800; font-size: 18px; color: #fff; border: 0; cursor: pointer;
-      padding: 20px 34px; border-radius: 999px; background: var(--g);
-      box-shadow: 0 10px 40px -8px var(--s); transition: transform .2s;
-    }
-    .mbtn:hover { transform: translateY(-4px) scale(1.04); }
-    .mbtn.hide { visibility: hidden; }
-    .scrim { position: fixed; inset: 0; z-index: 70; background: rgba(5,4,10,.6); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .4s; }
-    .scrim.on { opacity: 1; pointer-events: auto; }
-    .morph {
-      position: fixed; z-index: 80; overflow: hidden; display: none; color: #fff;
-      background: var(--g); box-shadow: 0 40px 120px -20px var(--s);
-    }
-    .morph .content { position: absolute; inset: 0; padding: 40px; display: flex; flex-direction: column; opacity: 0; transition: opacity .25s; overflow: auto; }
-    .morph.ready .content { opacity: 1; }
-    .morph .close {
-      position: absolute; top: 18px; right: 18px; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
-      background: rgba(255,255,255,.2); color: #fff; font-size: 22px; transition: transform .3s;
-    }
-    .morph .close:hover { transform: rotate(90deg) scale(1.1); }
-    .morph h3 { font-size: clamp(32px, 5vw, 56px); font-weight: 900; line-height: 1; margin-top: 16px; }
-    .morph p { margin: 16px 0 24px; opacity: .85; line-height: 1.6; max-width: 40ch; }
-    .morph .big { font-size: 80px; line-height: 1; }
-    .morph .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; }
-    .morph .go {
-      font: inherit; font-weight: 800; border: 0; cursor: pointer; padding: 14px 24px; border-radius: 999px;
-      background: #fff; color: #111; transition: transform .2s;
-    }
-    .morph .go:hover { transform: scale(1.06); }
-    .morph .go.ghost { background: rgba(255,255,255,.18); color: #fff; }
-
-    /* ---------- Morph submit button ---------- */
-    .submit {
-      font: inherit; font-weight: 800; font-size: 18px; color: #fff; border: 0; cursor: pointer;
-      height: 64px; width: 220px; border-radius: 999px; position: relative; overflow: hidden;
-      background: linear-gradient(90deg, var(--a), var(--b)); box-shadow: 0 10px 40px -8px var(--b);
-      transition: width .5s cubic-bezier(.7,-.4,.3,1.4), background .4s, border-radius .5s;
-    }
-    .submit span { transition: opacity .2s; }
-    .submit.loading { width: 64px; }
-    .submit.loading span { opacity: 0; }
-    .submit.loading::after {
-      content: ""; position: absolute; inset: 14px; border-radius: 50%;
-      border: 4px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spinbg .7s linear infinite;
-    }
-    .submit.done { width: 260px; background: linear-gradient(90deg, #00d084, #22e3ff); box-shadow: 0 10px 40px -8px #00d084; }
-
-    /* ---------- Spotlight grid ---------- */
-    .spot {
-      position: relative; z-index: 2; display: grid; gap: 6px; max-width: 1100px; margin: 0 auto 16vh; padding: 0 16px;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    }
-    .tile {
-      aspect-ratio: 1; border-radius: 14px; position: relative; display: grid; place-items: center;
-      background: rgba(255,255,255,.03); font-size: 28px; transition: transform .3s;
-    }
-    .tile::before {
-      content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
-      background: radial-gradient(220px circle at var(--x, -999px) var(--y, -999px), var(--c), var(--b) 40%, transparent 70%);
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude;
-    }
-    .tile::after {
-      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-      background: radial-gradient(160px circle at var(--x, -999px) var(--y, -999px), rgba(255,60,199,.18), transparent 70%);
-    }
-    .tile:hover { transform: scale(1.12) rotate(6deg); z-index: 1; }
-
-    footer { position: relative; z-index: 2; text-align: center; padding: 40px 16px; color: var(--muted); font-size: 13px; }
-    footer a { color: var(--fg); }
-
-    /* ---------- Cursor ---------- */
-    .glow {
-      position: fixed; z-index: 100; width: 22px; height: 22px; border-radius: 50%;
-      pointer-events: none; mix-blend-mode: difference; background: #fff;
-      transform: translate(-50%, -50%); transition: width .2s, height .2s; left: -100px; top: -100px;
-    }
-    @media (hover: none) { .glow { display: none; } }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; }
-      .statement .w { opacity: 1; transform: none; filter: none; }
-    }
-  </style>
+  <!-- 공통 스타일 -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- 장면별 스타일: 장면을 추가하면 여기에 한 줄 추가 -->
+  <link rel="stylesheet" href="css/scenes/s01.css">
 </head>
 <body>
-  <canvas id="stars"></canvas>
-  <div class="aurora"><span></span><span></span><span></span></div>
-  <div class="grain"></div>
-  <canvas id="fx"></canvas>
-  <div class="glow" id="glow"></div>
 
-  <section class="hero">
-    <div class="hero-top">✦ Welcome to the show ✦</div>
-    <canvas id="particles" aria-label="KYO FIRST 파티클 타이포그래피"></canvas>
-    <div class="hint">Move · Click · Scroll</div>
-  </section>
+  <!-- 공통 헤더: 현재 장면과 장면 진행 표시 -->
+  <header class="story-header" aria-label="장면 진행">
+    <p class="story-scene-label">SCENE <span class="story-scene-no">01</span> / 08 — <span class="story-scene-title">1만 원의 경로</span></p>
+    <ol class="story-steps" aria-hidden="true">
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+      <li class="story-step"></li>
+    </ol>
+  </header>
 
-  <div class="marquee"><div class="track">
-    <span>MOTION ✦</span><span>COLOR ✦</span><span>LIGHT ✦</span><span>CHAOS ✦</span>
-    <span>MOTION ✦</span><span>COLOR ✦</span><span>LIGHT ✦</span><span>CHAOS ✦</span>
-  </div></div>
-  <div class="marquee reverse"><div class="track">
-    <span>KYO</span><span>FIRST</span><span>2026</span><span>LIVE</span>
-    <span>KYO</span><span>FIRST</span><span>2026</span><span>LIVE</span>
-  </div></div>
+  <main class="story">
 
-  <div class="glitch-wrap">
-    <h1 class="glitch" data-text="HYPER">HYPER</h1>
-    <p class="sub">아무 곳이나 클릭해 보세요 — 터집니다</p>
-  </div>
+    <!-- =========================================================
+         SCENE 01 — 1만 원의 경로 (후원금 흐름)
+         부모: .scene-01 (스크롤 구간)  >  .sticky-screen (고정 화면)
+         자식: .s01-headlines / .s01-control / .s01-stage / .s01-next
+         ========================================================= -->
+    <section class="scene scene-01" id="scene-01" data-scene="s01" data-no="01" data-title="1만 원의 경로" aria-labelledby="s01-heading">
+      <div class="sticky-screen">
 
-  <div class="ring-wrap">
-    <div class="ring-core"></div>
-    <div class="ring" id="ring"></div>
-  </div>
+        <div class="s01-headlines">
+          <h2 class="s01-title s01-title--ask" id="s01-heading">당신의 후원금은<br>현장에서 어떻게 쓰일까요?</h2>
+          <p class="s01-title s01-title--split">후원금의 <em>86%</em>는 중간 누수 없이<br>현장으로 직행합니다</p>
+          <p class="s01-title s01-title--result"><span class="s01-total">10,000원</span> 중 <strong class="s01-field-amount">8,600원</strong>이<br>현장 의료 활동에 사용됩니다</p>
+        </div>
 
-  <p class="statement" id="statement">
-    작은 <span class="hl">점</span> 수천 개가 모여 글자가 되고, 손끝이 닿으면 <span class="hl">폭발</span>했다가 다시 제자리로 돌아온다.
-  </p>
+        <form class="s01-control">
+          <label class="s01-control-label" for="s01-amount">후원 금액</label>
+          <input class="s01-amount" id="s01-amount" type="range" min="10000" max="100000" step="10000" value="10000">
+          <output class="s01-amount-value" for="s01-amount">10,000원</output>
+          <button class="s01-donate" type="submit">후원하기</button>
+        </form>
 
-  <section class="stats">
-    <div class="stat"><b data-count="12000">0</b><span>Particles</span></div>
-    <div class="stat"><b data-count="60">0</b><span>FPS</span></div>
-    <div class="stat"><b data-count="360">0</b><span>Degrees</span></div>
-  </section>
+        <div class="s01-stage">
+          <div class="s01-tank s01-tank--field" data-rate="0.86">
+            <div class="s01-tank-body">
+              <span class="s01-tank-rate">86%</span>
+              <div class="s01-tank-box"></div>
+              <canvas class="s01-coins" aria-hidden="true"></canvas>
+              <span class="s01-tank-badge">8,600원</span>
+            </div>
+            <p class="s01-tank-label">현장 의료 물자</p>
+          </div>
+          <div class="s01-tank s01-tank--fund" data-rate="0.10">
+            <div class="s01-tank-body">
+              <span class="s01-tank-rate">10%</span>
+              <div class="s01-tank-box"></div>
+              <canvas class="s01-coins" aria-hidden="true"></canvas>
+            </div>
+            <p class="s01-tank-label">모금</p>
+          </div>
+          <div class="s01-tank s01-tank--ops" data-rate="0.04">
+            <div class="s01-tank-body">
+              <span class="s01-tank-rate">4%</span>
+              <div class="s01-tank-box"></div>
+              <canvas class="s01-coins" aria-hidden="true"></canvas>
+            </div>
+            <p class="s01-tank-label">운영비</p>
+          </div>
+        </div>
 
-  <section class="cards">
-    <article class="card"><i class="glowbg"></i><span class="num">01</span><div class="icon">✺</div><h3>Particles</h3><p>글자를 이루는 점들이 커서를 피해 흩어지고, 클릭하면 폭발합니다.</p></article>
-    <article class="card"><i class="glowbg"></i><span class="num">02</span><div class="icon">◎</div><h3>Warp</h3><p>배경의 별들이 스크롤 속도에 맞춰 빛의 속도로 날아옵니다.</p></article>
-    <article class="card"><i class="glowbg"></i><span class="num">03</span><div class="icon">◆</div><h3>Depth</h3><p>카드를 움직여 보세요. 마우스를 따라 3D로 기울어집니다.</p></article>
-  </section>
+        <p class="s01-next">그렇다면 현장으로 전달된 <em class="s01-field-amount">8,600원</em>은<br>실제로 어떤 물품이 되어 환자들에게 닿을까요?</p>
 
-  <!-- 가로 스크롤 갤러리 -->
-  <section class="hscroll" id="hscroll">
-    <div class="sticky"><div class="htrack" id="htrack">
-      <article class="panel" style="--g:linear-gradient(135deg,#7c5cff,#ff3cc7);--s:#ff3cc7"><b>01</b><h3>Scroll Sideways</h3><p>세로로 내리면 가로로 흘러갑니다.</p></article>
-      <article class="panel" style="--g:linear-gradient(135deg,#ff3cc7,#ffd23f);--s:#ffd23f"><b>02</b><h3>Sticky Stage</h3><p>화면이 고정된 채 무대만 움직입니다.</p></article>
-      <article class="panel" style="--g:linear-gradient(135deg,#22e3ff,#7c5cff);--s:#22e3ff"><b>03</b><h3>Light Sweep</h3><p>빛줄기가 카드 위를 계속 훑고 지나갑니다.</p></article>
-      <article class="panel" style="--g:linear-gradient(135deg,#00d084,#22e3ff);--s:#00d084"><b>04</b><h3>Deep Shadow</h3><p>색을 품은 그림자가 카드를 띄웁니다.</p></article>
-      <article class="panel" style="--g:linear-gradient(135deg,#ff6b3d,#ff3cc7);--s:#ff6b3d"><b>05</b><h3>Keep Going</h3><p>끝까지 내려가면 다음 무대가 열립니다.</p></article>
-    </div></div>
-  </section>
+        <p class="scroll-hint s01-hint" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v11M3 8l5 5 5-5"/></svg>
+          스크롤해서 계속
+        </p>
 
-  <!-- 해독되는 글자 -->
-  <section class="scramble-wrap">
-    <div class="scramble" data-text="DECODE THE">DECODE THE</div>
-    <div class="scramble" data-text="SIGNAL FROM">SIGNAL FROM</div>
-    <div class="scramble" data-text="THE FUTURE_">THE FUTURE_</div>
-  </section>
+        <p class="visually-hidden s01-live" aria-live="polite"></p>
+      </div>
+    </section>
 
-  <!-- 끈적한 블롭 -->
-  <h2 class="sec-title"><small>LIQUID</small>만져 보세요</h2>
-  <section class="goo-wrap" id="gooWrap">
-    <div class="goo" id="goo"></div>
-    <div class="goo-label">LIQUID<br>METAL</div>
-  </section>
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <filter id="gooey">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="b"/>
-      <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 28 -12"/>
-    </filter>
-  </svg>
+    <!-- 다음 장면 자리: SCENE 02부터 이 아래에 같은 구조로 추가 -->
 
-  <!-- 버튼 → 모달 변신 -->
-  <h2 class="sec-title"><small>MORPH</small>버튼이 변신합니다</h2>
-  <div class="morph-wrap">
-    <button class="mbtn" data-modal="hello" style="--g:linear-gradient(135deg,#7c5cff,#ff3cc7);--s:#ff3cc7">✦ 열어 보기</button>
-    <button class="mbtn" data-modal="gift" style="--g:linear-gradient(135deg,#ffd23f,#ff6b3d);--s:#ff6b3d">🎁 선물 상자</button>
-    <button class="mbtn" data-modal="space" style="--g:linear-gradient(135deg,#22e3ff,#3d5cff);--s:#22e3ff">🚀 우주로</button>
-    <button class="submit" id="submit"><span>보내기</span></button>
-  </div>
+  </main>
 
-  <div class="scrim" id="scrim"></div>
-  <div class="morph" id="morph" role="dialog" aria-modal="true"><div class="content" id="morphContent"></div></div>
+  <footer class="story-footer">
+    <p class="story-footer-next">SCENE 02 — 화폐에서 생명으로</p>
+    <p class="story-footer-note">다음 장면을 준비하고 있습니다.</p>
+  </footer>
 
-  <template id="m-hello" data-g="linear-gradient(135deg,#7c5cff,#ff3cc7)" data-s="#ff3cc7" data-w="560" data-h="420">
-    <div class="big">✦</div>
-    <h3>안녕하세요!</h3>
-    <p>버튼이 그대로 늘어나서 모달이 됐어요. 아래 버튼을 누르면 다른 모달로 또 변신합니다.</p>
-    <div class="row"><button class="go" data-goto="gift">선물 상자로 →</button><button class="go ghost" data-goto="space">우주로 →</button></div>
-  </template>
-  <template id="m-gift" data-g="linear-gradient(135deg,#ffd23f,#ff6b3d)" data-s="#ff6b3d" data-w="420" data-h="560">
-    <div class="big">🎁</div>
-    <h3>선물 도착</h3>
-    <p>모양도 색도 바뀌었죠? 세로로 긴 카드로 변신했습니다. 열면 불꽃이 터집니다.</p>
-    <div class="row"><button class="go" data-fire>열기 🎆</button><button class="go ghost" data-goto="hello">← 처음으로</button></div>
-  </template>
-  <template id="m-space" data-g="radial-gradient(circle at 30% 20%,#3d5cff,#0b0930 70%)" data-s="#22e3ff" data-w="720" data-h="380">
-    <div class="big">🚀</div>
-    <h3>Lift off</h3>
-    <p>가로로 넓은 모달로 변신. 발사 버튼을 누르면 로켓이 날아갑니다.</p>
-    <div class="row"><button class="go" data-launch>발사!</button><button class="go ghost" data-goto="gift">선물 상자로 →</button></div>
-  </template>
-
-  <!-- 스포트라이트 그리드 -->
-  <h2 class="sec-title"><small>SPOTLIGHT</small>빛을 비춰 보세요</h2>
-  <section class="spot" id="spot"></section>
-
-  <div class="cta-wrap"><button class="cta" id="cta">🎆 불꽃 쏘기</button></div>
-
-  <footer>© <span id="year"></span> Kyo First · <a href="sample.html">이전 샘플</a></footer>
-
-  <script>
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.getElementById('year').textContent = new Date().getFullYear();
-    const rand = (a, b) => a + Math.random() * (b - a);
-
-    /* ---------- Warp starfield (speeds up with scroll) ---------- */
-    let warp = 0;
-    (() => {
-      const c = document.getElementById('stars'), ctx = c.getContext('2d');
-      let w, h, stars = [];
-      const resize = () => {
-        w = c.width = innerWidth; h = c.height = innerHeight;
-        stars = Array.from({ length: Math.min(500, (w * h) / 3000) }, () => ({ x: rand(-1, 1), y: rand(-1, 1), z: Math.random() }));
-      };
-      resize(); addEventListener('resize', resize);
-      let lastY = scrollY;
-      (function loop() {
-        const dy = Math.abs(scrollY - lastY); lastY = scrollY;
-        warp += (Math.min(dy * 0.002, 0.08) - warp) * 0.1;
-        const v = reduce ? 0 : 0.002 + warp;
-        ctx.fillStyle = `rgba(5,4,10,${0.35 - Math.min(warp * 3, 0.25)})`;
-        ctx.fillRect(0, 0, w, h);
-        for (const s of stars) {
-          const pz = s.z; s.z -= v;
-          if (s.z <= 0.01) { s.x = rand(-1, 1); s.y = rand(-1, 1); s.z = 1; continue; }
-          const sx = (s.x / s.z) * w * 0.5 + w / 2, sy = (s.y / s.z) * h * 0.5 + h / 2;
-          const px = (s.x / pz) * w * 0.5 + w / 2, py = (s.y / pz) * h * 0.5 + h / 2;
-          const a = 1 - s.z;
-          ctx.strokeStyle = `hsla(${200 + s.x * 80}, 100%, 80%, ${a})`;
-          ctx.lineWidth = a * 2;
-          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
-        }
-        requestAnimationFrame(loop);
-      })();
-    })();
-
-    /* ---------- FX layer: fireworks, shockwaves ---------- */
-    const FX = (() => {
-      const c = document.getElementById('fx'), ctx = c.getContext('2d');
-      let w, h, sparks = [], rings = [], rockets = [];
-      const resize = () => { w = c.width = innerWidth; h = c.height = innerHeight; };
-      resize(); addEventListener('resize', resize);
-
-      function burst(x, y, n = 90, hue = rand(0, 360)) {
-        for (let i = 0; i < n; i++) {
-          const a = rand(0, Math.PI * 2), s = rand(2, 9);
-          sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, hue: hue + rand(-40, 40), size: rand(1.5, 3.5) });
-        }
-        rings.push({ x, y, r: 0, life: 1, hue });
-      }
-      function rocket(x) {
-        rockets.push({ x, y: h, vy: rand(-15, -11), vx: rand(-1.5, 1.5), hue: rand(0, 360) });
-      }
-      (function loop() {
-        ctx.clearRect(0, 0, w, h);
-        ctx.globalCompositeOperation = 'lighter';
-        rockets = rockets.filter(r => {
-          r.x += r.vx; r.y += r.vy; r.vy += 0.22;
-          ctx.fillStyle = `hsl(${r.hue},100%,75%)`; ctx.fillRect(r.x - 2, r.y - 2, 4, 10);
-          if (r.vy >= -1) { burst(r.x, r.y, 140, r.hue); return false; }
-          return true;
-        });
-        sparks = sparks.filter(p => {
-          p.x += p.vx; p.y += p.vy; p.vx *= 0.96; p.vy = p.vy * 0.96 + 0.08; p.life -= 0.016;
-          ctx.fillStyle = `hsla(${p.hue},100%,65%,${p.life})`;
-          ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0, p.size * p.life), 0, Math.PI * 2); ctx.fill();
-          return p.life > 0;
-        });
-        rings = rings.filter(r => {
-          r.r += 9; r.life -= 0.03;
-          ctx.strokeStyle = `hsla(${r.hue},100%,70%,${r.life})`; ctx.lineWidth = Math.max(0, 3 * r.life);
-          ctx.beginPath(); if (r.life > 0) { ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2); ctx.stroke(); }
-          return r.life > 0;
-        });
-        ctx.globalCompositeOperation = 'source-over';
-        requestAnimationFrame(loop);
-      })();
-      return { burst, rocket };
-    })();
-
-    /* ---------- Particle text ---------- */
-    const Hero = (() => {
-      const canvas = document.getElementById('particles');
-      const ctx = canvas.getContext('2d');
-      const pointer = { x: -9999, y: -9999 };
-      let particles = [], w, h, dpr, t = 0, hueShift = 0;
-
-      function build() {
-        dpr = Math.min(devicePixelRatio || 1, 2);
-        w = canvas.clientWidth; h = canvas.clientHeight;
-        canvas.width = w * dpr; canvas.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-        // 글자를 오프스크린에 그려 픽셀 좌표를 샘플링
-        const off = document.createElement('canvas');
-        off.width = w; off.height = h;
-        const o = off.getContext('2d');
-        const lines = w < 640 ? ['KYO', 'FIRST'] : ['KYO FIRST'];
-        const size = Math.min(w / (lines[0].length * 0.62), h / (lines.length * 1.6));
-        o.font = `900 ${size}px system-ui, sans-serif`;
-        o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillStyle = '#fff';
-        lines.forEach((s, i) => o.fillText(s, w / 2, h / 2 + (i - (lines.length - 1) / 2) * size * 1.05));
-
-        const data = o.getImageData(0, 0, w, h).data;
-        const gap = w < 640 ? 4 : 5;
-        const next = [];
-        for (let y = 0; y < h; y += gap) {
-          for (let x = 0; x < w; x += gap) {
-            if (data[(y * w + x) * 4 + 3] > 128) {
-              // 화면 중앙에서 소용돌이치며 등장
-              const a = rand(0, Math.PI * 2), d = rand(0, Math.max(w, h));
-              next.push({ hx: x, hy: y, x: w / 2 + Math.cos(a) * d, y: h / 2 + Math.sin(a) * d, vx: 0, vy: 0, r: rand(1, 2) });
-            }
-          }
-        }
-        particles = next;
-      }
-
-      function explode(x, y, power = 40) {
-        for (const p of particles) {
-          const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy) || 1;
-          const f = power * Math.max(0.15, 1 - d / Math.max(w, h));
-          p.vx += (dx / d) * f * rand(0.6, 1.4); p.vy += (dy / d) * f * rand(0.6, 1.4);
-        }
-        hueShift += 70;
-      }
-
-      function frame() {
-        t += 0.016;
-        // 잔상
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fillStyle = 'rgba(0,0,0,0.28)';
-        ctx.fillRect(0, 0, w, h);
-        ctx.globalCompositeOperation = 'lighter';
-        const R = Math.max(90, w * 0.1);
-        for (const p of particles) {
-          const dx = p.x - pointer.x, dy = p.y - pointer.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < R * R) {
-            const d = Math.sqrt(d2) || 1, f = (R - d) / R;
-            // 밀어내면서 살짝 회전
-            p.vx += (dx / d) * f * 7 - (dy / d) * f * 3;
-            p.vy += (dy / d) * f * 7 + (dx / d) * f * 3;
-          }
-          const wave = reduce ? 0 : Math.sin(t * 2 + p.hx * 0.02) * 4;
-          p.vx += (p.hx - p.x) * 0.05; p.vy += (p.hy + wave - p.y) * 0.05;
-          p.vx *= 0.85; p.vy *= 0.85;
-          p.x += p.vx; p.y += p.vy;
-          const speed = Math.min(Math.abs(p.vx) + Math.abs(p.vy), 24);
-          const hue = (p.hx / w) * 160 + 250 + hueShift + t * 30;
-          ctx.fillStyle = `hsla(${hue}, 100%, ${55 + speed * 1.5}%, ${0.75 + speed * 0.01})`;
-          const s = p.r + speed * 0.12;
-          ctx.fillRect(p.x, p.y, s, s);
-        }
-        requestAnimationFrame(frame);
-      }
-
-      const setPointer = (e) => {
-        const r = canvas.getBoundingClientRect();
-        const pt = e.touches ? e.touches[0] : e;
-        pointer.x = pt.clientX - r.left; pointer.y = pt.clientY - r.top;
-      };
-      const clearPointer = () => { pointer.x = pointer.y = -9999; };
-      canvas.addEventListener('pointermove', setPointer);
-      canvas.addEventListener('pointerleave', clearPointer);
-      canvas.addEventListener('touchmove', setPointer, { passive: true });
-      canvas.addEventListener('touchend', clearPointer);
-
-      let rt;
-      addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
-      build();
-      if (reduce) particles.forEach(p => { p.x = p.hx; p.y = p.hy; });
-      frame();
-
-      // 가끔 스스로 폭발
-      if (!reduce) setInterval(() => { if (scrollY < innerHeight * 0.5) explode(w / 2, h / 2, 28); }, 6000);
-      return { canvas, explode, count: () => particles.length };
-    })();
-
-    /* ---------- Click anywhere: firework burst ---------- */
-    addEventListener('pointerdown', e => {
-      if (reduce || e.target.closest('a')) return;
-      FX.burst(e.clientX, e.clientY);
-      if (e.target === Hero.canvas) {
-        const r = Hero.canvas.getBoundingClientRect();
-        Hero.explode(e.clientX - r.left, e.clientY - r.top);
-      }
-    });
-    document.getElementById('cta').addEventListener('click', () => {
-      if (reduce) return;
-      for (let i = 0; i < 7; i++) setTimeout(() => FX.rocket(rand(innerWidth * 0.15, innerWidth * 0.85)), i * 180);
-    });
-
-    /* ---------- 3D word ring ---------- */
-    (() => {
-      const words = ['NEON', 'PULSE', 'GLOW', 'FLUX', 'WAVE', 'SPARK', 'ORBIT', 'NOVA', 'BLOOM', 'DRIFT', 'PRISM', 'ECHO'];
-      document.getElementById('ring').innerHTML = words.map((w, i) => `<span style="--i:${i}">${w}</span>`).join('');
-    })();
-
-    /* ---------- Scroll reveal words ---------- */
-    (() => {
-      const el = document.getElementById('statement');
-      const out = [];
-      el.childNodes.forEach(n => {
-        if (n.nodeType === 3) {
-          n.textContent.split(/(\s+)/).forEach(s => out.push(s.trim() ? `<span class="w">${s}</span>` : s));
-        } else {
-          out.push(`<span class="w hl">${n.textContent}</span>`);
-        }
-      });
-      el.innerHTML = out.join('');
-      const words = [...el.querySelectorAll('.w')];
-      const update = () => {
-        const r = el.getBoundingClientRect();
-        const progress = (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.3);
-        const n = Math.round(progress * words.length);
-        words.forEach((w, i) => w.classList.toggle('on', i < n));
-      };
-      addEventListener('scroll', update, { passive: true });
-      update();
-    })();
-
-    /* ---------- Count-up stats ---------- */
-    (() => {
-      const els = document.querySelectorAll('[data-count]');
-      els[0].dataset.count = Hero.count();
-      const io = new IntersectionObserver(entries => entries.forEach(en => {
-        if (!en.isIntersecting) return;
-        io.unobserve(en.target);
-        const el = en.target, end = +el.dataset.count, t0 = performance.now(), dur = reduce ? 1 : 1600;
-        (function tick(now) {
-          const k = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - k, 4);
-          el.textContent = Math.round(end * e).toLocaleString();
-          if (k < 1) requestAnimationFrame(tick);
-        })(t0);
-      }), { threshold: 0.6 });
-      els.forEach(el => io.observe(el));
-    })();
-
-    /* ---------- Tilt cards ---------- */
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('pointermove', e => {
-        const r = card.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-        card.style.setProperty('--mx', `${x * 100}%`);
-        card.style.setProperty('--my', `${y * 100}%`);
-        if (!reduce) card.style.transform = `rotateY(${(x - .5) * 20}deg) rotateX(${(.5 - y) * 20}deg) scale(1.03)`;
-      });
-      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
-    });
-
-    /* ---------- Horizontal scroll gallery ---------- */
-    (() => {
-      const sec = document.getElementById('hscroll'), track = document.getElementById('htrack');
-      const update = () => {
-        const r = sec.getBoundingClientRect();
-        const k = Math.min(Math.max(-r.top / (r.height - innerHeight), 0), 1);
-        const max = track.scrollWidth - innerWidth;
-        track.style.transform = `translateX(${-k * max}px)`;
-        [...track.children].forEach((p, i) => {
-          const c = p.getBoundingClientRect(), off = (c.left + c.width / 2 - innerWidth / 2) / innerWidth;
-          p.style.transform = reduce ? '' : `rotateY(${off * -25}deg) scale(${1 - Math.min(Math.abs(off), 1) * 0.12})`;
-        });
-      };
-      track.style.perspective = '1200px';
-      addEventListener('scroll', update, { passive: true });
-      addEventListener('resize', update);
-      update();
-    })();
-
-    /* ---------- Scramble text ---------- */
-    (() => {
-      const chars = '!<>-_\\/[]{}—=+*^?#01ABCDEFXYZ';
-      function scramble(el) {
-        if (el._run) return;
-        el._run = true;
-        const text = el.dataset.text;
-        let frame = 0;
-        const q = [...text].map((ch, i) => ({ ch, start: Math.floor(Math.random() * 20), end: 20 + Math.floor(Math.random() * 30) + i }));
-        (function tick() {
-          let out = '', done = 0;
-          for (const s of q) {
-            if (frame >= s.end) { out += s.ch; done++; }
-            else if (frame >= s.start && s.ch !== ' ') out += `<span class="x">${chars[Math.floor(Math.random() * chars.length)]}</span>`;
-            else out += s.ch === ' ' ? ' ' : '&nbsp;';
-          }
-          el.innerHTML = out;
-          frame++;
-          if (done < q.length) requestAnimationFrame(tick); else el._run = false;
-        })();
-      }
-      const els = document.querySelectorAll('.scramble');
-      if (reduce) return;
-      const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && scramble(e.target)), { threshold: 0.8 });
-      els.forEach(el => { io.observe(el); el.addEventListener('pointerenter', () => scramble(el)); });
-    })();
-
-    /* ---------- Goo blobs ---------- */
-    (() => {
-      const wrap = document.getElementById('gooWrap'), goo = document.getElementById('goo');
-      const cols = ['#7c5cff', '#ff3cc7', '#22e3ff', '#ffd23f', '#ff6b3d', '#00d084', '#7c5cff', '#ff3cc7', '#22e3ff', '#ffd23f', '#ff6b3d', '#00d084'];
-      const blobs = cols.map((col, i) => {
-        const el = document.createElement('div');
-        el.className = 'blob'; el.style.setProperty('--col', col);
-        const s = rand(0.45, 1); el.style.width = el.style.height = 160 * s + 'px'; el.style.margin = -80 * s + 'px 0 0 ' + -80 * s + 'px';
-        goo.appendChild(el);
-        return { el, a: rand(0, 6.28), sp: rand(0.3, 0.8) * (i % 2 ? 1 : -1), rx: rand(0.05, 0.28), ry: rand(0.08, 0.3), x: 0, y: 0 };
-      });
-      const cursor = document.createElement('div');
-      cursor.className = 'blob'; cursor.style.setProperty('--col', '#ffffff');
-      goo.appendChild(cursor);
-      let mx = 0.5, my = 0.5, cx = 0.5, cy = 0.5, t = 0;
-      wrap.addEventListener('pointermove', e => { const r = wrap.getBoundingClientRect(); mx = (e.clientX - r.left) / r.width; my = (e.clientY - r.top) / r.height; });
-      wrap.addEventListener('pointerleave', () => { mx = 0.5; my = 0.5; });
-      (function loop() {
-        const W = wrap.clientWidth, H = wrap.clientHeight;
-        t += reduce ? 0 : 0.01;
-        cx += (mx - cx) * 0.12; cy += (my - cy) * 0.12;
-        cursor.style.transform = `translate(${cx * W}px, ${cy * H}px)`;
-        for (const b of blobs) {
-          // 커서 쪽으로 살짝 끌려감
-          const tx = 0.5 + Math.cos(b.a + t * b.sp) * b.rx + (cx - 0.5) * 0.4;
-          const ty = 0.5 + Math.sin(b.a * 1.3 + t * b.sp * 1.4) * b.ry + (cy - 0.5) * 0.4;
-          b.x += (tx - b.x) * 0.05; b.y += (ty - b.y) * 0.05;
-          b.el.style.transform = `translate(${b.x * W}px, ${b.y * H}px)`;
-        }
-        requestAnimationFrame(loop);
-      })();
-    })();
-
-    /* ---------- Morph buttons → modals ---------- */
-    (() => {
-      const morph = document.getElementById('morph'), content = document.getElementById('morphContent'), scrim = document.getElementById('scrim');
-      let origin = null, busy = false;
-      const ease = 'cubic-bezier(.7,0,.2,1)';
-      const target = tpl => {
-        const w = Math.min(+tpl.dataset.w, innerWidth - 32), h = Math.min(+tpl.dataset.h, innerHeight - 32);
-        return { left: (innerWidth - w) / 2, top: (innerHeight - h) / 2, width: w, height: h, radius: 32 };
-      };
-      const rectOf = el => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height, radius: r.height / 2 }; };
-      const css = b => ({ left: b.left + 'px', top: b.top + 'px', width: b.width + 'px', height: b.height + 'px', borderRadius: b.radius + 'px' });
-      const place = b => Object.assign(morph.style, css(b));
-      const anim = (from, to, dur = 650) => morph.animate([css(from), css(to)], { duration: reduce ? 1 : dur, easing: ease }).finished;
-      const fill = tpl => {
-        morph.style.setProperty('--g', tpl.dataset.g); morph.style.setProperty('--s', tpl.dataset.s);
-        content.innerHTML = ''; content.appendChild(tpl.content.cloneNode(true));
-        const x = document.createElement('button'); x.className = 'close'; x.textContent = '✕'; x.setAttribute('aria-label', '닫기');
-        content.appendChild(x);
-      };
-
-      async function open(btn) {
-        if (busy) return; busy = true;
-        const tpl = document.getElementById('m-' + btn.dataset.modal);
-        origin = btn;
-        const from = rectOf(btn), to = target(tpl);
-        fill(tpl);
-        morph.style.display = 'block'; morph.classList.remove('ready');
-        btn.classList.add('hide'); scrim.classList.add('on');
-        place(to);
-        await anim(from, to);
-        morph.classList.add('ready');
-        busy = false;
-      }
-      async function swap(name) {
-        if (busy) return; busy = true;
-        const tpl = document.getElementById('m-' + name);
-        const from = rectOf(morph); from.radius = 32;
-        const to = target(tpl);
-        morph.classList.remove('ready');
-        await new Promise(r => setTimeout(r, 200));
-        // 중간에 한 번 원으로 쪼그라들었다가 새 모양으로
-        const mid = { width: 120, height: 120, left: innerWidth / 2 - 60, top: innerHeight / 2 - 60, radius: 60 };
-        await anim(from, mid, 380);
-        fill(tpl); place(mid);
-        if (!reduce) FX.burst(innerWidth / 2, innerHeight / 2, 50, rand(0, 360));
-        place(to);
-        await anim(mid, to, 520);
-        morph.classList.add('ready');
-        busy = false;
-      }
-      async function close() {
-        if (busy || !origin) return; busy = true;
-        morph.classList.remove('ready');
-        await new Promise(r => setTimeout(r, 150));
-        const from = rectOf(morph); from.radius = 32;
-        const to = rectOf(origin);
-        place(to);
-        scrim.classList.remove('on');
-        await anim(from, to, 550);
-        morph.style.display = 'none';
-        origin.classList.remove('hide'); origin = null;
-        busy = false;
-      }
-
-      document.querySelectorAll('.mbtn').forEach(b => b.addEventListener('click', () => open(b)));
-      scrim.addEventListener('click', close);
-      addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-      content.addEventListener('click', e => {
-        const b = e.target.closest('button'); if (!b) return;
-        if (b.classList.contains('close')) close();
-        else if (b.dataset.goto) swap(b.dataset.goto);
-        else if ('fire' in b.dataset) { const r = b.getBoundingClientRect(); for (let i = 0; i < 4; i++) setTimeout(() => FX.burst(r.left + r.width / 2 + rand(-120, 120), r.top + rand(-160, 0), 80), i * 150); }
-        else if ('launch' in b.dataset) for (let i = 0; i < 6; i++) setTimeout(() => FX.rocket(rand(innerWidth * 0.2, innerWidth * 0.8)), i * 160);
-      });
-
-      // 보내기 → 로딩 → 완료
-      const submit = document.getElementById('submit');
-      submit.addEventListener('click', () => {
-        if (submit.classList.contains('loading')) return;
-        if (submit.classList.contains('done')) { submit.classList.remove('done'); submit.firstElementChild.textContent = '보내기'; return; }
-        submit.classList.add('loading');
-        setTimeout(() => {
-          submit.classList.remove('loading'); submit.classList.add('done');
-          submit.firstElementChild.textContent = '✓ 전송 완료!';
-          const r = submit.getBoundingClientRect();
-          FX.burst(r.left + r.width / 2, r.top + r.height / 2, 120, 150);
-        }, 1600);
-      });
-    })();
-
-    /* ---------- Spotlight grid ---------- */
-    (() => {
-      const spot = document.getElementById('spot');
-      const icons = '✦✺◎◆✿❖✸◉✪❂☄✶⬢✹❋◈';
-      const render = () => {
-        // 마지막 줄이 비지 않도록 열 수에 맞춰 4줄을 채움
-        spot.innerHTML = '<div class="tile"></div>';
-        const cols = getComputedStyle(spot).gridTemplateColumns.split(' ').length;
-        spot.innerHTML = Array.from({ length: cols * 4 }, (_, i) => `<div class="tile">${icons[i % icons.length]}</div>`).join('');
-        tiles = [...spot.children];
-      };
-      let tiles = [];
-      render();
-      addEventListener('resize', render);
-      spot.addEventListener('pointermove', e => {
-        for (const t of tiles) {
-          const r = t.getBoundingClientRect();
-          t.style.setProperty('--x', e.clientX - r.left + 'px');
-          t.style.setProperty('--y', e.clientY - r.top + 'px');
-        }
-      });
-      spot.addEventListener('pointerleave', () => tiles.forEach(t => { t.style.removeProperty('--x'); t.style.removeProperty('--y'); }));
-    })();
-
-    /* ---------- Cursor ---------- */
-    (() => {
-      const g = document.getElementById('glow');
-      let x = -100, y = -100, tx = -100, ty = -100;
-      addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; });
-      document.querySelectorAll('a, button, .card, .tile').forEach(el => {
-        el.addEventListener('pointerenter', () => { g.style.width = g.style.height = '64px'; });
-        el.addEventListener('pointerleave', () => { g.style.width = g.style.height = '22px'; });
-      });
-      (function loop() {
-        x += (tx - x) * 0.2; y += (ty - y) * 0.2;
-        g.style.left = x + 'px'; g.style.top = y + 'px';
-        requestAnimationFrame(loop);
-      })();
-    })();
-  </script>
+  <!-- 공통 스크립트: 스크롤 진행률 계산과 장면 관리 -->
+  <script src="js/script.js"></script>
+  <!-- 장면별 스크립트: 장면을 추가하면 여기에 한 줄 추가 -->
+  <script src="js/scenes/s01.js"></script>
 </body>
 </html>

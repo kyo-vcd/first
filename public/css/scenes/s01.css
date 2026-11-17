@@ -1,0 +1,232 @@
+/* =========================================================
+   SCENE 01 — 1만 원의 경로 (후원금 흐름)
+   부모 영역 : .scene-01  (스크롤 구간 400vh)
+   고정 화면 : .scene-01 > .sticky-screen
+   변경 대상 : .s01-title / .s01-control / .s01-tank / .s01-tank-badge / .s01-next
+   상태 값(투명도·이동·강조)은 js/scenes/s01.js 가 스크롤 진행률로 계산해 넣는다.
+   ========================================================= */
+
+.scene-01 { --scene-length: 400vh; }
+
+.scene-01 .sticky-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.6vh, 28px);
+  padding: calc(var(--header-h) + 2vh) var(--gutter) clamp(48px, 8vh, 80px);
+}
+
+/* ---------- 제목: 세 문장이 같은 자리에서 교체된다 ---------- */
+
+.s01-headlines {
+  display: grid;
+  width: 100%;
+  text-align: center;
+}
+
+.s01-title {
+  grid-area: 1 / 1;
+  align-self: center;
+  font-size: clamp(26px, 4vw, 56px);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  will-change: opacity, transform;
+}
+
+.s01-title em,
+.s01-title strong { color: var(--red); font-weight: 900; }
+
+.s01-title--split,
+.s01-title--result { opacity: 0; }
+
+.s01-title--result strong {
+  display: inline-block;
+  font-size: 1.35em;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* ---------- 후원 금액 설정 ---------- */
+
+.s01-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 20px;
+  padding: 8px 8px 8px 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(12, 12, 12, 0.7);
+  will-change: opacity, transform;
+}
+
+.s01-control-label { font-size: 15px; color: var(--muted); }
+
+.s01-amount {
+  width: clamp(120px, 18vw, 200px);
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.s01-amount-value {
+  min-width: 7.5em;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.s01-donate {
+  min-height: 44px;
+  min-width: 8.5em;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--red);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s var(--ease);
+}
+
+.s01-donate:hover { background: #f04a3f; }
+.s01-donate:active { transform: scale(0.96); }
+.s01-donate:focus-visible,
+.s01-amount:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.s01-donate:disabled { background: var(--dim); color: var(--muted); cursor: default; }
+
+/* ---------- 3개의 수조 ---------- */
+
+.s01-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: min(1100px, 100%);
+  display: flex;
+  align-items: stretch;
+  gap: clamp(10px, 3vw, 40px);
+}
+
+.s01-tank {
+  --hl: 0;                 /* 0~1 : 금빛 강조 정도 (JS) */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 0;
+  will-change: opacity, transform;
+}
+
+.s01-tank--field { flex: 3.4 1 0; transform-origin: 50% 100%; }
+
+.s01-tank-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* 수조 틀: 위가 열린 사각형 */
+.s01-tank-box {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 72%;
+  border: 2px solid rgba(224, 53, 43, 0.55);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 강조 시 금빛 테두리와 빛 번짐 */
+.s01-tank-box::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  top: 0;
+  border: 2px solid var(--gold);
+  border-top: 0;
+  border-radius: inherit;
+  box-shadow: 0 40px 140px -30px rgba(242, 184, 75, 0.55);
+  opacity: var(--hl);
+}
+
+.s01-coins {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 수조 위 비율 */
+.s01-tank-rate {
+  position: absolute;
+  left: 50%;
+  bottom: calc(72% + 10px);
+  transform: translateX(-50%);
+  font-size: clamp(18px, 2.4vw, 32px);
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+}
+
+.s01-tank--field .s01-tank-rate { color: var(--red); }
+
+/* 동전 산 위의 금액 배지 (bottom 값은 JS 가 동전 높이에 맞춘다) */
+.s01-tank-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  z-index: 1;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #121212;
+  font-size: clamp(14px, 1.6vw, 20px);
+  font-weight: 800;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translate(-50%, 8px);
+}
+
+.s01-tank-label {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.s01-tank--field .s01-tank-label { color: var(--fg-soft); }
+
+/* ---------- 다음 장면으로 잇는 질문 ---------- */
+
+.s01-next {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 22%;
+  text-align: center;
+  font-size: clamp(20px, 2.6vw, 34px);
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.s01-next em { color: var(--gold); }
+
+.s01-hint { opacity: 0; transition: opacity 0.4s; }
+
+@media (max-width: 640px) {
+  .s01-control { border-radius: 20px; padding: 14px 16px; }
+  .s01-amount { width: 100%; order: 3; }
+  .s01-control-label { order: 1; }
+  .s01-amount-value { order: 2; min-width: 0; }
+  .s01-donate { order: 4; width: 100%; }
+  .s01-tank--field { flex-grow: 2.6; }
+  .s01-tank-label { font-size: 12px; }
+}

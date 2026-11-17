@@ -1,6 +1,7 @@
 # first
 
-정적 샘플 사이트. Cloudflare Pages로 배포된다.
+인터랙티브 디자인 프로젝트 "1만 원의 경로 — 전장의 병원은 안전한가".
+후원금 1만 원이 전장의 병원에 닿기까지를 8개 장면의 스크롤 스토리로 보여준다. Cloudflare Pages로 배포된다.
 
 - 사이트: https://kyo-first.pages.dev
 - 저장소: https://github.com/kyo-vcd/first
@@ -8,13 +9,44 @@
 ## 구조
 
 ```
-public/        # 배포되는 파일 (Pages 출력 디렉터리)
-  index.html     # 메인: 모션 그래픽 페이지
-  sample.html    # 이전 카운터 샘플
-.gitignore
+public/                  # 배포되는 파일 (Pages 출력 디렉터리)
+  index.html               # 한 페이지에 모든 장면을 <section class="scene">으로 이어 붙인다
+  css/style.css            # 공통: 색·글꼴 토큰, .scene / .sticky-screen, 헤더·푸터
+  css/scenes/s01.css       # 장면별 스타일
+  js/script.js             # 공통: 스크롤 진행률(0~1) 계산, 장면 등록(Story.register)
+  js/scenes/s01.js         # 장면별 상태 변화
+  images/                  # 이미지
+docs/
+  ref/                     # 수업 자료(class11.pdf), 장면 기획서(scene.pdf)
+  scenes/S01.md            # 장면별 구현 명세 (적용 범위·상태 변화·유지 조건)
 ```
 
 빌드 단계는 없다. `public/` 안의 파일이 그대로 공개된다. 저장소 루트를 공개하지 않도록 사이트 파일은 반드시 `public/`에 둔다.
+외부 라이브러리 없이 HTML·CSS·JavaScript만 쓴다.
+
+### 장면 구조
+
+모든 장면은 같은 부모·자식 구조를 쓴다.
+
+```html
+<section class="scene scene-02" data-scene="s02" data-no="02" data-title="화폐에서 생명으로">
+  <div class="sticky-screen">   <!-- 스크롤 구간 동안 화면에 고정 -->
+    …                           <!-- 상태가 바뀌는 자식 요소: 클래스는 s02- 접두어 -->
+  </div>
+</section>
+```
+
+- `.scene`의 높이(`--scene-length`, 예: `400vh`)가 스크롤 구간 길이다.
+- `js/script.js`가 섹션마다 진행률을 0~1로 계산해 장면의 `update(progress)`를 부른다. 위로 스크롤하면 진행률이 줄어 변화가 되돌아간다.
+- 장면 안의 요소만 다루고, 다른 장면에는 영향을 주지 않는다.
+
+### 새 장면 추가 (예: SCENE 02)
+
+1. `docs/scenes/S02.md`에 적용 범위, 상태 변화(시작·종료 상태, 진행률 구간), 유지 조건을 적는다.
+2. `index.html`의 `<!-- 다음 장면 자리 -->`에 `<section class="scene scene-02" data-scene="s02" …>`을 추가한다.
+3. `css/scenes/s02.css`, `js/scenes/s02.js`를 만들고 `index.html`의 `<link>`, `<script>` 목록에 한 줄씩 추가한다.
+4. `js/scenes/s02.js`에서 `Story.register('s02', function (root) { return { update: function (p) { … } }; })`로 등록한다.
+5. 푸터의 "다음 장면" 문구를 갱신한다.
 
 ## 배포
 

@@ -1,0 +1,180 @@
+/* =========================================================
+   공통 스타일
+   - 색·글꼴 토큰, 기본 리셋
+   - 모든 장면이 함께 쓰는 구조: .scene(스크롤 구간) > .sticky-screen(고정 화면)
+   - 공통 헤더/푸터
+   장면 고유의 스타일은 css/scenes/sXX.css 에 둔다.
+   ========================================================= */
+
+:root {
+  --bg: #121212;
+  --bg-deep: #0c0c0c;
+  --fg: #ffffff;
+  --fg-soft: #d6d6d6;
+  --muted: #8a8a8a;
+  --line: #333333;
+  --line-soft: #2a2a2a;
+  --red: #e0352b;
+  --gold: #f2b84b;
+  --gold-deep: #b98424;
+  --dim: #3a3a3a;
+
+  --font: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --gutter: clamp(16px, 4vw, 64px);
+  --header-h: 64px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  line-height: 1.5;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1, h2, h3, p { margin: 0; }
+em { font-style: normal; }
+button, input, output { font: inherit; color: inherit; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 장면 공통 구조 ---------- */
+
+/* 스크롤 구간. 높이는 장면마다 --scene-length 로 정한다 (예: 400vh) */
+.scene {
+  position: relative;
+  height: var(--scene-length, 300vh);
+}
+
+/* 스크롤 구간 동안 화면에 고정되는 영역 */
+.sticky-screen {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 화면 아래 붉은 바닥 조명 (전장의 분위기) */
+.sticky-screen::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 28%;
+  background:
+    radial-gradient(60% 100% at 50% 100%, rgba(224, 53, 43, 0.22), transparent 70%),
+    linear-gradient(to top, rgba(224, 53, 43, 0.10), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- 공통 헤더 ---------- */
+
+.story-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: var(--header-h);
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(to bottom, rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0));
+  pointer-events: none;
+}
+
+.story-scene-label {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.story-steps {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-step {
+  position: relative;
+  width: clamp(16px, 3vw, 40px);
+  height: 3px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+/* --fill: 0~1, 해당 장면의 진행률 */
+.story-step::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform-origin: left;
+  transform: scaleX(var(--fill, 0));
+}
+
+/* ---------- 공통 푸터 ---------- */
+
+.story-footer {
+  min-height: 60vh;
+  padding: 120px var(--gutter);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  border-top: 1px solid var(--line-soft);
+}
+
+.story-footer-next {
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 700;
+}
+
+.story-footer-note {
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  :root { --header-h: 52px; }
+  .story-header { flex-direction: column; justify-content: center; align-items: flex-start; gap: 6px; }
+  .story-scene-label { font-size: 11px; }
+}
