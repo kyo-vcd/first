@@ -26,7 +26,7 @@
 python3 tools/make_submission.py 학번_이름
 ```
 
-- 결과: `dist/학번_이름/` 폴더와 `dist/학번_이름.zip`
+- 결과: `dist/학번_이름/` 폴더와 `dist/학번_이름_YYYYMMDD_HHMM.zip` (만든 날짜·시간, 한국 시간. 압축 안의 폴더 이름은 `학번_이름` 그대로)
 - 하는 일: `public/` 전체(index.html · css · js · img)를 복사하고 zip으로 묶는다
 - 배포 사이트와 저장소의 `public/`은 바뀌지 않는다. `dist/`는 git에 올라가지 않는다.
 - 업로드 전에 `dist/학번_이름/index.html`을 브라우저로 열어 확인한다. 글꼴(Noto Sans KR)은 인터넷 연결이 있어야 보인다.
