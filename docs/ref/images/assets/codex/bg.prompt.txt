@@ -1,0 +1,7 @@
+Use the built-in image_gen tool. Attached ref-mockup.png is the target web design and ref-top.png is a full-resolution crop of its top edge. Generate bg.png: ONLY the background texture of that design, with all text, coins, tank lines, red floor and UI removed. Landscape 3:2 image, fully opaque.
+- Charred dark brown-black paper, base about #1E1916, a little lighter in the center and darker toward the edges, same brightness as the reference background.
+- Clearly visible fine paper grain and speckle noise, like a risograph print.
+- About 25 thin faint light scratches in random diagonal directions spread over the whole image.
+- Across the top 18% only: a faint repeating pattern of small blood-drop (teardrop) shapes in staggered rows, slightly lighter than the background, fading out downward exactly like ref-top.png.
+- The lower part stays plain dark texture (no floor). No text, no logos.
+Save it as bg.png in the current directory and print its pixel size.

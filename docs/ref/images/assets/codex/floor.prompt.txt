@@ -1,0 +1,6 @@
+Use the built-in image_gen tool with transparent_background=true. Attached ref-floor.png and ref-floor-zoom.png are crops of the bottom edge of the target design. Generate floor.png, a wide landscape 3:2 image: only the bottom 22% is painted, everything above is fully transparent.
+- The painted strip is a dark blood red (#7E2018 average) made of FINE, UNIFORM grain: tiny red and near-black specks like sandpaper or a risograph print, evenly spread. No cloudy blotches, no large mottled patches, no gradients inside the strip except a soft fade at the top edge.
+- The top edge fades softly to transparent over a short distance.
+- One thin dark barbed wire runs horizontally across the strip near its top: two thin twisted strands with small X-shaped barbs at regular intervals, like the reference.
+- The left and right edges must tile seamlessly. No text.
+Save it as floor.png in the current directory and print its pixel size.

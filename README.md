@@ -19,12 +19,14 @@ public/                  # 배포되는 파일 (Pages 출력 디렉터리)
   img/                     # 이미지 (제출 형식에 맞춰 img): 공통 bg.jpg · floor.png, 장면별 img/s01/
 docs/
   assignment.md            # 과제 요건 · 제출 방법 · 강의 내용 대응
-  image-prompts.md         # ChatGPT 이미지 소스 생성 프롬프트
+  image-generation.md      # 이미지 생성 방식 (Codex CLI + ChatGPT 구독) ← 이미지는 이 방식으로 만든다
+  image-prompts.md         # (처음 방식) ChatGPT 웹용 프롬프트
   ref/                     # 수업 자료(class11.pdf), 장면 기획서(scene.pdf), images/시안 · images/assets(원본 소스 이미지)
   scenes/S01.md            # 장면별 구현 명세 (적용 범위·상태 변화·유지 조건)
 tools/
   make_submission.py       # 과제 제출 폴더(학번_이름) 만들기 → dist/
   build_fonts.py           # 글꼴 다시 만들기 (문구를 바꾸거나 장면을 추가한 뒤 실행)
+  codex_image.sh           # Codex로 이미지 1장(세트) 만들기 (docs/image-generation.md)
 ```
 
 빌드 단계는 없다. `public/` 안의 파일이 그대로 공개된다. 저장소 루트를 공개하지 않도록 사이트 파일은 반드시 `public/`에 둔다.
