@@ -36,11 +36,18 @@
   var MIX_MS = 700;       // 동전 색이 금빛/회색으로 바뀌는 시간 (CSS 전환과 맞춘다)
   var GRAVITY = 2600;     // px/s²
 
+  /* 시안의 낡은 금화: 금빛 면 + 테두리 띠 + 안쪽 홈 + 희미한 문양 + 촘촘한 검은 점 + 일부 핏자국 */
   var COLORS = {
-    gold: { face: '#F2B84B', edge: '#B98424', ring: '#D49B35', shine: 'rgba(255,255,255,0.35)' },
-    bright: { face: '#FFD06A', edge: '#D49B35', ring: '#F2B84B', shine: 'rgba(255,255,255,0.55)' },
-    dim: { face: '#353535', edge: '#262626', ring: '#2E2E2E', shine: null }
+    gold:   { halo: 'rgba(38, 22, 6, 0.6)', light: '#e3b555', face: '#c99630', edge: '#9a6a1b',
+              rim: '#87591490', groove: '#7a5012', speck: '#2a1705', blood: '#d3171c' },
+    bright: { halo: 'rgba(60, 38, 8, 0.6)', light: '#efc565', face: '#d6a43a', edge: '#a8771f',
+              rim: '#8f601790', groove: '#805514', speck: '#2e1a06', blood: '#df1a1f' },
+    dim:    { halo: 'rgba(10, 8, 6, 0.45)', light: '#5d4f43', face: '#4b3f35', edge: '#3a3029',
+              rim: '#2f261f90', groove: '#2c241d', speck: '#17120e', blood: '#5b2b25' }
   };
+  var COIN_SEEDS = [11, 23, 37, 41, 59, 73, 89, 97];   // 같은 번호는 색이 바뀌어도 무늬가 같다
+  var BLOOD_FROM = 7;                                 // 8개 중 마지막 1개는 핏자국 (약 1/8, 시안)
+  var COINS_PER_ROW = 12.2;                   // 1만 원일 때 86% 수조 한 줄 동전 수 (시안)
 
   /* 구성 비교 (js/compare.js)
      0 현재 / 1 핀 분배 + 수치 표기 / 2 개선1 + 레버 후원 · 상태 진행 표시 · 수조별 금액 미리보기 */
@@ -61,6 +68,7 @@
       form: $('.s01-control'),
       amount: $('.s01-amount'),
       amountValue: $('.s01-amount-value'),
+      range: $('.s01-range'),
       donate: $('.s01-donate'),
       stage: $('.s01-stage'),
       headlines: $('.s01-headlines'),
@@ -114,30 +122,87 @@
     };
 
     /* ---------- 동전 모양 (미리 그려 두고 재사용) ---------- */
-    function makeSprite(r, dpr, c) {
-      var size = Math.ceil((r * 2 + 2) * dpr);
+    function seeded(seed) {
+      return function () {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function makeSprite(r, dpr, c, seed, blood) {
+      var pad = Math.max(2, r * 0.12);            // 동전 둘레의 어두운 그림자 자리
+      var size = Math.ceil((r + pad) * 2 * dpr);
       var cv = document.createElement('canvas');
       cv.width = cv.height = size;
       var g = cv.getContext('2d');
       g.scale(dpr, dpr);
-      var o = r + 1;
-      g.beginPath(); g.arc(o, o, r, 0, Math.PI * 2); g.fillStyle = c.edge; g.fill();
-      g.beginPath(); g.arc(o, o, r * 0.84, 0, Math.PI * 2); g.fillStyle = c.face; g.fill();
-      g.beginPath(); g.arc(o, o, r * 0.58, 0, Math.PI * 2);
-      g.lineWidth = Math.max(1, r * 0.12); g.strokeStyle = c.ring; g.stroke();
-      if (c.shine) {
-        g.beginPath(); g.arc(o - r * 0.32, o - r * 0.32, r * 0.2, 0, Math.PI * 2);
-        g.fillStyle = c.shine; g.fill();
+      var o = r + pad;
+      var rnd = seeded(seed);
+      var TAU = Math.PI * 2;
+
+      // 그림자
+      g.beginPath(); g.arc(o, o + pad * 0.3, r + pad * 0.85, 0, TAU); g.fillStyle = c.halo; g.fill();
+
+      // 금빛 면
+      var grad = g.createRadialGradient(o - r * 0.3, o - r * 0.35, r * 0.1, o, o, r);
+      grad.addColorStop(0, c.light); grad.addColorStop(0.65, c.face); grad.addColorStop(1, c.edge);
+      g.beginPath(); g.arc(o, o, r, 0, TAU); g.fillStyle = grad; g.fill();
+
+      // 테두리 띠, 안쪽 홈, 희미한 문양
+      g.lineWidth = Math.max(1, r * 0.1); g.strokeStyle = c.rim;
+      g.beginPath(); g.arc(o, o, r * 0.9, 0, TAU); g.stroke();
+      g.lineWidth = Math.max(1, r * 0.06); g.strokeStyle = c.groove;
+      g.beginPath(); g.arc(o, o, r * 0.68, 0, TAU); g.stroke();
+      g.globalAlpha = 0.5;
+      g.lineWidth = Math.max(0.8, r * 0.05);
+      var a0 = rnd() * TAU;
+      g.beginPath(); g.arc(o, o, r * 0.3, a0, a0 + 2.2); g.stroke();
+      g.beginPath(); g.arc(o + r * 0.06, o + r * 0.04, r * 0.16, a0 + 2.6, a0 + 4.8); g.stroke();
+      g.globalAlpha = 1;
+
+      // 핏자국: 겹친 방울 + 작은 튄 자국
+      if (blood) {
+        var bx = o + (rnd() - 0.5) * r * 0.7;
+        var by = o + (rnd() - 0.5) * r * 0.7;
+        g.fillStyle = c.blood;
+        for (var b = 0; b < 7; b++) {
+          g.beginPath();
+          g.arc(bx + (rnd() - 0.5) * r * 0.38, by + (rnd() - 0.5) * r * 0.38, r * (0.07 + rnd() * 0.13), 0, TAU);
+          g.fill();
+        }
+        for (var d = 0; d < 4; d++) {
+          g.beginPath();
+          g.arc(bx + (rnd() - 0.5) * r * 0.9, by + (rnd() - 0.5) * r * 0.9, r * 0.035, 0, TAU);
+          g.fill();
+        }
       }
-      return { img: cv, size: size / dpr };
+
+      // 촘촘한 검은 점 (낡은 인쇄 질감)
+      g.save();
+      g.beginPath(); g.arc(o, o, r, 0, TAU); g.clip();
+      g.fillStyle = c.speck;
+      var dots = Math.round(r * r * 1.15);
+      for (var i = 0; i < dots; i++) {
+        var dot = 0.55 + rnd() * 0.8;
+        g.globalAlpha = 0.3 + rnd() * 0.6;
+        g.fillRect(o + (rnd() * 2 - 1) * r, o + (rnd() * 2 - 1) * r, dot, dot);
+      }
+      g.restore();
+      g.globalAlpha = 1;
+
+      return { img: cv, size: size / dpr, off: o };
     }
 
     function buildSprites() {
-      state.sprites = {
-        gold: makeSprite(state.r, state.dpr, COLORS.gold),
-        bright: makeSprite(state.r, state.dpr, COLORS.bright),
-        dim: makeSprite(state.r, state.dpr, COLORS.dim)
-      };
+      var set = {};
+      Object.keys(COLORS).forEach(function (key) {
+        set[key] = COIN_SEEDS.map(function (seed, i) {
+          return makeSprite(state.r, state.dpr, COLORS[key], seed, i >= BLOOD_FROM);
+        });
+      });
+      state.sprites = set;
     }
 
     /* ---------- 동전이 쌓일 자리: 가운데가 높은 동전 산 ---------- */
@@ -159,7 +224,8 @@
             x: x,
             y: floorY - r - row * stepY,
             row: row,
-            score: row + mound * t * t + ((c * 7 + row * 3) % 5) * 0.06
+            // 큰 수조는 살짝 불규칙하게, 작은 수조는 왼쪽부터 붙여서 쌓는다 (시안)
+            score: row + mound * t * t + (mound > 0.5 ? ((c * 7 + row * 3) % 5) * 0.06 : c * 0.001)
           });
         }
       }
@@ -200,11 +266,11 @@
        화면이 낮아 동전 산 위에 배지 자리가 없으면 동전을 조금씩 줄여 자리를 만든다. */
     function computeRadius() {
       if (!field.count) return;
-      var area = field.w * field.boxH * state.fill;
-      var r = u.clamp(Math.sqrt(area / (field.count * 3.46)), 4, 18);
+      // 1만 원(86개)일 때 시안처럼 한 줄에 12개 남짓, 금액이 크면 수조에 맞게 줄인다
+      var r = u.clamp((field.w - 6) / (2 * COINS_PER_ROW), 4, 34);
       var room = field.boxH - el.badge.offsetHeight - 24;   // 동전 산이 차지할 수 있는 높이
       for (var i = 0; i < 12 && r > 4; i++) {
-        var slots = pileSlots(field.w, field.h, r, field.count, 5);
+        var slots = pileSlots(field.w, field.h, r, field.count, 0.6);
         var top = field.h;
         slots.forEach(function (s) { top = Math.min(top, s.y - r); });
         if (field.h - top <= room) break;
@@ -216,7 +282,7 @@
 
     function placeTargets(snap) {
       tanks.forEach(function (t) {
-        var mound = t.isField ? 5 : 1.5;
+        var mound = t.isField ? 0.6 : 0.4;   // 시안: 평평하게 쌓이고 맨 윗줄만 일부
         var slots = pileSlots(t.w, t.h, state.r, t.count, mound);
         t.coins.forEach(function (coin, i) {
           var s = slots[i] || slots[slots.length - 1];
@@ -331,7 +397,7 @@
           ctx.globalAlpha = pinAlpha;
           ctx.beginPath();
           ctx.arc(p.x, p.y, PIN_R, 0, Math.PI * 2);
-          ctx.fillStyle = '#5c5c5c';
+          ctx.fillStyle = '#6e5c49';
           ctx.fill();
           if (p.flash > 0.02) {
             ctx.globalAlpha = pinAlpha * p.flash;
@@ -345,12 +411,13 @@
 
       // 핀 사이를 지나는 동전
       if (state.sprites) {
-        var size = state.sprites.gold.size;
-        var off = state.r + 1;
-        ctx.globalAlpha = 1;
+        var size = state.sprites.gold[0].size;
+        var off = state.sprites.gold[0].off;
         tanks.forEach(function (t) {
           t.coins.forEach(function (c) {
-            if (c.state === 3) ctx.drawImage(state.sprites.gold.img, c.x - off, c.y - off, size, size);
+            if (c.state !== 3) return;
+            ctx.globalAlpha = 1;
+            ctx.drawImage(state.sprites.gold[c.v].img, c.x - off, c.y - off, size, size);
           });
         });
       }
@@ -383,6 +450,7 @@
           t.coins.push({
             tx: 0, ty: 0, x: 0, y: 0, vy: 0,
             delay: (i / t.count) * dropMs + Math.random() * dropMs * 0.1,
+            v: Math.floor(Math.random() * COIN_SEEDS.length),   // 무늬 번호 (일부는 핏자국)
             state: 0                                   // 0 대기, 1 낙하, 2 정지
           });
         }
@@ -502,12 +570,24 @@
       state.raf = window.requestAnimationFrame(loop);
     }
 
+    /* 떨어지는 동전 위의 가는 선 (시안) */
+    function drawTrail(ctx, c) {
+      var len = Math.min(state.r * 2, 18 + c.vy * 0.03);
+      ctx.globalAlpha = 0.75;
+      ctx.strokeStyle = '#8a6d3e';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(c.x, c.y - state.r - 2);
+      ctx.lineTo(c.x, c.y - state.r - 2 - len);
+      ctx.stroke();
+    }
+
     function render() {
       if (FEATURE.pins) renderFlow();
       if (!state.sprites) return;
       var s = state.sprites;
-      var size = s.gold.size;
-      var off = state.r + 1;
+      var size = s.gold[0].size;
+      var off = s.gold[0].off;
       tanks.forEach(function (t) {
         var ctx = t.ctx;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -516,11 +596,12 @@
         var over = s[t.target];
         t.coins.forEach(function (c) {
           if (c.state === 0 || c.state === 3) return;
+          if (c.state === 1 && c.vy > 120) drawTrail(ctx, c);
           ctx.globalAlpha = 1;
-          ctx.drawImage(s.gold.img, c.x - off, c.y - off, size, size);
+          ctx.drawImage(s.gold[c.v].img, c.x - off, c.y - off, size, size);
           if (state.mix > 0.01) {
             ctx.globalAlpha = state.mix;
-            ctx.drawImage(over.img, c.x - off, c.y - off, size, size);
+            ctx.drawImage(over[c.v].img, c.x - off, c.y - off, size, size);
           }
         });
         ctx.globalAlpha = 1;
@@ -601,8 +682,16 @@
     }
 
     /* ---------- 사용자 입력 ---------- */
+    /* 슬라이더 채움과 값 위치 (CSS 변수 --p) */
+    function syncRange() {
+      var min = parseFloat(el.amount.min), max = parseFloat(el.amount.max);
+      el.range.style.setProperty('--p', ((parseFloat(el.amount.value) - min) / (max - min)).toFixed(4));
+    }
+    syncRange();
+
     el.amount.addEventListener('input', function () {
       var amount = parseInt(el.amount.value, 10);
+      syncRange();
       el.amountValue.textContent = u.won(amount);
       if (!state.donated) updateAmounts(amount);
     });

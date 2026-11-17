@@ -21,6 +21,29 @@
 </head>
 <body>
 
+  <!-- 질감 필터 (시안의 낡은 인쇄 느낌): CSS 에서 filter: url(#…) 로 사용 -->
+  <svg class="fx-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <!-- 글자·선에 촘촘한 검은 점 구멍을 낸다 -->
+    <filter id="fx-grain" x="-5%" y="-20%" width="110%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.9" numOctaves="1" seed="4" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -14 8.6" result="holes"/>
+      <feComposite in="SourceGraphic" in2="holes" operator="in"/>
+    </filter>
+    <!-- 손으로 그린 듯 가장자리를 흔든다 -->
+    <filter id="fx-rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="9" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- 흔들림 + 점 구멍 (수조 선, 버튼) -->
+    <filter id="fx-rough-grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="9" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="4" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="1" seed="2" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -12 7.6" result="holes"/>
+      <feComposite in="rough" in2="holes" operator="in"/>
+    </filter>
+  </svg>
+
   <!-- 공통 헤더: 현재 장면과 장면 진행 표시 -->
   <header class="story-header" aria-label="장면 진행">
     <p class="story-scene-label">SCENE <span class="story-scene-no">01</span> / 08 — <span class="story-scene-title">1만 원의 경로</span></p>
@@ -58,16 +81,18 @@
       <div class="sticky-screen">
 
         <div class="s01-headlines">
-          <h2 class="s01-title s01-title--ask" id="s01-heading">당신의 후원금은<br>현장에서 어떻게 쓰일까요?</h2>
+          <h2 class="s01-title s01-title--ask" id="s01-heading">당신의 후원금은 <br>현장에서 어떻게 쓰일까요?</h2>
           <p class="s01-title s01-title--split">후원금의 <em>86%</em>는 중간 누수 없이<br>현장으로 직행합니다</p>
           <p class="s01-title s01-title--result"><span class="s01-total">10,000원</span> 중 <strong class="s01-field-amount">8,600원</strong>이<br>현장 의료 활동에 사용됩니다</p>
         </div>
 
         <form class="s01-control">
-          <label class="s01-control-label" for="s01-amount">후원 금액</label>
-          <input class="s01-amount" id="s01-amount" type="range" min="10000" max="100000" step="10000" value="10000">
-          <output class="s01-amount-value" for="s01-amount">10,000원</output>
-          <button class="s01-donate" type="submit">후원하기</button>
+          <label class="s01-control-label" for="s01-amount">후원금액</label>
+          <div class="s01-range">
+            <input class="s01-amount" id="s01-amount" type="range" min="10000" max="100000" step="10000" value="10000">
+            <output class="s01-amount-value" for="s01-amount">10,000원</output>
+          </div>
+          <button class="s01-donate" type="submit"><span>후원하기</span></button>
         </form>
 
         <!-- [개선2] 상태 진행 표시: 지금 상태와 상태 안에서의 스크롤 진행 -->
@@ -92,7 +117,12 @@
           <div class="s01-tank s01-tank--field" data-rate="0.86">
             <div class="s01-tank-body">
               <span class="s01-tank-rate">86%</span>
-              <div class="s01-tank-box"></div>
+              <div class="s01-tank-box">
+                <i class="s01-drip" style="left: 0.4%; --h: 30px"></i>
+                <i class="s01-drip" style="left: 20%; --h: 22px"></i>
+                <i class="s01-drip" style="left: 73%; --h: 26px"></i>
+                <i class="s01-drip" style="left: 88%; --h: 16px"></i>
+              </div>
               <canvas class="s01-coins" aria-hidden="true"></canvas>
               <span class="s01-tank-badge">8,600원</span>
             </div>
@@ -101,7 +131,11 @@
           <div class="s01-tank s01-tank--fund" data-rate="0.10">
             <div class="s01-tank-body">
               <span class="s01-tank-rate">10%</span>
-              <div class="s01-tank-box"></div>
+              <div class="s01-tank-box">
+                <i class="s01-drip" style="left: 6%; --h: 26px"></i>
+                <i class="s01-drip" style="left: 9%; --h: 18px"></i>
+                <i class="s01-drip" style="left: 87%; --h: 20px"></i>
+              </div>
               <canvas class="s01-coins" aria-hidden="true"></canvas>
             </div>
             <p class="s01-tank-label">모금 <span class="s01-tank-amount">1,000원</span></p>
@@ -109,7 +143,10 @@
           <div class="s01-tank s01-tank--ops" data-rate="0.04">
             <div class="s01-tank-body">
               <span class="s01-tank-rate">4%</span>
-              <div class="s01-tank-box"></div>
+              <div class="s01-tank-box">
+                <i class="s01-drip" style="left: 13%; --h: 22px"></i>
+                <i class="s01-drip" style="left: 82%; --h: 14px"></i>
+              </div>
               <canvas class="s01-coins" aria-hidden="true"></canvas>
             </div>
             <p class="s01-tank-label">운영비 <span class="s01-tank-amount">400원</span></p>

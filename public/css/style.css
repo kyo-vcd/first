@@ -7,17 +7,26 @@
    ========================================================= */
 
 :root {
-  --bg: #121212;
-  --bg-deep: #0c0c0c;
-  --fg: #ffffff;
-  --fg-soft: #d6d6d6;
-  --muted: #8a8a8a;
-  --line: #333333;
-  --line-soft: #2a2a2a;
-  --red: #e0352b;
-  --gold: #f2b84b;
-  --gold-deep: #b98424;
-  --dim: #3a3a3a;
+  /* 시안 색: 탄 종이 같은 검은 배경, 크림색 글자, 선명한 피 빨강, 낡은 금 */
+  --bg: #16110f;
+  --bg-deep: #0e0a09;
+  --fg: #efe6d6;
+  --fg-soft: #d8cfc0;
+  --muted: #8f857a;
+  --line: #3a302a;
+  --line-soft: #2a221e;
+  --red: #e5262b;
+  --red-deep: #8f1a17;
+  --gold: #d6a23a;
+  --gold-deep: #9a6d1c;
+  --dim: #3d342d;
+
+  /* 질감 레이어 (SVG data URI, 외부 파일 없음) */
+  --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.92 0 0 0 0 0.82 0 0 0 0 0.7 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --tex-grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --tex-scratch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Cg stroke='%23f3e6d2' stroke-opacity='0.07' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M60 20 L250 210'/%3E%3Cpath d='M120 330 L330 280'/%3E%3Cpath d='M40 420 L160 520'/%3E%3Cpath d='M210 560 L80 700'/%3E%3Cpath d='M300 120 L520 90'/%3E%3Cpath d='M690 40 L760 150'/%3E%3Cpath d='M1060 70 L1230 30'/%3E%3Cpath d='M1340 160 L1520 110'/%3E%3Cpath d='M1600 60 L1700 230'/%3E%3Cpath d='M1750 380 L1880 300'/%3E%3Cpath d='M1820 600 L1700 760'/%3E%3Cpath d='M1500 880 L1640 960'/%3E%3Cpath d='M1690 700 L1880 690'/%3E%3Cpath d='M1420 240 L1460 420'/%3E%3Cpath d='M120 820 L300 900'/%3E%3Cpath d='M10 980 L180 940'/%3E%3Cpath d='M900 360 L960 420'/%3E%3Cpath d='M1000 1000 L1200 980'/%3E%3Cpath d='M560 980 L640 1050'/%3E%3Cpath d='M1260 600 L1330 520'/%3E%3C/g%3E%3Cg fill='%23f3e6d2' fill-opacity='0.12'%3E%3Ccircle cx='265' cy='118' r='1.4'/%3E%3Ccircle cx='680' cy='153' r='1.4'/%3E%3Ccircle cx='96' cy='522' r='1.2'/%3E%3Ccircle cx='1150' cy='460' r='1.2'/%3E%3Ccircle cx='1595' cy='80' r='1.3'/%3E%3Ccircle cx='1840' cy='510' r='1.2'/%3E%3Ccircle cx='1412' cy='892' r='1.2'/%3E%3Ccircle cx='520' cy='640' r='1.1'/%3E%3C/g%3E%3C/svg%3E");
+  --tex-drops: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='60'%3E%3Cg fill='%23f3e6d2' fill-opacity='0.03'%3E%3Cpath d='M16 4c0 0-6 8-6 12a6 6 0 0 0 12 0c0-4-6-12-6-12z'/%3E%3Cpath d='M48 34c0 0-6 8-6 12a6 6 0 0 0 12 0c0-4-6-12-6-12z'/%3E%3C/g%3E%3C/svg%3E");
+  --tex-wire: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='22'%3E%3Cg stroke='%23260605' stroke-width='2' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 11 Q24 9 48 11 T96 11'/%3E%3Cpath d='M0 13 Q24 15 48 13 T96 13' stroke-width='1.4'/%3E%3Cpath d='M44 5 L52 18 M52 5 L44 18'/%3E%3C/g%3E%3C/svg%3E");
 
   --font: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --gutter: clamp(16px, 4vw, 64px);
@@ -65,7 +74,8 @@ button, input, output { font: inherit; color: inherit; }
   height: var(--scene-length, 300vh);
 }
 
-/* 스크롤 구간 동안 화면에 고정되는 영역 */
+/* 스크롤 구간 동안 화면에 고정되는 영역
+   배경: 탄 종이 같은 검은 바탕 + 미세한 입자 + 긁힌 자국 */
 .sticky-screen {
   position: sticky;
   top: 0;
@@ -73,19 +83,47 @@ button, input, output { font: inherit; color: inherit; }
   height: 100svh;
   overflow: hidden;
   isolation: isolate;
+  background:
+    var(--tex-scratch) center / 100% 100% no-repeat,
+    var(--tex-grain),
+    radial-gradient(120% 90% at 50% 35%, #1d1613 0%, #140f0d 60%, #0d0908 100%);
 }
 
-/* 화면 아래 붉은 바닥 조명 (전장의 분위기) */
+/* 위쪽의 희미한 물방울 무늬 */
+.sticky-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 22%;
+  background: var(--tex-drops);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 화면 아래 붉은 바닥과 철조망 */
 .sticky-screen::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
-  height: 28%;
+  height: clamp(70px, 10vh, 110px);
   background:
-    radial-gradient(60% 100% at 50% 100%, rgba(224, 53, 43, 0.22), transparent 70%),
-    linear-gradient(to top, rgba(224, 53, 43, 0.10), transparent);
+    var(--tex-wire) 0 calc(100% - 26px) / 96px 22px repeat-x,
+    var(--tex-grain-dark),
+    linear-gradient(to top, #8c1613 0%, #6e110f 45%, rgba(110, 17, 15, 0.55) 70%, transparent 100%);
   pointer-events: none;
   z-index: -1;
+}
+
+/* SVG 필터 정의는 화면에 보이지 않게 */
+.fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* 낡은 인쇄 느낌 글자: 점 구멍 + 아래로 번진 붉은 그림자 */
+.fx-print {
+  color: var(--fg);
+  text-shadow: 2px 3px 0 var(--red-deep);
+  filter: url(#fx-grain);
 }
 
 /* 장면이 끝날 때 화면을 어둡게 덮는 막 (투명도는 장면 스크립트가 조절) */
@@ -93,7 +131,7 @@ button, input, output { font: inherit; color: inherit; }
   position: absolute;
   inset: 0;
   z-index: 10;
-  background: var(--bg);
+  background: var(--bg-deep);
   opacity: 0;
   pointer-events: none;
 }
@@ -124,7 +162,7 @@ button, input, output { font: inherit; color: inherit; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: linear-gradient(to bottom, rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0));
+  background: linear-gradient(to bottom, rgba(22, 17, 15, 0.85), rgba(22, 17, 15, 0));
   pointer-events: none;
 }
 
