@@ -20,12 +20,17 @@
   --t-slow: 0.9s;
 }
 
+/* 터치 화면: 한 번 쓸 때 움직이는 거리가 길어 상태 사이를 넓힌다 (상태 하나 ≈ 화면 80%) */
+@media (pointer: coarse) {
+  .scene-01 { --scene-length: 420vh; }
+}
+
 .scene-01 .sticky-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: clamp(14px, 2.6vh, 30px);
-  padding: calc(var(--top-space) + 4vh) var(--gutter) clamp(96px, 14vh, 150px);
+  padding: calc(var(--top-space) + 4vh) var(--gutter) calc(clamp(96px, 14vh, 150px) + var(--toolbar));
 }
 
 /* =========================================================
@@ -446,7 +451,7 @@
 }
 
 @media (max-width: 640px) {
-  .scene-01 .sticky-screen { padding-bottom: 92px; }
+  .scene-01 .sticky-screen { padding-bottom: calc(92px + var(--toolbar)); }
   .s01-control { gap: 10px 16px; }
   .s01-range { width: calc(100% - 5em); }
   .s01-donate { margin-top: 24px; min-width: 60%; }

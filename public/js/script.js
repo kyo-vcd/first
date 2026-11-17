@@ -56,10 +56,23 @@
     factories[id] = factory;
   }
 
+  /* 화면 높이: 모바일 주소창이 나타나거나 숨어도 변하지 않는 값(100lvh)을 쓴다.
+     innerHeight 를 쓰면 주소창이 움직일 때마다 진행률이 밀려 상태가 저절로 바뀐다. */
+  var probe = null;
+  function viewH() {
+    if (!probe) {
+      probe = document.createElement('div');
+      probe.setAttribute('aria-hidden', 'true');
+      probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;height:100lvh;visibility:hidden;pointer-events:none;';
+      document.body.appendChild(probe);
+    }
+    return probe.offsetHeight || window.innerHeight;
+  }
+
   /* 섹션의 스크롤 진행률 0~1 */
   function progressOf(el) {
     var rect = el.getBoundingClientRect();
-    var total = el.offsetHeight - window.innerHeight;
+    var total = el.offsetHeight - viewH();
     if (total <= 0) return rect.top <= 0 ? 1 : 0;
     return util.clamp(-rect.top / total, 0, 1);
   }
@@ -81,6 +94,28 @@
       s.el.classList.toggle('is-step-' + i, i <= step);
     }
     if (s.api.onStep) s.api.onStep(step, prev);
+  }
+
+  /* ---------- 터치 화면용 멈춤 지점 ----------
+     상태마다 한가운데 진행률 위치에 .snap-point 를 둔다 (CSS scroll-snap, 터치 화면에서만 동작).
+     한 번 쓸면 다음 상태에서 멈춰 상태가 여러 개 연달아 넘어가지 않는다. */
+  function placeSnapPoints(s) {
+    var steps = s.api.steps;
+    var rest = [0];
+    for (var i = 0; i < steps.length; i++) {
+      rest.push((steps[i] + (i + 1 < steps.length ? steps[i + 1] : 1)) / 2);
+    }
+    if (!s.snaps) {
+      s.snaps = rest.map(function () {
+        var m = document.createElement('div');
+        m.className = 'snap-point';
+        m.setAttribute('aria-hidden', 'true');
+        s.el.appendChild(m);
+        return m;
+      });
+    }
+    var total = Math.max(0, s.el.offsetHeight - viewH());
+    s.snaps.forEach(function (m, i) { m.style.top = Math.round(rest[i] * total) + 'px'; });
   }
 
   /* ---------- 공통 헤더 ---------- */
@@ -111,6 +146,7 @@
 
   /* ---------- 스크롤·리사이즈 처리 ---------- */
   var SMOOTH = 0.14;        // 연동형: 1프레임(60fps)에 남은 거리의 14%를 따라간다
+  var STEP_GAP_MS = 500;    // 단계형: 상태가 연달아 넘어갈 때 최소 간격
   var lastTime = 0;
 
   function tick(now) {
@@ -127,8 +163,20 @@
       if (rect.bottom < -vh || rect.top > vh * 2) return;
       s.target = progressOf(s.el);
 
-      // 단계형: 실제 스크롤 위치로 바로 상태를 정한다 (전환 속도는 CSS 가 정함)
-      if (s.api.steps) applyStep(s, stepOf(s.target, s.api.steps));
+      // 단계형: 스크롤 위치가 정한 상태로 한 칸씩 간다 (전환 속도는 CSS 가 정함).
+      // 빠르게 지나가도 상태 사이에 STEP_GAP_MS 를 두어 전환이 겹치거나 중간에 끊기지 않는다.
+      if (s.api.steps) {
+        var want = stepOf(s.target, s.api.steps);
+        if (want !== s.step) {
+          if (s.dirty || util.reducedMotion || s.step < 0) {
+            applyStep(s, want);
+          } else if (now - s.stepAt >= STEP_GAP_MS) {
+            applyStep(s, s.step + (want > s.step ? 1 : -1));
+            s.stepAt = now;
+          }
+          if (want !== s.step) moving = true;   // 아직 따라가는 중
+        }
+      }
 
       // 연동형: 보간한 진행률을 넘긴다
       if (s.api.update) {
@@ -155,8 +203,15 @@
     }
   }
 
+  /* 폭이나 기준 높이가 실제로 바뀔 때만 장면을 다시 계산한다
+     (모바일 주소창이 움직일 때 생기는 resize 는 건너뛴다) */
+  var lastSize = '';
   function onResize() {
+    var size = document.documentElement.clientWidth + 'x' + viewH();
+    if (size === lastSize) { requestTick(); return; }
+    lastSize = size;
     scenes.forEach(function (s) {
+      if (s.api.steps) placeSnapPoints(s);
       if (s.api.resize) s.api.resize();
       s.dirty = true;
     });
@@ -170,7 +225,7 @@
       var factory = factories[el.dataset.scene];
       if (!factory) return;
       var api = factory(el) || {};
-      var s = { el: el, api: api, progress: -1, target: 0, step: -1, dirty: true };
+      var s = { el: el, api: api, progress: -1, target: 0, step: -1, stepAt: 0, dirty: true };
       scenes.push(s);
       if (api.steps) applyStep(s, 0);
     });
