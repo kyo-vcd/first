@@ -14,6 +14,7 @@ public/                  # 배포되는 파일 (Pages 출력 디렉터리)
   css/style.css            # 공통: 색·글꼴 토큰, .scene / .sticky-screen, 헤더·푸터
   css/scenes/s01.css       # 장면별 스타일
   js/script.js             # 공통: 스크롤 진행률(0~1) 계산, 장면 등록(Story.register)
+  js/compare.js            # 구성 비교용 (?v= 로 현재·개선1·개선2 전환)
   js/scenes/s01.js         # 장면별 상태 변화
   images/                  # 이미지
 docs/
@@ -53,6 +54,10 @@ docs/
 단계형 CSS 규칙: 사라지는 요소가 먼저, 나타나는 요소는 `transition-delay`로 뒤에 둔다.
 되돌아갈 때는 기본 규칙의 delay가 쓰이므로 기본 규칙에도 역순 delay를 준다. 예시는 `css/scenes/s01.css`.
 - 장면 안의 요소만 다루고, 다른 장면에는 영향을 주지 않는다.
+
+### 구성 비교
+
+상단 플로팅 영역에서 S01의 현재 · 개선1 · 개선2 구성을 바꿔 볼 수 있다 (`?v=0|1|2`). 내용과 정리 방법은 [docs/compare.md](docs/compare.md).
 
 ### 새 장면 추가 (예: SCENE 02)
 

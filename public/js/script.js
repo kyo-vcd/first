@@ -179,7 +179,12 @@
     onResize();
   }
 
-  window.Story = { register: register, util: util, progressOf: progressOf };
+  window.Story = {
+    register: register,
+    util: util,
+    progressOf: progressOf,
+    variant: window.STORY_VARIANT || 0   // 구성 비교용 (js/compare.js)
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);

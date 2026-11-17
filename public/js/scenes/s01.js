@@ -42,6 +42,16 @@
     dim: { face: '#353535', edge: '#262626', ring: '#2E2E2E', shine: null }
   };
 
+  /* 구성 비교 (js/compare.js)
+     0 현재 / 1 핀 분배 + 수치 표기 / 2 개선1 + 레버 후원 · 상태 진행 표시 · 수조별 금액 미리보기 */
+  var V = Story.variant || 0;
+  var FEATURE = { pins: V >= 1, lever: V >= 2, states: V >= 2, amounts: V >= 2 };
+  var RATES = [0.86, 0.10, 0.04];
+  var PIN_R = 3;                  // 핀 반지름
+  var PIN_FIRST_MS = 260;         // 쏟아지는 입구 → 첫 핀
+  var PIN_HOP_MS = 95;            // 핀 → 다음 핀
+  var PIN_LAST_MS = 150;          // 마지막 핀 → 수조 입구
+
   Story.register('s01', function (root) {
     function $(sel) { return root.querySelector(sel); }
     function $$(sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); }
@@ -57,8 +67,13 @@
       badge: $('.s01-tank-badge'),
       live: $('.s01-live'),
       total: $('.s01-total'),
-      fieldAmounts: $$('.s01-field-amount')
+      fieldAmounts: $$('.s01-field-amount'),
+      flow: $('.s01-flow'),
+      lever: $('.s01-lever'),
+      states: $$('.s01-state'),
+      tankAmounts: $$('.s01-tank-amount')
     };
+    var flowCtx = el.flow ? el.flow.getContext('2d') : null;
 
     var tanks = $$('.s01-tank').map(function (node) {
       var canvas = node.querySelector('.s01-coins');
@@ -73,7 +88,8 @@
         target: isField ? 'bright' : 'dim',  // 강조 상태에서 바뀌는 색
         count: 0,
         coins: [],
-        w: 0, h: 0, boxH: 0
+        w: 0, h: 0, boxH: 0,
+        left: 0, top: 0          // 수조 몸통의 위치 (.s01-stage 기준, 핀 분배에서 사용)
       };
     });
     var field = tanks[0];
@@ -90,7 +106,11 @@
       mix: 0, mixFrom: 0, mixTo: 0, mixStart: 0,   // 동전 강조 정도 0~1 (시간 기반 전환)
       raf: 0,
       last: 0,
-      dropStart: 0
+      dropStart: 0,
+      pins: [], pinRows: [],     // [개선1·2] 핀 판
+      boxTop: 0,                 // 수조 입구 높이 (.s01-stage 기준)
+      stageW: 0, stageH: 0,
+      stateItem: -1
     };
 
     /* ---------- 동전 모양 (미리 그려 두고 재사용) ---------- */
@@ -158,7 +178,17 @@
         t.boxH = t.box.offsetHeight;
         t.canvas.width = Math.round(t.w * state.dpr);
         t.canvas.height = Math.round(t.h * state.dpr);
+        t.left = t.node.offsetLeft;
+        t.top = t.node.offsetTop + t.body.offsetTop;
       });
+      if (FEATURE.pins) {
+        state.stageW = el.stage.clientWidth;
+        state.stageH = el.stage.clientHeight;
+        state.boxTop = field.top + field.h - field.boxH;
+        el.flow.width = Math.round(state.stageW * state.dpr);
+        el.flow.height = Math.round(state.stageH * state.dpr);
+        buildPins();
+      }
       // CSS 전환에서 쓰는 거리 (transform 영향을 받지 않는 offset 값으로 잰다)
       var fieldOffset = el.stage.clientWidth / 2 - (field.node.offsetLeft + field.node.offsetWidth / 2);
       var controlSpace = el.stage.offsetTop - (el.headlines.offsetTop + el.headlines.offsetHeight);
@@ -208,6 +238,125 @@
       el.badge.style.bottom = Math.max(0, Math.min(bottom, max)) + 'px';
     }
 
+    /* ---------- [개선1·2] 핀 판 ----------
+       수조 입구 위 빈 공간에 엇갈린 핀을 배치한다. */
+    function buildPins() {
+      state.pins = [];
+      state.pinRows = [];
+      var top = 14;
+      var bottom = state.boxTop - 24;
+      var bandH = bottom - top;
+      if (bandH < 40) return;
+      var rows = u.clamp(Math.floor(bandH / 30) + 1, 3, 7);
+      var gap = u.clamp(state.stageW / 24, 22, 46);
+      for (var k = 0; k < rows; k++) {
+        var y = top + bandH * k / (rows - 1);
+        var row = [];
+        for (var x = gap / 2 + (k % 2 ? gap / 2 : 0); x < state.stageW - 4; x += gap) {
+          var pin = { x: x, y: y, flash: 0 };
+          row.push(pin);
+          state.pins.push(pin);
+        }
+        state.pinRows.push(row);
+      }
+    }
+
+    /* 동전 하나의 경로: 가운데 입구 → 핀마다 목표 수조 쪽으로 튕김 → 수조 입구 */
+    function buildPath(t, coin) {
+      var r = state.r;
+      var entryX = u.clamp(t.left + coin.tx, t.left + r + 3, t.left + t.w - r - 3);
+      var startX = state.stageW / 2 + (Math.random() - 0.5) * 50;
+      var wp = [{ x: startX, y: -r - Math.random() * 30 }];
+      var rows = state.pinRows.length;
+      state.pinRows.forEach(function (row, k) {
+        var want = u.lerp(startX, entryX, (k + 1) / (rows + 1)) + (Math.random() - 0.5) * 16;
+        var best = row[0];
+        row.forEach(function (p) { if (Math.abs(p.x - want) < Math.abs(best.x - want)) best = p; });
+        var side = entryX >= best.x ? 1 : -1;
+        wp.push({ x: best.x + side * (PIN_R + r * 0.9), y: best.y - r * 0.8, pin: best });
+      });
+      wp.push({ x: entryX, y: state.boxTop - r });
+      coin.flow = { wp: wp, seg: 0, t: 0 };
+      coin.x = wp[0].x;
+      coin.y = wp[0].y;
+    }
+
+    function segDuration(coin) {
+      var seg = coin.flow.seg;
+      var last = coin.flow.wp.length - 2;
+      return seg === 0 ? PIN_FIRST_MS : seg === last ? PIN_LAST_MS : PIN_HOP_MS;
+    }
+
+    /* 핀 사이를 움직이는 동전 (반환값 true = 수조로 넘어감) */
+    function stepFlow(t, c, dt) {
+      var f = c.flow;
+      f.t += dt * 1000;
+      var dur = segDuration(c);
+      while (f.t >= dur) {
+        f.t -= dur;
+        f.seg++;
+        var hit = f.wp[f.seg];
+        if (hit.pin) hit.pin.flash = 1;
+        if (f.seg >= f.wp.length - 1) {
+          // 수조 몸통 좌표로 바꿔 수조 canvas 로 넘긴다
+          c.x = hit.x - t.left;
+          c.y = hit.y - t.top;
+          c.vy = 520;
+          c.flow = null;
+          c.state = 1;
+          return true;
+        }
+        dur = segDuration(c);
+      }
+      var a = f.wp[f.seg];
+      var b = f.wp[f.seg + 1];
+      var k = f.t / dur;
+      var hop = f.seg === 0 ? 0 : Math.sin(Math.PI * k) * Math.min(10, state.r);
+      c.x = u.lerp(a.x, b.x, u.easeOut(k));
+      c.y = u.lerp(a.y, b.y, k * k) - hop;   // 아래로 가속하며, 핀에서 살짝 튀어 오른다
+      return false;
+    }
+
+    function renderFlow() {
+      if (!flowCtx) return;
+      var ctx = flowCtx;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, el.flow.width, el.flow.height);
+      ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+      // 핀: 분배 확인(STATE 03)부터 동전 색 전환과 함께 사라진다
+      var pinAlpha = 1 - state.mix;
+      if (pinAlpha > 0.01) {
+        state.pins.forEach(function (p) {
+          ctx.globalAlpha = pinAlpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, PIN_R, 0, Math.PI * 2);
+          ctx.fillStyle = '#5c5c5c';
+          ctx.fill();
+          if (p.flash > 0.02) {
+            ctx.globalAlpha = pinAlpha * p.flash;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, PIN_R + 5 * p.flash, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(242, 184, 75, 0.85)';
+            ctx.fill();
+          }
+        });
+      }
+
+      // 핀 사이를 지나는 동전
+      if (state.sprites) {
+        var size = state.sprites.gold.size;
+        var off = state.r + 1;
+        ctx.globalAlpha = 1;
+        tanks.forEach(function (t) {
+          t.coins.forEach(function (c) {
+            if (c.state === 3) ctx.drawImage(state.sprites.gold.img, c.x - off, c.y - off, size, size);
+          });
+        });
+      }
+      ctx.globalAlpha = 1;
+    }
+
     /* ---------- STATE 01 → 02 : 후원하기 ----------
        mode: 'click' 버튼, 'auto' 스크롤 자동 후원, 'instant' 애니메이션 없이 */
     function donate(mode) {
@@ -240,14 +389,21 @@
       });
       placeTargets(false);
 
+      // [개선1·2] 버튼·레버로 후원하면 핀 판을 거쳐 떨어진다 (스크롤 자동 후원은 바로 떨어짐)
+      var viaPins = FEATURE.pins && mode === 'click' && state.pinRows.length > 0;
       tanks.forEach(function (t) {
         t.coins.forEach(function (coin) {
-          coin.x = u.clamp(coin.tx + (Math.random() - 0.5) * t.w * 0.4, state.r, t.w - state.r);
-          coin.y = -state.r - Math.random() * t.h * 0.25;
+          if (viaPins) {
+            buildPath(t, coin);
+          } else {
+            coin.x = u.clamp(coin.tx + (Math.random() - 0.5) * t.w * 0.4, state.r, t.w - state.r);
+            coin.y = -state.r - Math.random() * t.h * 0.25;
+          }
         });
       });
 
       updateTexts();
+      updateAmounts(amount);
 
       if (mode === 'instant' || u.reducedMotion) {
         tanks.forEach(function (t) {
@@ -259,8 +415,16 @@
         state.dropping = true;
         root.classList.add('is-dropping');
         el.donate.disabled = true;
+        if (el.lever) el.lever.disabled = true;
         run();
       }
+      refreshStates();
+    }
+
+    /* [개선2] 수조별 금액 (슬라이더를 움직이는 동안 미리보기) */
+    function updateAmounts(amount) {
+      if (!FEATURE.amounts) return;
+      el.tankAmounts.forEach(function (n, i) { n.textContent = u.won(amount * RATES[i]); });
     }
 
     function updateTexts() {
@@ -276,6 +440,9 @@
       root.classList.remove('is-dropping');
       el.donate.disabled = false;
       el.donate.textContent = '다시 후원하기';
+      if (el.lever) el.lever.disabled = false;
+      state.pins.forEach(function (p) { p.flash = 0; });
+      renderFlow();
     }
 
     /* ---------- 애니메이션 루프: 동전 낙하 + 동전 색 전환 ---------- */
@@ -287,8 +454,9 @@
           moving = true;
           if (c.state === 0) {
             if (elapsed < c.delay) return;
-            c.state = 1;
+            c.state = c.flow ? 3 : 1;
           }
+          if (c.state === 3 && !stepFlow(t, c, dt)) return;   // 핀 판을 지나는 중
           c.vy += GRAVITY * dt;
           c.y += c.vy * dt;
           c.x += (c.tx - c.x) * Math.min(1, dt * 7);
@@ -318,6 +486,7 @@
       state.last = now;
       var dropping = state.dropping && stepCoins(dt, now - state.dropStart);
       var mixing = stepMix(now);
+      state.pins.forEach(function (p) { if (p.flash > 0) p.flash = Math.max(0, p.flash - dt * 4); });
       render();
       if (state.dropping && !dropping) settle();
       if (dropping || mixing) {
@@ -334,6 +503,7 @@
     }
 
     function render() {
+      if (FEATURE.pins) renderFlow();
       if (!state.sprites) return;
       var s = state.sprites;
       var size = s.gold.size;
@@ -345,7 +515,7 @@
         ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
         var over = s[t.target];
         t.coins.forEach(function (c) {
-          if (c.state === 0) return;
+          if (c.state === 0 || c.state === 3) return;
           ctx.globalAlpha = 1;
           ctx.drawImage(s.gold.img, c.x - off, c.y - off, size, size);
           if (state.mix > 0.01) {
@@ -377,9 +547,51 @@
       var active = step >= 2 ? 2 : step === 1 ? 1 : 0;
       el.titles.forEach(function (t, i) { t.setAttribute('aria-hidden', i === active ? 'false' : 'true'); });
       el.form.inert = step >= 1;
+      if (el.lever) el.lever.inert = step >= 1;
+      refreshStates();
+    }
+
+    /* ---------- [개선2] 상태 진행 표시 ---------- */
+    var STATE_RANGE = [[0, STEPS[0]], [0, STEPS[0]], [STEPS[0], STEPS[1]], [STEPS[1], STEPS[2]], [STEPS[2], 1]];
+
+    function currentItem() {
+      if (state.step <= 0) return state.donated ? 1 : 0;
+      return Math.min(state.step + 1, 4);
+    }
+
+    function refreshStates() {
+      if (!FEATURE.states) return;
+      var cur = currentItem();
+      if (cur === state.stateItem) return;
+      state.stateItem = cur;
+      el.states.forEach(function (li, i) {
+        li.classList.toggle('is-current', i === cur);
+        li.classList.toggle('is-done', i < cur);
+        if (i === cur) li.setAttribute('aria-current', 'step');
+        else li.removeAttribute('aria-current');
+        if (i !== cur) li.style.removeProperty('--fill');
+      });
+    }
+
+    /* 연동형: 지금 상태 안에서 스크롤이 얼마나 진행됐는지 막대로 보여 준다 */
+    function update(p) {
+      refreshStates();
+      var cur = state.stateItem;
+      if (cur < 0) return;
+      var range = STATE_RANGE[cur];
+      var fill = cur === 0 ? 0 : u.range(p, range[0], range[1]);
+      if (cur === 1) fill = u.range(p, 0, STEPS[0]);
+      el.states[cur].style.setProperty('--fill', fill.toFixed(3));
     }
 
     function resize() {
+      // 핀 판을 지나던 동전은 크기가 바뀌면 경로가 틀어지므로 바로 쌓인 상태로 맞춘다
+      if (state.dropping && FEATURE.pins) {
+        tanks.forEach(function (t) {
+          t.coins.forEach(function (c) { c.flow = null; c.state = 2; });
+        });
+        settle();
+      }
       measure();
       if (state.donated) {
         computeRadius();
@@ -390,14 +602,64 @@
 
     /* ---------- 사용자 입력 ---------- */
     el.amount.addEventListener('input', function () {
-      el.amountValue.textContent = u.won(parseInt(el.amount.value, 10));
+      var amount = parseInt(el.amount.value, 10);
+      el.amountValue.textContent = u.won(amount);
+      if (!state.donated) updateAmounts(amount);
     });
+
+    /* [개선2] 레버: 끝까지 당기면 후원. 키보드(Enter·Space)나 클릭은 레버가 내려가는 모션 후 후원 */
+    if (FEATURE.lever && el.lever) {
+      var knob = el.lever.querySelector('.s01-lever-knob');
+      var track = el.lever.querySelector('.s01-lever-track');
+      var drag = null;
+      var dragged = false;
+
+      el.lever.addEventListener('pointerdown', function (e) {
+        if (state.dropping) return;
+        drag = { y: e.clientY, travel: track.clientHeight - knob.offsetHeight, ready: false, moved: 0 };
+        el.lever.setPointerCapture(e.pointerId);
+        el.lever.classList.add('is-dragging');
+      });
+      el.lever.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var dy = u.clamp(e.clientY - drag.y, 0, drag.travel);
+        drag.moved = Math.max(drag.moved, dy);
+        drag.ready = dy >= drag.travel * 0.85;
+        knob.style.transform = 'translateY(' + dy + 'px)';
+      });
+      function release() {
+        if (!drag) return;
+        el.lever.classList.remove('is-dragging');
+        knob.style.transform = '';              // 스프링처럼 제자리로
+        dragged = drag.moved > 4;
+        if (drag.ready && !state.dropping) donate('click');
+        drag = null;
+      }
+      el.lever.addEventListener('pointerup', release);
+      el.lever.addEventListener('pointercancel', release);
+      el.lever.addEventListener('click', function () {
+        if (dragged) { dragged = false; return; }
+        if (state.dropping) return;
+        el.lever.classList.add('is-pulled');
+        window.setTimeout(function () {
+          el.lever.classList.remove('is-pulled');
+          donate('click');
+        }, 260);
+      });
+    }
+
+    updateAmounts(parseInt(el.amount.value, 10));
 
     el.form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!state.dropping) donate('click');
     });
 
-    return { steps: STEPS, onStep: onStep, resize: resize };
+    return {
+      steps: STEPS,
+      onStep: onStep,
+      resize: resize,
+      update: FEATURE.states ? update : null   // [개선2] 상태 안 진행 막대만 연동형
+    };
   });
 })();

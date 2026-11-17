@@ -14,6 +14,7 @@
   --scene-length: 250vh;    /* 상태마다 스크롤 3~4번이면 다음 상태로 넘어가도록 */
   --s01-shift: 0px;          /* 컨트롤이 사라진 뒤 제목·수조가 이동할 거리 (JS) */
   --s01-field-offset: 0px;   /* 86% 수조를 가운데로 옮길 거리 (JS) */
+  --s01-box-h: 72%;         /* 수조 틀 높이 (개선안은 핀 판 자리를 위해 낮춘다) */
   --t-fast: 0.45s;
   --t: 0.7s;
   --t-slow: 0.9s;
@@ -24,7 +25,7 @@
   flex-direction: column;
   align-items: center;
   gap: clamp(14px, 2.6vh, 28px);
-  padding: calc(var(--header-h) + 2vh) var(--gutter) clamp(48px, 8vh, 80px);
+  padding: calc(var(--top-space) + 2vh) var(--gutter) clamp(48px, 8vh, 80px);
 }
 
 /* =========================================================
@@ -147,7 +148,7 @@
 .s01-tank-box {
   position: absolute;
   inset: auto 0 0 0;
-  height: 72%;
+  height: var(--s01-box-h);
   border: 2px solid rgba(224, 53, 43, 0.55);
   border-top: 0;
   border-radius: 0 0 12px 12px;
@@ -178,7 +179,7 @@
 .s01-tank-rate {
   position: absolute;
   left: 50%;
-  bottom: calc(72% + 10px);
+  bottom: calc(var(--s01-box-h) + 10px);
   transform: translate(-50%, 8px);
   font-size: clamp(18px, 2.4vw, 32px);
   font-weight: 800;
@@ -376,4 +377,211 @@
   .s01-donate { order: 4; width: 100%; }
   .s01-tank--field { flex-grow: 2.6; }
   .s01-tank-label { font-size: 12px; }
+}
+
+/* =========================================================
+   구성 비교: 개선1 · 개선2 (js/compare.js 의 data-variant)
+   ========================================================= */
+
+/* 기본(현재)에서는 개선안 요소를 숨긴다 */
+.s01-flow,
+.s01-lever,
+.s01-states,
+.s01-source,
+.s01-tank-amount { display: none; }
+
+/* ---------- 개선1 · 2 : 핀 분배 ---------- */
+
+[data-variant="1"] .scene-01,
+[data-variant="2"] .scene-01 { --s01-box-h: 60%; }
+
+[data-variant="1"] .s01-flow,
+[data-variant="2"] .s01-flow {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+[data-variant="1"] .s01-source,
+[data-variant="2"] .s01-source {
+  display: block;
+  position: absolute;
+  left: var(--gutter);
+  bottom: 18px;
+  font-size: 12px;
+  color: var(--muted);
+  transition: opacity var(--t) ease;
+}
+
+.is-step-3 .s01-source { opacity: 0; }
+
+/* ---------- 개선2 : 레버 ---------- */
+
+.s01-lever {
+  --travel: 136px;
+  position: absolute;
+  top: 0;
+  right: -96px;
+  z-index: 3;
+  width: 64px;
+  padding: 0;
+  border: 0;
+  background: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity var(--t-fast) ease, visibility 0s;
+}
+
+.s01-lever-track {
+  position: relative;
+  width: 14px;
+  height: 180px;
+  border-radius: 999px;
+  background: #222;
+  box-shadow: inset 0 0 0 1px #3a3a3a;
+}
+
+.s01-lever-knob {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff6a5f, var(--red) 60%, #a5241c);
+  box-shadow: 0 6px 18px rgba(224, 53, 43, 0.45);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.s01-lever.is-dragging { cursor: grabbing; }
+.s01-lever.is-dragging .s01-lever-knob { transition: none; }
+.s01-lever.is-pulled .s01-lever-knob { transform: translateY(var(--travel)); transition-duration: 0.25s; }
+.s01-lever:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; border-radius: 12px; }
+.s01-lever:disabled { cursor: default; opacity: 0.4; }
+
+.s01-lever-label {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--fg-soft);
+  text-align: center;
+}
+
+/* 레버 자리가 있는 넓은 화면에서만 레버로 후원하고, 좁은 화면은 버튼을 쓴다 */
+@media (min-width: 1300px) {
+  [data-variant="2"] .s01-lever { display: flex; }
+  [data-variant="2"] .s01-donate { display: none; }
+  [data-variant="2"] .s01-control { padding-right: 24px; }
+}
+
+.is-step-1 .s01-lever { opacity: 0; visibility: hidden; transition-delay: 0s, var(--t-fast); }
+
+/* ---------- 개선2 : 수조별 금액 미리보기 ---------- */
+
+[data-variant="2"] .s01-tank-amount {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-variant="2"] .s01-tank--field .s01-tank-amount { color: var(--gold); }
+
+/* ---------- 개선2 : 상태 진행 표시 ---------- */
+
+[data-variant="2"] .s01-states {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: absolute;
+  left: var(--gutter);
+  top: 50%;
+  z-index: 4;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateY(-50%);
+}
+
+.s01-state {
+  --fill: 0;                 /* 상태 안에서의 스크롤 진행 0~1 (JS) */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 14px;
+  font-size: 12px;
+  color: #5a5a5a;
+  transition: color var(--t-fast) ease;
+}
+
+/* 왼쪽 세로 막대가 상태 안의 스크롤 진행만큼 차오른다 */
+.s01-state::before,
+.s01-state::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+  background: #2f2f2f;
+}
+
+.s01-state::after {
+  background: var(--gold);
+  transform-origin: top;
+  transform: scaleY(var(--fill));
+}
+
+.s01-state-no { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.s01-state-name {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition: max-width var(--t) var(--ease), opacity var(--t-fast) ease;
+}
+
+.s01-state.is-done { color: var(--muted); }
+.s01-state.is-done::after { transform: scaleY(1); }
+.s01-state.is-current { color: var(--fg); }
+.s01-state.is-current .s01-state-name { max-width: 7em; opacity: 1; }
+
+/* 화면이 좁으면 상태 표시를 헤더 아래 가로줄로 옮긴다 */
+@media (max-width: 1399px) {
+  [data-variant="2"] .s01-states {
+    flex-direction: row;
+    gap: 10px;
+    left: 50%;
+    top: calc(var(--top-space) + 8px);
+    transform: translateX(-50%);
+  }
+  [data-variant="2"] .scene-01 .sticky-screen { padding-top: calc(var(--top-space) + 2vh + 34px); }
+  .s01-state { padding-left: 0; padding-bottom: 8px; }
+  .s01-state::before,
+  .s01-state::after { top: auto; bottom: 0; right: 0; width: auto; height: 3px; }
+  .s01-state::after { transform-origin: left; transform: scaleX(var(--fill)); }
+  .s01-state.is-done::after { transform: scaleX(1); }
+}
+
+/* 좁은 화면: 상태 표시는 번호만, 수치 표기는 스크롤 안내 위로 */
+@media (max-width: 640px) {
+  [data-variant="2"] .s01-states { top: calc(var(--top-space) + 2px); gap: 8px; }
+  [data-variant="2"] .scene-01 .sticky-screen { padding-top: calc(var(--top-space) + 30px); }
+  .s01-state.is-current .s01-state-name { max-width: 0; opacity: 0; }
+  .s01-state { min-width: 26px; justify-content: center; }
+  [data-variant="1"] .s01-source,
+  [data-variant="2"] .s01-source { left: 0; right: 0; bottom: 44px; text-align: center; font-size: 11px; }
 }
