@@ -20,6 +20,7 @@ public/                  # 배포되는 파일 (Pages 출력 디렉터리)
 docs/
   assignment.md            # 과제 요건 · 제출 방법 · 강의 내용 대응
   compare.md               # 구성 비교(현재·개선1·개선2) 설명
+  image-prompts.md         # ChatGPT 이미지 소스 생성 프롬프트
   ref/                     # 수업 자료(class11.pdf), 장면 기획서(scene.pdf)
   scenes/S01.md            # 장면별 구현 명세 (적용 범위·상태 변화·유지 조건)
 tools/
