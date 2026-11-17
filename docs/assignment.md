@@ -62,4 +62,4 @@ python3 tools/make_submission.py 학번_이름
 - [ ] `tools/make_submission.py`로 제출 폴더 생성
 - [ ] 제출 폴더 `index.html`을 브라우저로 열어 후원 → 스크롤 → 결과까지 동작 확인
 - [ ] 폴더명이 `학번_이름`인지 확인 후 구글 드라이브 업로드
-- [ ] GitHub 저장소를 공개하거나 공유할 경우: 저장소 이력에 Cloudflare API 토큰이 남아 있으므로 먼저 Cloudflare에서 토큰을 폐기하고, `README.md`의 계정 정보를 정리
+- [ ] GitHub 저장소를 공개하거나 공유할 경우: 저장소 이력에 Cloudflare API 토큰이 남아 있으므로 먼저 Cloudflare에서 토큰을 폐기하고, `docs/deploy.md`의 계정 정보를 정리

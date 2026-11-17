@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-프로젝트 정보, 배포 설정, 새 환경 설정은 [README.md](README.md)를 따른다.
+프로젝트 구조와 작업 방법은 [README.md](README.md), 배포 설정은 [docs/deploy.md](docs/deploy.md), 장면 구현 규칙은 [docs/scene-guide.md](docs/scene-guide.md)를 따른다.
 
 - 사이트 파일은 `public/`에만 둔다. 빌드 단계 없음.
 - `main`에 push하면 Cloudflare Pages(`kyo-first`)가 자동 배포한다. `wrangler deploy`나 수동 업로드는 쓰지 않는다.
