@@ -5,7 +5,8 @@
    - <html data-variant="0|1|2"> 를 화면이 그려지기 전에 붙인다 (그래서 <head>에서 불러온다).
      구성별 차이는 CSS 의 [data-variant] 선택자와 장면 스크립트의 Story.variant 로 나눈다.
    - 상단 플로팅 영역(.compare)의 버튼을 누르면 해당 구성으로 다시 연다.
-   비교가 끝나면 index.html 의 .compare 와 이 파일을 지우고, 고른 구성만 남긴다.
+   비교 영역 없이 구성을 고정할 때는 <html data-variant="N"> 만 남기고
+   index.html 의 compare:start ~ compare:end 블록과 이 파일을 뺀다 (tools/make_submission.py 가 자동으로 함).
    ========================================================= */
 
 (function (window, document) {
@@ -16,6 +17,7 @@
   if (VALID.indexOf(v) < 0) v = '0';
 
   document.documentElement.dataset.variant = v;
+  document.documentElement.dataset.compare = 'on';   // 비교 영역 자리만큼 내용을 내린다 (style.css)
   window.STORY_VARIANT = parseInt(v, 10);
 
   function init() {

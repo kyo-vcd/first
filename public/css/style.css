@@ -186,7 +186,7 @@ button, input, output { font: inherit; color: inherit; }
 
 /* ---------- 구성 비교용 플로팅 영역 (js/compare.js) ---------- */
 
-:root[data-variant] { --top-space: calc(var(--header-h) + 34px); }
+:root[data-compare] { --top-space: calc(var(--header-h) + 34px); }
 
 .compare {
   position: fixed;
@@ -246,14 +246,14 @@ button, input, output { font: inherit; color: inherit; }
 
 /* 헤더의 장면 이름·진행 막대와 겹치지 않도록 중간 폭에서는 헤더 아래로 내린다 */
 @media (min-width: 641px) and (max-width: 1180px) {
-  :root[data-variant] { --top-space: calc(var(--header-h) + 40px); }
+  :root[data-compare] { --top-space: calc(var(--header-h) + 40px); }
   .compare { top: calc(var(--header-h) - 6px); }
   .compare-desc { display: none; }
 }
 
 @media (max-width: 640px) {
   :root { --header-h: 52px; }
-  :root[data-variant] { --top-space: calc(var(--header-h) + 46px); }
+  :root[data-compare] { --top-space: calc(var(--header-h) + 46px); }
   .compare { top: calc(var(--header-h) + 2px); }
   .compare-tab { padding: 0 14px; }
   .compare-desc { display: none; }
