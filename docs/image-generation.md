@@ -12,6 +12,7 @@ SCENE 01의 배경 · 바닥 · 동전이 이 방식으로 만들어졌다 (결�
 | 로그인 | `codex login --device-auth` → 나오는 주소(https://auth.openai.com/codex/device)를 휴대폰·PC 브라우저에서 열고 코드 입력 |
 | 확인 | `codex login status` → `Logged in using ChatGPT` / `codex features list` 에서 `image_generation  stable  true` |
 
+- 클라우드 환경 "test"의 시작 스크립트가 새 컨테이너마다 Codex CLI · fonttools · brotli 설치와 git 작성자 설정을 한다. 로그인만 직접 한다.
 - 로그인 정보는 컨테이너의 `~/.codex/`에만 있다. **저장소에 넣지 않는다.** 컨테이너가 재시작되면 다시 로그인한다.
 - 이미지를 만들 때마다 ChatGPT 구독 사용량이 차감된다.
 
