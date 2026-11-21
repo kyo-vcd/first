@@ -3,8 +3,8 @@
 인터랙티브 디자인 과제 프로젝트 "1만 원의 경로 — 전장의 병원은 안전한가".
 후원금 1만 원이 전장의 병원에 닿기까지를 8개 장면의 스크롤 스토리로 보여준다. 지금은 SCENE 01까지 만들었다.
 
-- 사이트: https://kyo-first.pages.dev
-- 저장소: https://github.com/kyo-vcd/first (비공개)
+- 사이트: https://kyo-vcd.github.io/first/
+- 저장소: https://github.com/kyo-vcd/first
 
 ## 구조
 
@@ -23,7 +23,7 @@ docs/
   scenes/S01.md            장면별 명세 (적용 범위 · 상태 변화 · 유지 조건 · 비주얼)
   image-generation.md      이미지 만들기 (Codex CLI + ChatGPT 구독)
   image-prompts.md         (처음 방식) ChatGPT 웹용 프롬프트
-  deploy.md                Cloudflare Pages 설정 · 다시 만들기
+  deploy.md                배포 (GitHub Pages)
   ref/                     수업 자료 · 기획서 PDF, images/시안 · images/assets(이미지 원본)
 tools/
   make_submission.py       과제 제출 폴더 + zip 만들기
@@ -42,7 +42,7 @@ tools/
 | 이미지 만들기 | [docs/image-generation.md](docs/image-generation.md) |
 | 문구 변경 · 장면 추가 후 글꼴 | `pip install fonttools brotli` → `python3 tools/build_fonts.py` |
 | 제출 파일 | `python3 tools/make_submission.py 학번_이름` → `dist/학번_이름_날짜_시간.zip` ([docs/assignment.md](docs/assignment.md)) |
-| 배포 | `main`에 push하면 자동 배포 ([docs/deploy.md](docs/deploy.md)) |
+| 배포 | `main`에 push하면 GitHub Pages에 자동 배포 ([docs/deploy.md](docs/deploy.md)) |
 
 ## 새 개발환경
 

@@ -13,7 +13,7 @@
 | 할 일 | 상태 |
 | --- | --- |
 | 기능 구현 (SCENE 01 스크롤 스토리텔링) | 완료 |
-| GitHub 가입·저장소 | 완료 (`kyo-vcd/first`, 비공개) |
+| GitHub 가입·저장소 | 완료 (`kyo-vcd/first`, 공개 · 사이트 https://kyo-vcd.github.io/first/) |
 | 시안 확정 | 완료: 처음 구성(현재)으로 확정, 개선1 · 2와 비교 영역은 제거 |
 | 제출 폴더 만들기 | `tools/make_submission.py` 실행 |
 | 구글 드라이브 업로드 | 직접 |
@@ -62,4 +62,3 @@ python3 tools/make_submission.py 학번_이름
 - [ ] `tools/make_submission.py`로 제출 폴더 생성
 - [ ] 제출 폴더 `index.html`을 브라우저로 열어 후원 → 스크롤 → 결과까지 동작 확인
 - [ ] 폴더명이 `학번_이름`인지 확인 후 구글 드라이브 업로드
-- [ ] GitHub 저장소를 공개하거나 공유할 경우: 저장소 이력에 Cloudflare API 토큰이 남아 있으므로 먼저 Cloudflare에서 토큰을 폐기하고, `docs/deploy.md`의 계정 정보를 정리
