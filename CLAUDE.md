@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-프로젝트 구조와 작업 방법은 [README.md](README.md), 배포 설정은 [docs/deploy.md](docs/deploy.md), 장면 구현 규칙은 [docs/scene-guide.md](docs/scene-guide.md)를 따른다.
+학교 수업(INTERACTIVE DESIGN) 과제 프로젝트다. README는 수업용 소개만 둔다.
+장면 구현 규칙은 [docs/scene-guide.md](docs/scene-guide.md), 배포는 [docs/deploy.md](docs/deploy.md), 제출은 [docs/assignment.md](docs/assignment.md)를 따른다.
+도구: `tools/make_submission.py`(제출 zip), `tools/build_fonts.py`(문구 변경 후 글꼴), `tools/codex_image.sh`(이미지).
 
 - 사이트 파일은 `public/`에만 둔다. 빌드 단계 없음.
 - `main`에 push하면 GitHub Actions(`.github/workflows/pages.yml`)가 `public/`을 GitHub Pages에 배포한다. Cloudflare는 쓰지 않는다.
