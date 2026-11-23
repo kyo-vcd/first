@@ -1,11 +1,11 @@
-"""Codex 생성 원본 → public/img (시안 색에 맞춤, 동전 4종씩 잘라 160px, 바닥은 이음매 없이).
+"""Codex 생성 원본 → public/images (시안 색에 맞춤, 동전 4종씩 잘라 160px, 바닥은 이음매 없이).
 저장소 루트에서 실행: python3 docs/ref/images/assets/codex/process.py
 """
 from PIL import Image, ImageOps
 import numpy as np
 
 G = 'docs/ref/images/assets/codex/'   # Codex 생성 원본
-O = 'public/img/'
+O = 'public/images/'
 A = 'docs/ref/images/assets/'
 
 
@@ -23,19 +23,19 @@ def masked_mean(rgb, mask):
 
 # ---- coins: 2x2 sheets -> 4 coins each, color matched to mockup coin mean (160,119,52)
 MOCK_COIN = (160, 119, 52)
-gold = np.array(Image.open(G + 'coin-gold.png').convert('RGBA'))
+gold = np.array(Image.open(G + 'coin_gold.png').convert('RGBA'))
 gm = (gold[..., 3] > 200) & (gold[..., 0] > 90) & (gold[..., 0] > gold[..., 2] + 30)
 gain_src = masked_mean(gold[..., :3], gm)
 print('gold mean before', [round(x) for x in gain_src])
 
-for name in ('coin-gold', 'coin-blood'):
-    im = np.array(Image.open(G + '' + name + '.png').convert('RGBA'))
+for name in ('coin_gold', 'coin_blood'):
+    im = np.array(Image.open(G + name + '.png').convert('RGBA'))
     rgb = match(im[..., :3], gain_src, MOCK_COIN, None)
     im = np.dstack([rgb.astype(np.uint8), im[..., 3]])
     sheet = Image.fromarray(im, 'RGBA')
     h = sheet.width // 2
     for i, (cx, cy) in enumerate(((0, 0), (h, 0), (0, h), (h, h))):
-        if name == 'coin-blood' and i not in (0, 3):
+        if name == 'coin_blood' and i not in (0, 3):
             continue   # 핏자국 금화는 1·4번만 쓴다 (s01.js COIN_SRC)
         c = sheet.crop((cx, cy, cx + h, cy + h))
         a = c.getchannel('A').point(lambda v: 255 if v > 24 else 0)
@@ -43,7 +43,7 @@ for name in ('coin-gold', 'coin-blood'):
         s = max(c.size)
         sq = Image.new('RGBA', (s, s))
         sq.paste(c, ((s - c.width) // 2, (s - c.height) // 2))
-        sq.resize((160, 160), Image.LANCZOS).save('%ss01/%s-%d.png' % (O, name, i + 1), optimize=True)
+        sq.resize((160, 160), Image.LANCZOS).save('%ss01/%s_%d.png' % (O, name, i + 1), optimize=True)
 
 # ---- background: match mockup empty-area mean (21,17,16)
 bg = np.array(Image.open(G + 'bg.png').convert('RGB'))
@@ -78,7 +78,7 @@ print('floor strip', (W, H), '->', out.size)
 # ---- post: sharpen coins (speckle survives downscaling), boost floor grain contrast
 from PIL import ImageFilter, ImageEnhance
 import glob
-for p in glob.glob(O + 's01/coin-*.png'):
+for p in glob.glob(O + 's01/coin_*.png'):
     im = Image.open(p).convert('RGBA')
     a = im.getchannel('A')
     rgb = im.convert('RGB').filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=1))

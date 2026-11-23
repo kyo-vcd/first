@@ -7,7 +7,7 @@ public/ 의 HTML · CSS · JS 에 나오는 글자만 남긴 woff2 를 굵기별
     pip install fonttools brotli
     python3 tools/build_fonts.py
 
-결과: public/fonts/noto-sans-kr-{400,500,700,800,900}.woff2, public/fonts/OFL.txt
+결과: public/fonts/noto_sans_kr_{400,500,700,800,900}.woff2, public/fonts/OFL.txt
 원본은 Google Fonts 에서 내려받는다 (SIL Open Font License 1.1, 재배포 가능).
 """
 
@@ -63,7 +63,7 @@ def main():
         sub = subset.Subsetter(opts)
         sub.populate(text=text)
         sub.subset(font)
-        path = OUT / ("noto-sans-kr-%d.woff2" % w)
+        path = OUT / ("noto_sans_kr_%d.woff2" % w)
         font.flavor = "woff2"
         font.save(path)
         print("  %s  %d KB" % (path.relative_to(ROOT), path.stat().st_size // 1024))

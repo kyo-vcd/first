@@ -18,7 +18,7 @@ INTERACTIVE DESIGN 수업 과제 (class11: 내 프로젝트에 기능 1개 구�
 | --- | --- |
 | `public/index.html` | 페이지 (장면마다 `<section class="scene">`) |
 | `public/css/`, `public/js/` | 공통 파일 + 장면별 파일 (`scenes/s01.*`) |
-| `public/img/`, `public/fonts/` | 이미지, 글꼴 |
+| `public/images/`, `public/fonts/` | 이미지, 글꼴 |
 | `docs/` | 과제 정리, 장면 명세, 작업 가이드 |
 
 HTML · CSS · JavaScript만 사용 (외부 라이브러리 없음). `public/index.html`을 브라우저로 열면 바로 실행된다.

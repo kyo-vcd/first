@@ -8,7 +8,7 @@ public/ 을 복사해 '학번_이름' 폴더와 zip 을 만든다.
     예) python3 tools/make_submission.py 20251234_홍길동
 
 결과:
-    dist/학번_이름/       index.html, css/, js/, img/  (그대로 브라우저에서 열림)
+    dist/학번_이름/       index.html, css/, js/, images/, fonts/  (그대로 브라우저에서 열림)
     dist/학번_이름_YYYYMMDD_HHMM.zip   구글 드라이브 업로드용 (만든 날짜·시간, 한국 시간)
 
 배포(GitHub Pages)와 저장소의 public/ 은 바꾸지 않는다. dist/ 는 git 에 올리지 않는다.
@@ -48,7 +48,6 @@ def main():
     DIST.mkdir(exist_ok=True)
 
     shutil.copytree(PUBLIC, out, ignore=shutil.ignore_patterns(".DS_Store"))
-    (out / "img").mkdir(exist_ok=True)
 
     stamp = datetime.now(KST).strftime("%Y%m%d_%H%M")
     zip_path = shutil.make_archive(str(DIST / (name + "_" + stamp)), "zip", root_dir=DIST, base_dir=name)

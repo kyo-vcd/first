@@ -3,6 +3,8 @@
 모든 장면은 한 페이지(`public/index.html`) 안에 `<section class="scene">`으로 이어 붙인다.
 장면마다 명세(`docs/scenes/SXX.md`), 스타일(`css/scenes/sXX.css`), 스크립트(`js/scenes/sXX.js`)를 따로 둔다.
 
+파일 이름 규칙 (class12): 이미지는 `images/sXX/`, 이름은 한글·띄어쓰기·하이픈 없이 snake_case (`coin_gold_1.png`). 클래스 이름은 `sXX-` 접두어 + 하이픈.
+
 ## 구조
 
 ```html
@@ -41,6 +43,6 @@
 2. `index.html`의 `<!-- 다음 장면 자리 -->`에 `<section class="scene scene-02" data-scene="s02" …>`을 추가한다.
 3. `css/scenes/s02.css`, `js/scenes/s02.js`를 만들고 `index.html`의 `<link>`, `<script>` 목록에 한 줄씩 추가한다.
 4. `js/scenes/s02.js`에서 `Story.register('s02', function (root) { return { steps: […], onStep: … }; })`처럼 등록한다 (연동형이면 `update`).
-5. 이미지가 필요하면 `docs/image-generation.md` 방식으로 만든다.
+5. 이미지가 필요하면 `docs/image_generation.md` 방식으로 만든다.
 6. 새 글자가 생겼으니 `python3 tools/build_fonts.py`로 글꼴을 다시 만든다.
 7. 푸터의 "다음 장면" 문구를 갱신한다.

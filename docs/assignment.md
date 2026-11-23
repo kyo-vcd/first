@@ -20,6 +20,7 @@
 | 로컬과 배포 페이지 차이 점검 | 모든 경로를 상대 경로로 써서 `/first/` 하위에서도 동일하게 동작 |
 
 파일 이름 규칙 (강의안 2쪽): `index.html` 필수, 이미지는 폴더에, 한글 · 띄어쓰기 금지, 여러 단어는 camelCase 또는 snake_case.
+→ 적용함: 이미지 폴더 `images/`, 파일 · 폴더 이름은 모두 snake_case (예: `images/s01/coin_gold_1.png`, `fonts/noto_sans_kr_400.woff2`, `docs/ref/images/mockup/`).
 
 ## class11 (11주차)
 
@@ -29,7 +30,7 @@
 | --- | --- |
 | 제출일시 | 다음 수업 전날 23:59까지 |
 | 제출장소 | 구글 드라이브 (49쪽 링크) |
-| 제출형식 | 폴더명 `학번_이름`, img · js · css · html 전부 포함 |
+| 제출형식 | 폴더명 `학번_이름`, images · js · css · html 전부 포함 |
 
 ## 진행 상태
 

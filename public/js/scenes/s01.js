@@ -50,7 +50,7 @@
   var COIN_KINDS = 16;
   var BLOOD_FROM = 14;
   var COIN_SEEDS = [11, 23, 37, 41, 59, 73, 89, 97, 101, 113, 127, 131, 149, 157, 163, 173];
-  var COIN_SRC = ['gold-1', 'gold-2', 'gold-3', 'gold-4', 'blood-1', 'blood-4'];
+  var COIN_SRC = ['gold_1', 'gold_2', 'gold_3', 'gold_4', 'blood_1', 'blood_4'];
   var TINT = {                    // 이미지 동전 색 (canvas filter)
     gold: 'none',
     bright: 'brightness(1.12) saturate(1.06)',
@@ -108,7 +108,7 @@
       r: 10,
       dpr: 1,
       sprites: null,
-      coinImgs: null,            // 불러온 동전 이미지 (img/s01/coin-*.png)
+      coinImgs: null,            // 불러온 동전 이미지 (images/s01/coin_*.png)
       mix: 0, mixFrom: 0, mixTo: 0, mixStart: 0,   // 동전 강조 정도 0~1 (시간 기반 전환)
       raf: 0,
       last: 0,
@@ -244,7 +244,7 @@
           state.coinImgs = imgs;
           if (state.sprites) { buildSprites(); render(); }
         };
-        img.src = 'img/s01/coin-' + name + '.png';
+        img.src = 'images/s01/coin_' + name + '.png';
         return img;
       });
     }

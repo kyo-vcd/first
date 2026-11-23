@@ -1,6 +1,6 @@
-Use the built-in image_gen tool. Attached ref-coins.png and ref-coins-zoom.png are crops of the target design; match those coins as closely as possible.
+Use the built-in image_gen tool. Attached ref_coins.png and ref_coins_zoom.png are crops of the target design; match those coins as closely as possible.
 
-Step 1. Generate coin-gold.png with transparent_background=true: a square image with a 2x2 grid of 4 coins, each centered in its quarter, diameter about 80% of the quarter, not touching.
+Step 1. Generate coin_gold.png with transparent_background=true: a square image with a 2x2 grid of 4 coins, each centered in its quarter, diameter about 80% of the quarter, not touching.
 What the reference coins look like (copy this exactly):
 - Dull, slightly dirty antique gold, NOT saturated orange: mid tone #A88A45, lighter rim #C4A253, dark details #4A3714.
 - A wide flat outer rim band, then a clearly visible DARK thin ring (a recessed groove) at about 70% of the radius, then the flat inner face.
@@ -10,6 +10,6 @@ What the reference coins look like (copy this exactly):
 - Flat 2D printed look, no glossy shine, no 3D bevel lighting, no text, no blood.
 The 4 coins look nearly identical; only the speckle pattern differs.
 
-Step 2. Edit coin-gold.png (pass it as referenced image, transparent_background=true) to make coin-blood.png: the same 4 coins and layout, each with one bright red (#D9252A) blood blotch like the reference: a rough round blotch about 30-35% of the coin diameter with a couple of tiny splatter dots, covered by the same black speckle. Different position on each coin (center, upper left, lower right, near the rim).
+Step 2. Edit coin_gold.png (pass it as referenced image, transparent_background=true) to make coin_blood.png: the same 4 coins and layout, each with one bright red (#D9252A) blood blotch like the reference: a rough round blotch about 30-35% of the coin diameter with a couple of tiny splatter dots, covered by the same black speckle. Different position on each coin (center, upper left, lower right, near the rim).
 
 Save both files in the current directory with exactly those names, then print their pixel sizes.
