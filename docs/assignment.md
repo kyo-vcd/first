@@ -1,4 +1,27 @@
-# 과제 정리 — INTERACTIVE DESIGN class11
+# 과제 정리 — INTERACTIVE DESIGN
+
+## class12 (12주차) — AI 코딩 에이전트 활용과 웹사이트 배포
+
+강의안: `docs/ref/class12.pdf`
+
+| 항목 | 내용 | 상태 |
+| --- | --- | --- |
+| 과제 (13주차까지) | GitHub URL을 수업 스프레드시트에 올리기 (강의안 마지막 쪽 링크) | 올릴 주소: https://kyo-vcd.github.io/first/ |
+| 13주차 수업 | 개인 프로젝트 작업 및 피드백 | |
+
+강의 점검표 대비
+
+| 점검 항목 | 이 프로젝트 |
+| --- | --- |
+| 에이전트에 부모 영역 · 자식 요소 · 실행 조건 명시 | Claude Code(코딩 에이전트)에 장면 명세(`docs/scenes/S01.md`) 기준으로 요청 |
+| 변경 파일 · 적용 내용 확인, 부분 수정 요청 | 커밋마다 변경 파일 기록, 오류는 원인 확인 후 해당 부분만 수정 (git 이력) |
+| 저장소 생성 · Commit · Push | `kyo-vcd/first` (공개) |
+| GitHub Pages에서 HTML · CSS · JS 정상 작동 | https://kyo-vcd.github.io/first/ — 데스크톱 · 모바일에서 후원 · 스크롤 · 글꼴 · 이미지 확인 |
+| 로컬과 배포 페이지 차이 점검 | 모든 경로를 상대 경로로 써서 `/first/` 하위에서도 동일하게 동작 |
+
+파일 이름 규칙 (강의안 2쪽): `index.html` 필수, 이미지는 폴더에, 한글 · 띄어쓰기 금지, 여러 단어는 camelCase 또는 snake_case.
+
+## class11 (11주차)
 
 과제: **내 프로젝트에 기능 1개 구현해오기 & GitHub 가입하기** (`docs/ref/class11.pdf` 49쪽)
 
