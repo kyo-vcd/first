@@ -1,0 +1,301 @@
+/* =========================================================
+   SCENE 06 — 쿤두즈, 2015년 10월 3일
+   방식: 드래그(타임라인 슬라이더) — 스크롤은 장면에 들어오고 나가는 데만 쓴다
+   부모 영역 : .scene-06          고정 화면 : .scene-06 > .sticky-screen
+   상태      : data-phase 0 정상 → 1 첫 포격 → 2 공격 계속 → 3 무너짐 (슬라이더 시각으로 정함)
+   ========================================================= */
+
+.scene-06 { --scene-length: 220vh; }
+@media (pointer: coarse) { .scene-06 { --scene-length: 260vh; } }
+
+.scene-06 .sticky-screen { background: #0e0a09; }
+.scene-06 .sticky-screen::after { opacity: 0.6; }
+
+/* 불길에 물드는 하늘 */
+.s06-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(45% 55% at 34% 62%, rgba(255, 110, 40, 0.55), rgba(160, 40, 18, 0.35) 45%, transparent 75%),
+    linear-gradient(to bottom, rgba(70, 20, 12, 0.6), transparent 70%);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  pointer-events: none;
+}
+[data-phase="1"] .s06-sky { opacity: 0.6; }
+[data-phase="2"] .s06-sky { opacity: 1; }
+[data-phase="3"] .s06-sky { opacity: 0.2; }
+
+/* 위로 솟는 검은 연기 */
+.s06-smoke {
+  position: absolute;
+  left: 34%;
+  bottom: 30%;
+  width: 26vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10, 6, 5, 0.9), rgba(10, 6, 5, 0.5) 55%, transparent);
+  filter: blur(14px);
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+.s06-smoke--2 { width: 20vw; animation-delay: -3s; }
+.s06-smoke--3 { width: 30vw; animation-delay: -6s; }
+[data-phase="1"] .s06-smoke,
+[data-phase="2"] .s06-smoke,
+[data-phase="3"] .s06-smoke { animation: s06-plume 9s linear infinite; }
+[data-phase="3"] .s06-smoke { filter: blur(18px) opacity(0.45); }
+@keyframes s06-plume {
+  0% { transform: translate(-50%, 20%) scale(0.4); opacity: 0; }
+  15% { opacity: 0.85; }
+  100% { transform: translate(-30%, -150%) scale(1.6); opacity: 0; }
+}
+
+/* ---------- 머리글 ---------- */
+.s06-head {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  top: calc(var(--top-space) + 3vh);
+  z-index: 4;
+  text-align: center;
+}
+.s06-meta { margin: 0 0 8px; font-size: clamp(12px, 1vw, 17px); color: var(--fg-soft); }
+.s06-titles > * { opacity: 0; transform: translateY(18px); }
+[data-phase="0"] .s06-t0,
+[data-phase="1"] .s06-t1,
+[data-phase="2"] .s06-t2,
+[data-phase="3"] .s06-t3 { opacity: 1; transform: none; }
+
+/* ---------- 건물 ---------- */
+.s06-building {
+  position: absolute;
+  left: 6%;
+  bottom: calc(22% + var(--toolbar));
+  width: min(58vw, 1100px);
+  aspect-ratio: 1500 / 500;
+  z-index: 2;
+}
+.s06-building img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+[data-phase="0"] .s06-b-normal,
+[data-phase="1"] .s06-b-burning,
+[data-phase="2"] .s06-b-burning,
+[data-phase="3"] .s06-b-ruins { opacity: 1; }
+[data-phase="2"] .s06-b-burning { animation: s06-fire 0.5s ease-in-out infinite alternate; }
+@keyframes s06-fire { from { filter: brightness(1); } to { filter: brightness(1.18) saturate(1.1); } }
+
+.s06-embers { position: absolute; left: -10%; right: -10%; bottom: 0; width: 120%; height: 260%; pointer-events: none; z-index: 3; }
+
+.s06-label {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(10, 8, 7, 0.88);
+  color: var(--fg);
+  font-size: clamp(9px, 0.7vw, 12px);
+  font-weight: 700;
+  white-space: nowrap;
+  transition: opacity 0.5s;
+}
+[data-phase="3"] .s06-label { opacity: 0; }
+.s06-strike {
+  position: absolute;
+  left: 38%;
+  top: 8%;
+  z-index: 4;
+  padding: 3px 10px;
+  background: #c41d20;
+  color: #fff;
+  font-size: clamp(10px, 0.8vw, 13px);
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translate(-50%, -140%) rotate(-3deg) scale(0.6);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.4s cubic-bezier(0.34, 1.6, 0.64, 1);
+}
+[data-phase="1"] .s06-strike { opacity: 1; transform: translate(-50%, -140%) rotate(-3deg); }
+.s06-caption { position: absolute; left: 50%; top: 104%; transform: translateX(-50%); margin: 0; font-size: 12px; color: var(--fg-soft); white-space: nowrap; opacity: 0; transition: opacity 0.6s 0.4s; }
+[data-phase="3"] .s06-caption { opacity: 1; }
+
+/* ---------- 비행기와 포탄 궤적 ---------- */
+.s06-plane {
+  position: absolute;
+  right: -20vw;
+  top: calc(var(--top-space) + 16vh);
+  width: clamp(120px, 12vw, 220px);
+  z-index: 3;
+  opacity: 0;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+.s06-plane.is-fly { animation: s06-fly 3.2s linear 1; }
+@keyframes s06-fly {
+  0% { right: -20vw; opacity: 1; }
+  100% { right: 110vw; opacity: 1; }
+}
+.s06-tracer {
+  position: absolute;
+  left: 30%;
+  top: calc(var(--top-space) + 20vh);
+  width: 24%;
+  height: 34%;
+  z-index: 3;
+  background: repeating-linear-gradient(118deg, transparent 0 14px, rgba(255, 120, 60, 0.9) 14px 18px);
+  -webkit-mask-image: linear-gradient(to bottom left, #000, transparent 80%);
+  mask-image: linear-gradient(to bottom left, #000, transparent 80%);
+  opacity: 0;
+  pointer-events: none;
+}
+.s06-tracer.is-fire { animation: s06-tracer 0.9s ease-out 1; }
+@keyframes s06-tracer { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 포격 순간 화면 흔들림 · 섬광 */
+.scene-06.is-shake .s06-shaker { animation: s06-shake 0.45s ease-out 1; }
+@keyframes s06-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 3px); }
+  40% { transform: translate(5px, -4px); }
+  60% { transform: translate(-3px, 2px); }
+  80% { transform: translate(2px, -1px); }
+}
+.s06-flash { position: absolute; inset: 0; z-index: 5; background: radial-gradient(40% 40% at 34% 62%, rgba(255, 210, 150, 0.6), transparent 70%); opacity: 0; pointer-events: none; }
+.scene-06.is-shake .s06-flash { animation: s06-flash 0.5s ease-out 1; }
+@keyframes s06-flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+.s06-shaker { position: absolute; inset: 0; }
+
+/* ---------- 기록 패널 ---------- */
+.s06-panel {
+  position: absolute;
+  right: var(--gutter);
+  top: calc(var(--top-space) + 17vh);
+  bottom: calc(22% + var(--toolbar));
+  z-index: 4;
+  width: min(400px, 30vw);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+.s06-intro-title { margin: 0; font-size: clamp(15px, 1.2vw, 20px); font-weight: 800; line-height: 1.5; color: var(--fg); }
+.s06-intro-text { margin: 0; font-size: 13px; color: var(--fg-soft); }
+.s06-hint { margin-top: auto; font-size: 12px; color: var(--muted); animation: s06-hint 1.6s ease-in-out infinite; }
+@keyframes s06-hint { 50% { color: var(--fg); } }
+.s06-intro { display: flex; flex-direction: column; gap: 8px; flex: 1; transition: opacity 0.4s; }
+.scene-06:not([data-phase="0"]) .s06-intro { display: none; }
+
+.s06-log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.s06-log li {
+  display: grid;
+  grid-template-columns: 3.4em 1fr;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--fg-soft);
+  max-height: 0;
+  opacity: 0;
+  transform: translateX(16px);
+  transition: max-height 0.5s ease, opacity 0.4s ease, transform 0.5s var(--ease);
+}
+.s06-log li.is-on { max-height: 6em; opacity: 1; transform: none; }
+.s06-log time { color: var(--red); font-weight: 800; }
+.s06-quote {
+  margin: auto 0 0;
+  padding: 12px 14px;
+  border: 1.5px solid var(--red);
+  border-radius: 6px;
+  background: rgba(229, 38, 43, 0.08);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s, transform 0.5s var(--ease);
+}
+.s06-quote.is-on { opacity: 1; transform: none; }
+.s06-quote small { display: block; margin-bottom: 4px; font-size: 11px; color: var(--red); }
+.s06-quote p { margin: 0; font-size: clamp(15px, 1.25vw, 21px); font-weight: 800; line-height: 1.45; color: var(--fg); }
+.s06-quote p::after { content: "|"; color: var(--red); animation: s05-blink 0.8s steps(2) infinite; }
+[data-phase="3"] .s06-log, [data-phase="3"] .s06-quote { display: none; }
+
+/* 03:10 사망 */
+.s06-toll { display: none; flex-direction: column; gap: 8px; }
+[data-phase="3"] .s06-toll { display: flex; animation: s06-in 0.6s var(--ease) 1; }
+@keyframes s06-in { from { opacity: 0; transform: translateY(14px); } }
+.s06-toll-num { margin: 0 0 8px; font-size: clamp(64px, 6vw, 110px); }
+.s06-toll-num small { font-size: 0.36em; margin-left: 4px; }
+.s06-toll dl { margin: 0; display: grid; grid-template-columns: 1fr auto; row-gap: 10px; font-size: 14px; color: var(--fg); }
+.s06-toll dt, .s06-toll dd { margin: 0; padding-bottom: 8px; border-bottom: 1px solid rgba(239, 230, 214, 0.1); }
+.s06-toll dd { font-weight: 800; text-align: right; }
+.s06-toll .s06-src { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+
+/* ---------- 타임라인 ---------- */
+.s06-time {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: calc(clamp(30px, 6vh, 70px) + var(--toolbar));
+  z-index: 5;
+}
+.s06-track { position: relative; }
+.s06-now {
+  position: absolute;
+  bottom: 30px;
+  left: calc(11px + (100% - 22px) * var(--p, 0));
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  pointer-events: none;
+}
+.s06-marks { position: absolute; left: 11px; right: 11px; top: 12px; height: 8px; pointer-events: none; }
+.s06-marks i { position: absolute; top: 0; width: 2px; height: 8px; margin-left: -1px; background: rgba(229, 38, 43, 0.7); }
+.s06-ticks { display: flex; justify-content: space-between; margin: 2px 11px 0; font-size: 11px; color: var(--muted); }
+.s06-ticks span { width: 0; display: flex; justify-content: center; }
+.scene-06:not(.is-dragged) .s06-range::-webkit-slider-thumb { animation: nudge 1.4s ease-in-out infinite; }
+.s06-play {
+  position: absolute;
+  right: 0;
+  bottom: 54px;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(239, 230, 214, 0.25);
+  border-radius: 999px;
+  background: rgba(14, 10, 9, 0.7);
+  color: var(--fg-soft);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.s06-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .s06-building { left: 2%; width: 96vw; bottom: auto; top: calc(var(--top-space) + 25vh); }
+  .s06-panel { left: var(--gutter); right: var(--gutter); width: auto; top: calc(var(--top-space) + 25vh + 40vw); bottom: calc(120px + var(--toolbar)); }
+  .s06-panel { padding: 14px 16px; gap: 8px; }
+  .s06-toll-num { font-size: 52px; margin-bottom: 2px; }
+  .s06-toll dl { row-gap: 4px; font-size: 13px; }
+  .s06-toll dt, .s06-toll dd { padding-bottom: 4px; }
+  .s06-toll .s06-src { display: none; }
+  .s06-play { bottom: 58px; }
+  .s06-smoke { left: 40%; bottom: 55%; width: 60vw; }
+  .s06-sky { background: radial-gradient(70% 40% at 40% 38%, rgba(255, 110, 40, 0.55), transparent 75%); }
+  .s06-time { left: var(--gutter); right: var(--gutter); }
+  .s06-ticks span:nth-child(even) { visibility: hidden; }
+  .s06-label { font-size: 8px; padding: 1px 4px; }
+  .s06-flash { background: radial-gradient(60% 30% at 45% 38%, rgba(255, 210, 150, 0.6), transparent 70%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s06-smoke, .s06-plane, .s06-tracer, .s06-shaker, .s06-flash, .s06-b-burning { animation: none !important; }
+}

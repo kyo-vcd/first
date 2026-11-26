@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="css/scenes/s03.css">
   <link rel="stylesheet" href="css/scenes/s04.css">
   <link rel="stylesheet" href="css/scenes/s05.css">
+  <link rel="stylesheet" href="css/scenes/s06.css">
 
 </head>
 <body>
@@ -334,12 +335,95 @@
       </div>
     </section>
 
-    <!-- 다음 장면 자리: SCENE 06부터 이 아래에 같은 구조로 추가 -->
+    <!-- =========================================================
+         SCENE 06 — 쿤두즈, 2015년 10월 3일
+         부모: .scene-06  >  .sticky-screen
+         자식: .s06-head (시각 · 제목) / .s06-building (건물 3상태) / .s06-panel (기록 · 사망) / .s06-time (타임라인 슬라이더)
+         ========================================================= -->
+    <section class="scene scene-06" id="scene-06" data-scene="s06" data-no="06" data-title="쿤두즈, 2015년 10월 3일" data-phase="0" aria-labelledby="s06-heading">
+      <div class="sticky-screen">
+        <div class="s06-shaker">
+          <div class="s06-sky" aria-hidden="true"></div>
+          <span class="s06-smoke" aria-hidden="true"></span>
+          <span class="s06-smoke s06-smoke--2" aria-hidden="true"></span>
+          <span class="s06-smoke s06-smoke--3" aria-hidden="true"></span>
+          <img class="s06-plane" src="images/s06/plane.png" alt="">
+          <span class="s06-tracer" aria-hidden="true"></span>
+
+          <div class="s06-building">
+            <img class="s06-b-normal" src="images/s06/building_normal.png" alt="불이 켜진 2층짜리 외상센터 본관">
+            <img class="s06-b-burning" src="images/s06/building_burning.png" alt="포격으로 불타는 본관">
+            <img class="s06-b-ruins" src="images/s06/building_ruins.png" alt="무너진 본관">
+            <span class="s06-label" style="--x: 11%; --y: 8%;">응급실</span>
+            <span class="s06-label" style="--x: 38%; --y: 8%;">수술실</span>
+            <span class="s06-label" style="--x: 76%; --y: 8%;">중환자실</span>
+            <span class="s06-label" style="--x: 24%; --y: 54%;">입원 병동</span>
+            <span class="s06-label" style="--x: 76%; --y: 54%;">영상의학·검사실</span>
+            <span class="s06-strike mono">02:08 첫 공습 · 본관 직격</span>
+            <p class="s06-caption">주변 건물은 대부분 남고, 본관만 무너졌다</p>
+            <canvas class="s06-embers" aria-hidden="true"></canvas>
+          </div>
+        </div>
+        <div class="s06-flash" aria-hidden="true"></div>
+
+        <div class="s06-head">
+          <p class="s06-meta mono">2015.10.03 02:00 · 아프가니스탄 쿤두즈</p>
+          <div class="title-stack s06-titles">
+            <h2 class="scene-title s06-t0" id="s06-heading">북동부 <em>유일의</em> 외상센터</h2>
+            <p class="scene-title s06-t1">새벽 2시 8분, 본관에 <em>첫 포격</em></p>
+            <p class="scene-title s06-t2">멈춰 달라는 연락에도 <em>공격은 계속됐다</em></p>
+            <p class="scene-title s06-t3">약 1시간, 본관만 <em>정확히</em> 무너졌다</p>
+          </div>
+        </div>
+
+        <aside class="s06-panel scene-panel">
+          <p class="scene-panel-label">기록</p>
+          <div class="s06-intro">
+            <p class="s06-intro-title">수술실과 중환자실이 24시간 돌아가던 병원</p>
+            <p class="s06-intro-text">이 병원의 위치는 이미 군 당국에 전달되어 있었습니다.</p>
+            <p class="s06-hint">→ 아래 타임라인을 오른쪽으로 끌어 보세요</p>
+          </div>
+          <ol class="s06-log">
+            <li data-at="8"><time class="mono">02:08</time><span>미군 AC-130 건십이 본관을 향해 첫 포격</span></li>
+            <li data-at="19"><time class="mono">02:19</time><span>국경없는의사회, 병원이 공격받고 있다고 군 측에 연락</span></li>
+            <li data-at="30"><time>이후</time><span>아프가니스탄과 뉴욕에서 전화·문자로 여러 차례 중단 요청</span></li>
+          </ol>
+          <div class="s06-quote" data-at="40">
+            <small>요청 내용</small>
+            <p>“여기는 병원입니다.<br>공격을 멈춰 주세요.”</p>
+          </div>
+          <div class="s06-toll">
+            <p class="scene-panel-label">사망</p>
+            <p class="big-number s06-toll-num"><b>0</b><small>명</small></p>
+            <dl>
+              <dt>환자</dt><dd>24명</dd>
+              <dt>의료진·직원</dt><dd>14명</dd>
+              <dt>보호자</dt><dd>4명</dd>
+              <dt>부상</dt><dd>37명</dd>
+            </dl>
+            <p class="s06-src">출처: 국경없는의사회(MSF)</p>
+          </div>
+        </aside>
+
+        <div class="s06-time mono">
+          <button class="s06-play" type="button">▶ 재생</button>
+          <div class="s06-track">
+            <span class="s06-now">02:00</span>
+            <input class="scene-range s06-range" type="range" min="0" max="75" step="1" value="0" aria-label="공습 시각 (02:00부터 03:15까지)">
+            <span class="s06-marks" aria-hidden="true"></span>
+          </div>
+          <div class="s06-ticks" aria-hidden="true"><span>02:00</span><span>02:15</span><span>02:30</span><span>02:45</span><span>03:00</span><span>03:15</span></div>
+        </div>
+        <p class="visually-hidden s06-live" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- 다음 장면 자리: SCENE 07부터 이 아래에 같은 구조로 추가 -->
 
   </main>
 
   <footer class="story-footer">
-    <p class="story-footer-next">SCENE 06 — 쿤두즈, 2015년 10월 3일</p>
+    <p class="story-footer-next">SCENE 07 — 멈춘 수술실</p>
     <p class="story-footer-note">다음 장면을 준비하고 있습니다.</p>
   </footer>
 
@@ -351,5 +435,6 @@
   <script src="js/scenes/s03.js"></script>
   <script src="js/scenes/s04.js"></script>
   <script src="js/scenes/s05.js"></script>
+  <script src="js/scenes/s06.js"></script>
 </body>
 </html>
