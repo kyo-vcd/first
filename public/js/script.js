@@ -246,7 +246,10 @@
       }
 
       // 화면 근처에 있는 장면만 진행률 · 상태를 갱신한다
-      if (rect.bottom < -vh || rect.top > vh * 2) return;
+      var near = !(rect.bottom < -vh || rect.top > vh * 2);
+      if (near && !s.near) s.dirty = true;     // 멀리서 돌아오면 한 칸씩 되감지 않고 바로 맞춘다
+      s.near = near;
+      if (!near) return;
       s.target = progressOf(s.el, s.lead, s.tail);
 
       // 단계형: 스크롤 위치가 정한 상태로 한 칸씩 간다 (전환 속도는 CSS 가 정함).

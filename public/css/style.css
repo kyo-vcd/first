@@ -70,6 +70,9 @@ button, input, output { font: inherit; color: inherit; }
 /* ---------- 장면 공통 구조 ---------- */
 
 /* 스크롤 구간. 높이는 장면마다 --scene-length 로 정한다 (예: 400vh) */
+.story { overflow-x: clip; }                       /* 나타날 때의 확대 효과가 가로 스크롤을 만들지 않게 */
+@supports not (overflow: clip) { body { overflow-x: hidden; } }
+
 .scene {
   position: relative;
   height: var(--scene-length, 300vh);
@@ -152,9 +155,9 @@ button, input, output { font: inherit; color: inherit; }
   :root { --top-space: 28px; }
 }
 
-/* ---------- 터치 화면: 한 번 쓸면 다음 상태에서 멈춘다 ----------
-   단계형 장면은 상태마다 .snap-point 를 둔다 (js/script.js 가 만든다).
-   손가락으로 세게 쓸어도 상태를 건너뛰지 않아 전환이 겹치지 않는다. */
+/* ---------- 터치 화면: 상태 근처에서 멈춤 ----------
+   상태마다 .snap-point 를 둔다 (js/script.js 가 만든다). 가까울 때만 맞춰 주므로(proximity)
+   스와이프를 막지 않는다. 세게 쓸어 여러 상태를 지나가도 전환은 js 가 한 칸씩 순서대로 재생한다. */
 .snap-point {
   position: absolute;
   left: 0;
@@ -164,9 +167,8 @@ button, input, output { font: inherit; color: inherit; }
 }
 
 @media (pointer: coarse) {
-  html { scroll-snap-type: y mandatory; }
-  .scene:first-of-type,
-  .snap-point { scroll-snap-align: start; scroll-snap-stop: always; }   /* 첫 장면: JS 가 지점을 만들기 전에도 시작에서 멈춤 */
+  html { scroll-snap-type: y proximity; }              /* 손가락 움직임대로 스크롤하고, 상태 근처에서만 살짝 맞춘다 */
+  .snap-point { scroll-snap-align: start; }
 }
 
 /* =========================================================

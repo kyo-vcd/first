@@ -7,7 +7,7 @@
    ========================================================= */
 
 .scene-05 { --scene-length: 300vh; --c: #4fcf86; --c-dim: rgba(79, 207, 134, 0.18); }
-@media (pointer: coarse) { .scene-05 { --scene-length: 460vh; } }
+@media (pointer: coarse) { .scene-05 { --scene-length: 360vh; } }
 .scene-05.is-view-target { --c: #ff3b33; --c-dim: rgba(255, 59, 51, 0.18); }
 
 .scene-05 .sticky-screen { background: #0f0c0a; }

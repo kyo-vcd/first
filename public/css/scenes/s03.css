@@ -8,7 +8,7 @@
    ========================================================= */
 
 .scene-03 { --scene-length: 270vh; }
-@media (pointer: coarse) { .scene-03 { --scene-length: 440vh; } }
+@media (pointer: coarse) { .scene-03 { --scene-length: 360vh; } }
 
 .scene-03 .sticky-screen {
   background: #1d0f0c radial-gradient(120% 70% at 50% 20%, #3a1712 0%, #1d0f0c 60%, #120a08 100%);

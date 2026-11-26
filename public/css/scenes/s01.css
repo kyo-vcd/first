@@ -22,7 +22,7 @@
 
 /* 터치 화면: 한 번 쓸 때 움직이는 거리가 길어 상태 사이를 넓힌다 (상태 하나 ≈ 화면 80%) */
 @media (pointer: coarse) {
-  .scene-01 { --scene-length: 380vh; }
+  .scene-01 { --scene-length: 320vh; }
 }
 
 .scene-01 .sticky-screen {

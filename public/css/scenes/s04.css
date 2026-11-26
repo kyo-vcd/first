@@ -7,7 +7,7 @@
    ========================================================= */
 
 .scene-04 { --scene-length: 460vh; }
-@media (pointer: coarse) { .scene-04 { --scene-length: 620vh; } }
+@media (pointer: coarse) { .scene-04 { --scene-length: 520vh; } }
 
 .scene-04 .sticky-screen {
   display: flex;

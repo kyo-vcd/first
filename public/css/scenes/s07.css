@@ -6,7 +6,7 @@
    ========================================================= */
 
 .scene-07 { --scene-length: 280vh; }
-@media (pointer: coarse) { .scene-07 { --scene-length: 440vh; } }
+@media (pointer: coarse) { .scene-07 { --scene-length: 360vh; } }
 .scene-07 .sticky-screen { background: #0b0807; }
 .scene-07 .sticky-screen::after { display: none; }
 .scene-07 .sticky-screen::before {
