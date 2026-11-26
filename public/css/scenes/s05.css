@@ -1,0 +1,307 @@
+/* =========================================================
+   SCENE 05 — 보호 좌표 = 공습 좌표
+   방식: 클릭(시점 전환) + 상태 단계형
+   부모 영역 : .scene-05          고정 화면 : .scene-05 > .sticky-screen
+   시점      : .is-view-target (실제 공습 타깃) / 없으면 공식 보호 좌표 — 버튼으로 언제든 전환
+   상태      : is-step-1 조준경 접근 → is-step-2 좌표 일치 · 잠금 → is-step-3 81% 패널
+   ========================================================= */
+
+.scene-05 { --scene-length: 300vh; --c: #4fcf86; --c-dim: rgba(79, 207, 134, 0.18); }
+@media (pointer: coarse) { .scene-05 { --scene-length: 460vh; } }
+.scene-05.is-view-target { --c: #ff3b33; --c-dim: rgba(255, 59, 51, 0.18); }
+
+.scene-05 .sticky-screen { background: #0f0c0a; }
+.scene-05 .sticky-screen::after { display: none; }
+
+/* ---------- 지도 ---------- */
+.s05-map {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  object-fit: cover;
+  animation: s05-pan 30s ease-in-out infinite alternate;
+  transition: filter 0.8s ease;
+}
+@keyframes s05-pan { from { transform: translate(0, 0) scale(1); } to { transform: translate(-1.5%, -1%) scale(1.04); } }
+.is-step-1 .s05-map,
+.is-view-target .s05-map { filter: saturate(0.6) brightness(0.9); }
+
+.s05-tint {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 70% at 50% 52%, rgba(160, 20, 16, 0.22), rgba(90, 8, 6, 0.55));
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+.is-view-target .s05-tint { opacity: 1; }
+.s05-vignette { position: absolute; inset: 0; background: radial-gradient(80% 80% at 50% 50%, transparent 40%, rgba(6, 4, 3, 0.75)); pointer-events: none; }
+
+/* 위아래로 지나가는 스캔 선 (타깃 시점) */
+.s05-scan {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 59, 51, 0.12), transparent);
+  opacity: 0;
+  animation: s05-scan 3.2s linear infinite;
+  pointer-events: none;
+}
+.is-view-target .s05-scan { opacity: 1; }
+@keyframes s05-scan { from { transform: translateY(-100%); } to { transform: translateY(560%); } }
+
+/* ---------- 십자선 ---------- */
+.s05-cross {
+  position: absolute;
+  background: var(--c);
+  opacity: 0.55;
+  transition: background-color 0.6s ease;
+  pointer-events: none;
+}
+.s05-cross--h { left: 0; right: 0; top: 52%; height: 1px; background: repeating-linear-gradient(to right, var(--c) 0 10px, transparent 10px 18px); }
+.s05-cross--v { top: 0; bottom: 0; left: 50%; width: 1px; background: repeating-linear-gradient(to bottom, var(--c) 0 10px, transparent 10px 18px); }
+.is-view-target .s05-cross--h { background: var(--c); opacity: 0.6; }
+.is-view-target .s05-cross--v { background: var(--c); opacity: 0.6; }
+
+/* ---------- 병원 표시: 건물 사각형 · 보호 원 · 핀 ---------- */
+.s05-target {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: clamp(150px, 15vw, 290px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+}
+.s05-building {
+  position: absolute;
+  inset: 18% 14% 22% 14%;
+  border: 1.5px solid color-mix(in srgb, var(--c) 70%, transparent);
+  background: var(--c-dim);
+  transition: border-color 0.6s, background-color 0.6s;
+}
+.s05-zone {
+  position: absolute;
+  inset: 0;
+  border: 2px dashed var(--c);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--c-dim), transparent);
+  animation: s05-breathe 2.8s ease-in-out infinite;
+  transition: border-color 0.6s;
+}
+@keyframes s05-breathe { 50% { transform: scale(1.06); opacity: 0.75; } }
+.is-step-2 .s05-zone { animation: none; opacity: 0.35; }
+
+.s05-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26%;
+  transform: translate(-50%, -88%);
+  filter: drop-shadow(0 0 14px rgba(79, 207, 134, 0.6)) drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
+  animation: s05-drop 0.8s cubic-bezier(0.34, 1.6, 0.64, 1) 1;
+}
+@keyframes s05-drop { from { transform: translate(-50%, -260%); opacity: 0; } }
+.s05-pin path { fill: #2fb36a; }
+.is-view-target .s05-pin { filter: drop-shadow(0 0 14px rgba(79, 207, 134, 0.5)); }
+
+.s05-zone-label {
+  position: absolute;
+  left: 50%;
+  top: 104%;
+  transform: translateX(-50%);
+  font-size: clamp(11px, 0.85vw, 14px);
+  font-weight: 700;
+  color: var(--c);
+  white-space: nowrap;
+  transition: color 0.6s;
+}
+.is-step-1 .s05-zone-label { opacity: 0; }
+
+/* 건물을 조이는 모서리 괄호 (잠금) */
+.s05-brackets { position: absolute; inset: 6%; opacity: 0; transform: scale(1.5); transition: opacity 0.4s, transform 0.6s var(--ease); }
+.s05-brackets i { position: absolute; width: 22%; height: 22%; border: 3px solid #ff3b33; }
+.s05-brackets i:nth-child(1) { left: 0; top: 0; border-right: 0; border-bottom: 0; }
+.s05-brackets i:nth-child(2) { right: 0; top: 0; border-left: 0; border-bottom: 0; }
+.s05-brackets i:nth-child(3) { left: 0; bottom: 0; border-right: 0; border-top: 0; }
+.s05-brackets i:nth-child(4) { right: 0; bottom: 0; border-left: 0; border-top: 0; }
+.is-step-2 .s05-brackets { opacity: 1; transform: none; transition-delay: 0.6s; animation: s05-lock 0.9s steps(2) 1.2s 3; }
+@keyframes s05-lock { 50% { opacity: 0.2; } }
+
+/* ---------- 조준경 ---------- */
+.s05-scope {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: clamp(110px, 10vw, 200px);
+  aspect-ratio: 1;
+  color: #ff3b33;
+  opacity: 0;
+  transform: translate(-50%, -50%) translate(26vw, -24vh) rotate(-60deg) scale(1.3);
+  transition: transform 1.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
+  pointer-events: none;
+}
+.s05-scope svg { width: 100%; height: 100%; overflow: visible; }
+.s05-scope svg circle, .s05-scope svg path { fill: none; stroke: currentColor; stroke-width: 2; }
+.s05-scope .s05-spin { transform-origin: 0 0; animation: s05-spin 6s linear infinite; }
+@keyframes s05-spin { to { transform: rotate(360deg); } }
+.is-step-1.is-view-target .s05-scope { opacity: 1; transform: translate(-50%, -50%) translate(6vw, -6vh) rotate(-15deg) scale(1); }
+.is-step-2.is-view-target .s05-scope { opacity: 1; transform: translate(-50%, -50%); transition-duration: 0.8s; }
+.s05-lockword {
+  position: absolute;
+  left: 100%;
+  bottom: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: s05-blink 0.8s steps(2) infinite;
+}
+@keyframes s05-blink { 50% { opacity: 0.25; } }
+.s05-lockword::after { content: "LOCKING..."; }
+.is-step-2 .s05-lockword { animation: none; }
+.is-step-2 .s05-lockword::after { content: "LOCKED"; }
+
+/* 화면 네 모서리의 조준 프레임 */
+.s05-frame i { position: absolute; width: 56px; height: 56px; border: 3px solid #ff3b33; opacity: 0; transition: opacity 0.5s, transform 0.6s var(--ease); }
+.s05-frame i:nth-child(1) { left: 2.5%; top: calc(var(--top-space) + 1%); border-right: 0; border-bottom: 0; transform: translate(-20px, -20px); }
+.s05-frame i:nth-child(2) { right: 2.5%; top: calc(var(--top-space) + 1%); border-left: 0; border-bottom: 0; transform: translate(20px, -20px); }
+.s05-frame i:nth-child(3) { left: 2.5%; bottom: calc(3% + var(--toolbar)); border-right: 0; border-top: 0; transform: translate(-20px, 20px); }
+.s05-frame i:nth-child(4) { right: 2.5%; bottom: calc(3% + var(--toolbar)); border-left: 0; border-top: 0; transform: translate(20px, 20px); }
+.is-view-target .s05-frame i { opacity: 0.9; transform: none; }
+
+/* ---------- 제목 ---------- */
+.s05-head { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(var(--top-space) + 5vh); z-index: 3; }
+.s05-title--1, .s05-title--2 { opacity: 0; transform: translateY(24px); }
+.is-step-1 .s05-title--0 { opacity: 0; transform: translateY(-16px); }
+.is-step-1 .s05-title--1 { opacity: 1; transform: none; transition-delay: 0.3s; }
+.is-step-2 .s05-title--1 { opacity: 0; transform: translateY(-16px); transition-delay: 0s; }
+.is-step-2 .s05-title--2 { opacity: 1; transform: none; transition-delay: 0.3s; }
+.is-step-3 .s05-head { opacity: 0; transition: opacity 0.4s; }
+.s05-eq { color: var(--fg); margin: 0 0.15em; }
+
+/* ---------- 시점 전환 버튼 ---------- */
+.s05-toggle {
+  position: absolute;
+  right: var(--gutter);
+  top: calc(var(--top-space) + 15vh);
+  z-index: 4;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(239, 230, 214, 0.15);
+  border-radius: 999px;
+  background: rgba(14, 10, 9, 0.8);
+}
+.s05-toggle button {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.s05-toggle button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.s05-toggle button[aria-pressed="true"] { color: #0c0a09; }
+.s05-toggle .s05-view-official[aria-pressed="true"] { background: #4fcf86; }
+.s05-toggle .s05-view-target[aria-pressed="true"] { background: #ff3b33; color: #fff; }
+.is-step-3 .s05-toggle { opacity: 0; pointer-events: none; }
+
+/* ---------- 좌표 패널 ---------- */
+.s05-panel {
+  position: absolute;
+  left: var(--gutter);
+  top: calc(var(--top-space) + 15vh);
+  z-index: 4;
+  width: min(330px, 40vw);
+  display: grid;
+}
+.s05-panel > div { grid-area: 1 / 1; transition: opacity 0.4s ease; }
+.s05-panel .s05-coord { margin: 4px 0; font-size: clamp(18px, 1.6vw, 28px); font-weight: 700; color: var(--fg); }
+.s05-panel .s05-ok { margin: 0; font-size: 12px; color: #4fcf86; }
+.s05-panel .s05-red { color: #ff3b33; }
+.s05-panel .s05-green { color: #4fcf86; }
+.s05-panel .s05-sub { margin: 0; font-size: 12px; color: var(--muted); }
+.s05-panel .s05-match { display: inline-block; margin-top: 8px; padding: 2px 10px; border: 1.5px solid #ff3b33; border-radius: 999px; color: #ff3b33; font-size: 12px; font-weight: 800; }
+.s05-p-scan, .s05-p-equal { opacity: 0; }
+.is-view-target .s05-p-official { opacity: 0; }
+.is-view-target .s05-p-scan { opacity: 1; }
+.is-step-2 .s05-p-official, .is-step-2 .s05-p-scan { opacity: 0; }
+.is-step-2 .s05-p-equal { opacity: 1; }
+.is-step-3 .s05-panel { opacity: 0; transition: opacity 0.4s; }
+
+/* 잠금 순간의 붉은 말풍선 */
+.s05-callout {
+  position: absolute;
+  left: calc(50% + clamp(80px, 8vw, 160px));
+  top: calc(52% + 3vh);
+  z-index: 4;
+  max-width: 260px;
+  padding: 10px 14px;
+  background: #c41d20;
+  color: #fff;
+  font-size: clamp(12px, 0.95vw, 15px);
+  font-weight: 700;
+  line-height: 1.5;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transform: translateY(12px) scale(0.92);
+  transition: opacity 0.4s, transform 0.5s cubic-bezier(0.34, 1.6, 0.64, 1);
+}
+.is-step-2 .s05-callout { opacity: 1; transform: none; transition-delay: 1.4s; }
+.is-step-3 .s05-callout { opacity: 0; transition-delay: 0s; }
+
+/* ---------- 81% 패널 ---------- */
+.s05-stat {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  z-index: 5;
+  width: min(560px, 42%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: var(--top-space) clamp(24px, 3vw, 56px) calc(40px + var(--toolbar));
+  background: linear-gradient(to right, rgba(14, 10, 9, 0.85), #120d0b 18%);
+  border-left: 1px solid rgba(239, 230, 214, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.9s var(--ease);
+}
+.is-step-3 .s05-stat { transform: none; }
+.s05-stat-ask { margin: 0; font-size: 14px; color: var(--muted); }
+.s05-stat-num { margin: 0; font-size: clamp(80px, 9vw, 170px); }
+.s05-stat-num small { font-size: 0.6em; }
+.s05-stat-text { margin: 0; font-size: clamp(17px, 1.5vw, 26px); font-weight: 800; line-height: 1.5; color: var(--fg); }
+.s05-stat-text em { font-style: normal; color: var(--red); }
+.s05-bar { height: 10px; background: rgba(239, 230, 214, 0.12); position: relative; overflow: hidden; }
+.s05-bar span { position: absolute; inset: 0 auto 0 0; width: 0; background: repeating-linear-gradient(45deg, #e5262b 0 6px, #c11d20 6px 12px); transition: width 1.6s var(--ease) 0.5s; }
+.is-step-3 .s05-bar span { width: 81%; }
+.s05-bar-labels { display: flex; justify-content: space-between; margin-top: -6px; font-size: 11px; color: var(--muted); }
+.s05-stat-note { margin: 0; font-size: 13px; line-height: 1.7; color: var(--fg-soft); }
+.s05-next { align-self: flex-start; margin-top: 6px; }
+.s05-tgt { position: absolute; left: var(--gutter); top: calc(var(--top-space) + 3vh); z-index: 4; margin: 0; font-size: 12px; color: #ff3b33; opacity: 0; transition: opacity 0.4s; }
+.s05-tgt span { display: block; color: var(--muted); }
+.is-step-3 .s05-tgt { opacity: 1; transition-delay: 0.5s; }
+.is-step-3 .s05-target, .is-step-3 .s05-scope { left: 29%; transition: left 0.9s var(--ease), transform 0.8s, opacity 0.5s; }
+.is-step-3 .s05-cross--v { left: 29%; transition: left 0.9s var(--ease); }
+.s05-target, .s05-cross--v { transition: left 0.9s var(--ease); }
+
+@media (max-width: 760px) {
+  .s05-toggle { left: 50%; right: auto; transform: translateX(-50%); top: calc(var(--top-space) + 22vh); }
+  .s05-toggle button { padding: 0 12px; font-size: 12px; white-space: nowrap; }
+  .s05-panel { top: auto; bottom: calc(4vh + var(--toolbar)); left: var(--gutter); right: var(--gutter); width: auto; padding: 12px 16px; }
+  .s05-callout { left: var(--gutter); right: var(--gutter); top: calc(52% + 92px); max-width: none; text-align: center; }
+  .s05-stat { top: auto; left: 0; width: 100%; height: 72%; padding: 28px var(--gutter) calc(30px + var(--toolbar)); transform: translateY(100%); border-left: 0; border-top: 1px solid rgba(239, 230, 214, 0.1); background: #120d0b; gap: 10px; }
+  .is-step-3 .s05-target, .is-step-3 .s05-scope { left: 50%; top: 22%; }
+  .is-step-3 .s05-cross--v { left: 50%; }
+  .s05-stat-num { font-size: 84px; }
+  .s05-frame i { width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s05-map, .s05-zone, .s05-scan, .s05-spin, .s05-lockword { animation: none !important; }
+}
