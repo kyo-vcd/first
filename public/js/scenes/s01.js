@@ -29,7 +29,7 @@
 
   var u = Story.util;
 
-  var STEPS = [0.15, 0.40, 0.65, 0.90];
+  var STEPS = [0.17, 0.45, 0.73];
 
   var DROP_MS = 1600;     // 버튼으로 후원할 때 동전이 모두 떨어지는 시간
   var AUTO_DROP_MS = 700; // 스크롤로 자동 후원할 때

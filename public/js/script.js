@@ -71,7 +71,7 @@
     embers: function (canvas, opt) {
       opt = opt || {};
       var ctx = canvas.getContext('2d');
-      var rate = opt.rate || 40;              // 초당 입자 수
+      var rate = opt.rate != null ? opt.rate : 40;   // 초당 입자 수 (0 이면 burst 로만)
       var colors = opt.colors || ['#ffb347', '#ff7a2f', '#ffd27a', '#e5262b'];
       var area = opt.area || function (w, h) { return { x: Math.random() * w, y: h * (0.6 + Math.random() * 0.4) }; };
       var parts = [], raf = 0, last = 0, acc = 0, w = 0, h = 0, dpr = 1;

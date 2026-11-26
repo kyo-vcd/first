@@ -4,14 +4,14 @@
    부모 영역 : .scene-01  (스크롤 구간 250vh)
    고정 화면 : .scene-01 > .sticky-screen
    상태 클래스: js/script.js 가 스크롤 진행률에 따라 .scene-01 에
-              is-step-1 ~ is-step-4 를 누적해서 붙인다.
+              is-step-1 ~ is-step-3 를 누적해서 붙인다.
               보이는 변화는 아래 transition 이 항상 같은 시간으로 재생한다.
    순서 규칙 : 사라지는 요소가 먼저, 나타나는 요소는 transition-delay 로 뒤에.
               되돌아갈 때는 기본 규칙의 delay 가 쓰이므로 순서가 거꾸로 된다.
    ========================================================= */
 
 .scene-01 {
-  --scene-length: 250vh;    /* 상태마다 스크롤 3~4번이면 다음 상태로 넘어가도록 */
+  --scene-length: 230vh;    /* 상태마다 스크롤 3~4번이면 다음 상태로 넘어가도록 */
   --s01-shift: 0px;          /* 컨트롤이 사라진 뒤 제목·수조가 이동할 거리 (JS) */
   --s01-field-offset: 0px;   /* 86% 수조를 가운데로 옮길 거리 (JS) */
   --s01-box-h: 86%;          /* 수조 틀 높이 (위쪽은 비율 숫자 자리) */
@@ -22,7 +22,7 @@
 
 /* 터치 화면: 한 번 쓸 때 움직이는 거리가 길어 상태 사이를 넓힌다 (상태 하나 ≈ 화면 80%) */
 @media (pointer: coarse) {
-  .scene-01 { --scene-length: 420vh; }
+  .scene-01 { --scene-length: 380vh; }
 }
 
 .scene-01 .sticky-screen {
@@ -323,7 +323,6 @@
 
 .s01-hint { transition: opacity 0.4s; color: var(--fg-soft); }
 
-.scene-01 .scene-curtain { transition: opacity var(--t-slow) ease; }
 
 /* =========================================================
    상태별 변화
@@ -437,9 +436,6 @@
 /* 동전이 떨어지는 동안에는 배지를 띄우지 않는다 (쌓인 뒤 등장) */
 .is-dropping .s01-tank-badge { opacity: 0; transition-delay: 0s; }
 
-/* ---------- step 4 : 장면 끝 ---------- */
-
-.is-step-4 .scene-curtain { opacity: 1; }
 
 /* ---------- 움직임 줄이기 설정 ---------- */
 @media (prefers-reduced-motion: reduce) {
