@@ -26,7 +26,9 @@
          steps: [0.12, 0.40, 0.68],            // (단계형) 상태가 넘어가는 진행률
          onStep: function (step, prev) { … },  // (단계형) 상태가 바뀔 때 1번 호출
          update: function (progress) { … },    // (연동형) 매 프레임 호출
-         resize: function () { … }             // (선택) 화면 크기 변경 시
+         resize: function () { … },            // (선택) 화면 크기 변경 시
+         snaps: [0, 0.1, …],                   // (선택) 터치 화면 멈춤 지점 (기본: 상태마다 한가운데)
+         visible: function (on) { … }          // (선택) 화면에 보이기 시작 · 벗어남
        };
      });
 
@@ -176,6 +178,7 @@
     for (var i = 0; i < steps.length; i++) {
       rest.push((steps[i] + (i + 1 < steps.length ? steps[i + 1] : 1)) / 2);
     }
+    if (s.api.snaps) rest = s.api.snaps;      // 연동형 구간은 장면이 직접 지점을 정한다
     if (!s.snaps) {
       s.snaps = rest.map(function () {
         var m = document.createElement('div');

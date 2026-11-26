@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/scenes/s01.css">
   <link rel="stylesheet" href="css/scenes/s02.css">
   <link rel="stylesheet" href="css/scenes/s03.css">
+  <link rel="stylesheet" href="css/scenes/s04.css">
 
 </head>
 <body>
@@ -219,12 +220,53 @@
       </div>
     </section>
 
-    <!-- 다음 장면 자리: SCENE 04부터 이 아래에 같은 구조로 추가 -->
+    <!-- =========================================================
+         SCENE 04 — 하루 10번 (의료 공격 지도)
+         부모: .scene-04  >  .sticky-screen
+         자식: .s04-head (제목) / .s04-timeline (하루) / .s04-map (지도 · 공격 지점) / .s04-count / .s04-year
+         ========================================================= -->
+    <section class="scene scene-04" id="scene-04" data-scene="s04" data-no="04" data-title="하루 10번" aria-labelledby="s04-heading">
+      <div class="sticky-screen">
+        <div class="s04-head title-stack">
+          <h2 class="scene-title s04-title s04-title--ask" id="s04-heading">오늘 하루, 병원은 몇 번 공격받을까요?</h2>
+          <p class="scene-title s04-title s04-title--done">하루 평균 <em>10번</em>, 병원이 공격받습니다</p>
+        </div>
+
+        <div class="s04-timeline mono" aria-hidden="true">
+          <span class="s04-wire"></span>
+          <span class="s04-fill"></span>
+          <span class="s04-pin"><span class="s04-clock">00:00</span></span>
+          <div class="s04-ticks"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+        </div>
+
+        <div class="s04-map">
+          <img src="images/s04/world_dots.png" alt="세계 지도">
+        </div>
+
+        <div class="s04-count">
+          <p class="s04-count-label">오늘의 의료 공격</p>
+          <p class="s04-count-num"><b>0</b><small>건</small></p>
+        </div>
+        <p class="visually-hidden s04-live" aria-live="polite"></p>
+
+        <div class="s04-year">
+          <p class="s04-year-from">하루 10건 → 1년</p>
+          <p class="big-number s04-year-num"><b>0</b><small>건</small></p>
+          <p class="s04-year-desc">2024년 전 세계 분쟁 지역 의료 공격</p>
+          <p class="s04-year-badge">역대 최다</p>
+          <p class="scene-title s04-question">이 수많은 공격은 전쟁 중 <span class="is-gold">우발적 사고</span>였을까요?</p>
+        </div>
+        <p class="s04-note">※ 하루의 공격 10건은 연간 통계를 하루로 나눈 예시입니다.</p>
+        <p class="scene-source">출처: Safeguarding Health in Conflict Coalition (2025)</p>
+      </div>
+    </section>
+
+    <!-- 다음 장면 자리: SCENE 05부터 이 아래에 같은 구조로 추가 -->
 
   </main>
 
   <footer class="story-footer">
-    <p class="story-footer-next">SCENE 04 — 하루 10번</p>
+    <p class="story-footer-next">SCENE 05 — 보호 좌표 = 공습 좌표</p>
     <p class="story-footer-note">다음 장면을 준비하고 있습니다.</p>
   </footer>
 
@@ -234,5 +276,6 @@
   <script src="js/scenes/s01.js"></script>
   <script src="js/scenes/s02.js"></script>
   <script src="js/scenes/s03.js"></script>
+  <script src="js/scenes/s04.js"></script>
 </body>
 </html>
