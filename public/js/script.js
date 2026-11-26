@@ -143,11 +143,27 @@
   }
 
   /* 섹션의 스크롤 진행률 0~1 */
-  function progressOf(el) {
+  /* 장면 전환 (크로스페이드): 두 번째 장면부터 앞 장면의 마지막 화면 위로 겹쳐 시작하고
+     처음 lead(=화면 높이의 절반) 만큼 스크롤하는 동안 서서히 나타난다 (CSS --enter).
+     진행률 0~1 은 다 나타난 뒤부터 센다. */
+  var XFADE = 0.5;
+
+  /* 섹션의 스크롤 진행률 0~1
+     lead: 나타나는 크로스페이드 구간, tail: 다음 장면이 겹쳐 오는 구간 (px) — 둘 다 진행률에서 뺀다 */
+  function progressOf(el, lead, tail) {
+    lead = lead || 0; tail = tail || 0;
     var rect = el.getBoundingClientRect();
-    var total = el.offsetHeight - viewH();
-    if (total <= 0) return rect.top <= 0 ? 1 : 0;
-    return util.clamp(-rect.top / total, 0, 1);
+    var total = el.offsetHeight - viewH() - lead - tail;
+    if (total <= 0) return rect.top <= -lead ? 1 : 0;
+    return util.clamp((-rect.top - lead) / total, 0, 1);
+  }
+
+  /* 장면이 다 나타난 위치로 스크롤 (장면 안 "다음" 버튼용) */
+  function scrollToScene(el) {
+    var s = null;
+    scenes.forEach(function (x) { if (x.el === el) s = x; });
+    var y = window.scrollY + el.getBoundingClientRect().top + (s ? s.lead : 0) + 1;
+    window.scrollTo({ top: y, behavior: util.reducedMotion ? 'auto' : 'smooth' });
   }
 
   /* 진행률이 지나간 경계 수 = 현재 상태 번호 (0부터) */
@@ -188,8 +204,8 @@
         return m;
       });
     }
-    var total = Math.max(0, s.el.offsetHeight - viewH());
-    s.snaps.forEach(function (m, i) { m.style.top = Math.round(rest[i] * total) + 'px'; });
+    var total = Math.max(0, s.el.offsetHeight - viewH() - s.lead - s.tail);
+    s.snaps.forEach(function (m, i) { m.style.top = Math.round(s.lead + rest[i] * total) + 'px'; });
   }
 
   /* ---------- 스크롤·리사이즈 처리 ---------- */
@@ -209,7 +225,20 @@
       var rect = s.el.getBoundingClientRect();
       // 화면 근처에 있는 장면만 갱신한다
       if (rect.bottom < -vh || rect.top > vh * 2) return;
-      s.target = progressOf(s.el);
+      s.target = progressOf(s.el, s.lead, s.tail);
+
+      // 크로스페이드: 앞 장면 위로 서서히 나타남
+      if (s.lead) {
+        var enter = util.clamp(-rect.top / s.lead, 0, 1);
+        if (enter !== s.enter) {
+          s.enter = enter;
+          s.el.style.setProperty('--enter', enter.toFixed(3));
+          s.el.classList.toggle('is-entering', enter < 1);
+          s.el.classList.toggle('is-unseen', enter <= 0);
+          var prev = scenes[scenes.indexOf(s) - 1];
+          if (prev) prev.el.style.setProperty('--leave', enter.toFixed(3));   // 앞 장면은 그만큼 어두워지며 빠진다
+        }
+      }
 
       // 단계형: 스크롤 위치가 정한 상태로 한 칸씩 간다 (전환 속도는 CSS 가 정함).
       // 빠르게 지나가도 상태 사이에 STEP_GAP_MS 를 두어 전환이 겹치거나 중간에 끊기지 않는다.
@@ -257,7 +286,9 @@
     var size = document.documentElement.clientWidth + 'x' + viewH();
     if (size === lastSize) { requestTick(); return; }
     lastSize = size;
-    scenes.forEach(function (s) {
+    scenes.forEach(function (s, i) {
+      s.lead = i > 0 ? Math.round(viewH() * XFADE) : 0;
+      s.tail = i < scenes.length - 1 ? Math.round(viewH() * XFADE) : 0;
       if (s.api.steps) placeSnapPoints(s);
       if (s.api.resize) s.api.resize();
       s.dirty = true;
@@ -271,7 +302,7 @@
       var factory = factories[el.dataset.scene];
       if (!factory) return;
       var api = factory(el) || {};
-      var s = { el: el, api: api, progress: -1, target: 0, step: -1, stepAt: 0, dirty: true };
+      var s = { el: el, api: api, progress: -1, target: 0, step: -1, stepAt: 0, dirty: true, lead: 0, tail: 0, enter: -1 };
       scenes.push(s);
       if (api.steps) applyStep(s, 0);
     });
@@ -295,6 +326,7 @@
     register: register,
     util: util,
     progressOf: progressOf,
+    scrollToScene: scrollToScene,
     shared: shared,
     setAmount: setAmount
   };

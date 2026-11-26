@@ -37,7 +37,7 @@
 
     $('.s05-next').addEventListener('click', function () {
       var next = document.getElementById('scene-06');
-      if (next) next.scrollIntoView({ behavior: u.reducedMotion ? 'auto' : 'smooth' });
+      if (next) Story.scrollToScene(next);
     });
 
     setView(false);
