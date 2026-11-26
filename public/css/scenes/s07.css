@@ -1,0 +1,157 @@
+/* =========================================================
+   SCENE 07 — 멈춘 수술실
+   방식: 상태 단계형
+   부모 영역 : .scene-07          고정 화면 : .scene-07 > .sticky-screen
+   상태      : 0 비상등 → is-step-1 암전 → is-step-2 심전도 정지 → is-step-3 키트가 불탐
+   ========================================================= */
+
+.scene-07 { --scene-length: 280vh; }
+@media (pointer: coarse) { .scene-07 { --scene-length: 440vh; } }
+.scene-07 .sticky-screen { background: #0b0807; }
+.scene-07 .sticky-screen::after { display: none; }
+.scene-07 .sticky-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../../images/bg.jpg") center / cover;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ---------- 0 : 잔해와 비상등 ---------- */
+.s07-ruins {
+  position: absolute;
+  left: 50%;
+  bottom: calc(18% + var(--toolbar));
+  width: min(70vw, 1100px);
+  aspect-ratio: 1500 / 500;
+  transform: translateX(-50%);
+  transition: opacity 1.2s ease, filter 1.2s ease;
+}
+.s07-ruins img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: brightness(0.35) saturate(0.5); }
+.is-step-1 .s07-ruins { opacity: 0; filter: blur(2px); }
+
+.s07-lamp {
+  position: absolute;
+  left: 71%;
+  top: 30%;
+  width: 3.4%;
+  aspect-ratio: 2.2;
+  background: #ffd47a;
+  border-radius: 2px;
+  box-shadow: 0 0 10px 3px rgba(255, 196, 90, 0.9);
+  opacity: var(--lamp, 1);
+}
+.s07-glow {
+  position: absolute;
+  left: 71%;
+  top: 30%;
+  width: 46%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 190, 90, 0.42), rgba(255, 160, 60, 0.12) 50%, transparent);
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  opacity: var(--lamp, 1);
+  pointer-events: none;
+}
+
+.s07-embers { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ---------- 문장 ---------- */
+.s07-text {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  text-align: center;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.9s var(--ease);
+  pointer-events: none;
+}
+.s07-text--lamp { top: calc(var(--top-space) + 6vh); opacity: 1; transform: none; }
+.is-step-1 .s07-text--lamp { opacity: 0; transform: translateY(-12px); }
+.s07-text--stop { top: 36%; }
+.is-step-2 .s07-text--stop { opacity: 1; transform: none; transition-delay: 0.3s; }
+.is-step-3 .s07-text--stop { opacity: 0; transform: translateY(-12px); transition-delay: 0s; }
+.s07-time { display: block; margin-bottom: 10px; font-size: clamp(12px, 1vw, 16px); color: var(--muted); filter: none; text-shadow: none; }
+.s07-text--burn { top: 62%; }
+.is-step-3 .s07-text--burn { opacity: 1; transform: none; transition-delay: 1.6s; }
+.s07-sub { display: block; margin-bottom: 18px; font-size: clamp(11px, 0.85vw, 14px); font-weight: 400; color: var(--muted); filter: none; text-shadow: none; }
+
+/* ---------- 2 : 심전도 ---------- */
+.s07-ecg {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: min(560px, 80vw);
+  height: 120px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.is-step-2 .s07-ecg { opacity: 1; }
+.is-step-3 .s07-ecg { opacity: 0; }
+
+/* ---------- 3 : 불타는 키트 ---------- */
+@property --burn { syntax: "<percentage>"; inherits: true; initial-value: 102%; }
+.s07-kit {
+  --burn: 102%;
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: min(420px, 70vw);
+  aspect-ratio: 1100 / 640;
+  transform: translate(-50%, -50%) scale(0.92);
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 1s var(--ease), --burn 3.4s cubic-bezier(0.45, 0, 0.3, 1) 0.8s;
+}
+.is-step-3 .s07-kit { opacity: 1; transform: translate(-50%, -50%); --burn: 48%; }
+.s07-kit-layer { position: absolute; inset: 0; }
+.s07-kit-layer img { position: absolute; left: var(--x); top: var(--y); width: var(--w); transform: translate(-50%, -50%) rotate(var(--r, 0deg)); }
+.s07-kit-layer .k-crate { --x: 50%; --y: 72%; --w: 100%; }
+.s07-kit-layer .k-rutf { --x: 30%; --y: 33%; --w: 46%; --r: -6deg; }
+.s07-kit-layer .k-b1 { --x: 28%; --y: 52%; --w: 15%; }
+.s07-kit-layer .k-b2 { --x: 43%; --y: 46%; --w: 15%; }
+.s07-kit-layer .k-vac { --x: 60%; --y: 38%; --w: 12%; }
+.s07-kit-layer .k-syr { --x: 76%; --y: 32%; --w: 34%; --r: -38deg; }
+.s07-kit-burnt {
+  filter: brightness(0.18) sepia(0.6) contrast(1.3);
+  clip-path: polygon(var(--burn) 0, calc(var(--burn) + 3%) 10%, calc(var(--burn) - 2%) 20%, calc(var(--burn) + 2%) 32%, calc(var(--burn) - 3%) 44%, calc(var(--burn) + 1%) 56%, calc(var(--burn) - 2%) 68%, calc(var(--burn) + 3%) 80%, calc(var(--burn) - 1%) 90%, var(--burn) 100%, 120% 100%, 120% 0);
+}
+.s07-kit-burnt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 50% at 80% 50%, rgba(255, 110, 30, 0.25), transparent 70%);
+  mix-blend-mode: screen;
+}
+.s07-edge {
+  position: absolute;
+  top: -6%;
+  bottom: -6%;
+  left: var(--burn);
+  width: 14px;
+  margin-left: -7px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 100' preserveAspectRatio='none'%3E%3Cpath d='M7 0 L10 10 L5 20 L9 32 L4 44 L8 56 L5 68 L10 80 L6 90 L7 100' fill='none' stroke='%23ff9a3a' stroke-width='2.4'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 6px #ff7a2f) drop-shadow(0 0 14px rgba(255, 90, 20, 0.8));
+  opacity: 0;
+  transition: opacity 0.4s ease 0.8s;
+  animation: s07-edge 0.18s steps(2) infinite;
+}
+.is-step-3 .s07-edge { opacity: 1; }
+@keyframes s07-edge { 50% { filter: drop-shadow(0 0 4px #ffb347) drop-shadow(0 0 18px rgba(255, 90, 20, 0.9)); } }
+
+.s07-cue { position: absolute; left: 50%; bottom: calc(6% + var(--toolbar)); width: 1px; height: 50px; background: linear-gradient(to bottom, transparent, var(--fg-soft)); opacity: 0; transition: opacity 0.6s 2.4s; }
+.is-step-3 .s07-cue { opacity: 0.6; }
+
+@media (max-width: 640px) {
+  .s07-ruins { width: 96vw; bottom: calc(26% + var(--toolbar)); }
+  .s07-text--burn { top: 58%; }
+  .s07-ecg { height: 100px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s07-kit { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+  .s07-edge { animation: none; }
+}

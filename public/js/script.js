@@ -192,32 +192,6 @@
     s.snaps.forEach(function (m, i) { m.style.top = Math.round(rest[i] * total) + 'px'; });
   }
 
-  /* ---------- 공통 헤더 ---------- */
-  var header = {
-    no: null, title: null, steps: [],
-    init: function () {
-      this.no = document.querySelector('.story-scene-no');
-      this.title = document.querySelector('.story-scene-title');
-      this.steps = Array.prototype.slice.call(document.querySelectorAll('.story-step'));
-    },
-    update: function () {
-      var mid = window.innerHeight / 2;
-      var active = null;
-      scenes.forEach(function (s) {
-        var r = s.el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom > mid) active = s;
-      });
-      if (!active) return;
-      if (this.no) this.no.textContent = active.el.dataset.no || '';
-      if (this.title) this.title.textContent = active.el.dataset.title || '';
-      var index = parseInt(active.el.dataset.no, 10) - 1;
-      this.steps.forEach(function (step, i) {
-        var fill = i < index ? 1 : i === index ? active.target : 0;
-        step.style.setProperty('--fill', fill.toFixed(3));
-      });
-    }
-  };
-
   /* ---------- 스크롤·리사이즈 처리 ---------- */
   var SMOOTH = 0.14;        // 연동형: 1프레임(60fps)에 남은 거리의 14%를 따라간다
   var STEP_GAP_MS = 500;    // 단계형: 상태가 연달아 넘어갈 때 최소 간격
@@ -264,7 +238,6 @@
       }
       s.dirty = false;
     });
-    header.update();
 
     if (moving) requestTick();
     else lastTime = 0;
@@ -293,7 +266,6 @@
   }
 
   function start() {
-    header.init();
     var els = document.querySelectorAll('[data-scene]');
     Array.prototype.forEach.call(els, function (el) {
       var factory = factories[el.dataset.scene];
