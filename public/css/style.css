@@ -383,3 +383,8 @@ button, input, output { font: inherit; color: inherit; }
 
 /* 손잡이를 끌어 보라는 신호 */
 @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+
+/* 화면 밖 장면의 반복 애니메이션은 멈춘다 (js 의 visible 이 .is-paused 를 붙인다) */
+.scene.is-paused *,
+.scene.is-paused *::before,
+.scene.is-paused *::after { animation-play-state: paused !important; }

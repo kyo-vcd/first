@@ -12,6 +12,7 @@
   <!-- 장면별 스타일: 장면을 추가하면 여기에 한 줄 추가 -->
   <link rel="stylesheet" href="css/scenes/s01.css">
   <link rel="stylesheet" href="css/scenes/s02.css">
+  <link rel="stylesheet" href="css/scenes/s03.css">
 
 </head>
 <body>
@@ -171,12 +172,59 @@
       </div>
     </section>
 
-    <!-- 다음 장면 자리: SCENE 03부터 이 아래에 같은 구조로 추가 -->
+    <!-- =========================================================
+         SCENE 03 — 최후의 안전지대 (병원과 제네바협약)
+         부모: .scene-03  >  .sticky-screen
+         자식: .s03-world (배경 · 병원 · 보호 구역) / .s03-head (제목) / .s03-card (협약) / .s03-question
+         ========================================================= -->
+    <section class="scene scene-03" id="scene-03" data-scene="s03" data-no="03" data-title="최후의 안전지대" aria-labelledby="s03-heading">
+      <div class="sticky-screen">
+        <div class="s03-world">
+          <img class="s03-bg" src="images/s03/war_bg.jpg" alt="불타는 도시와 연기">
+          <span class="s03-smoke s03-smoke--1" aria-hidden="true"></span>
+          <span class="s03-smoke s03-smoke--2" aria-hidden="true"></span>
+          <span class="s03-smoke s03-smoke--3" aria-hidden="true"></span>
+          <span class="s03-smoke s03-smoke--4" aria-hidden="true"></span>
+          <span class="s03-flame s03-flame--1" aria-hidden="true"></span>
+          <span class="s03-flame s03-flame--2" aria-hidden="true"></span>
+          <span class="s03-flame s03-flame--3" aria-hidden="true"></span>
+          <span class="s03-flame s03-flame--4" aria-hidden="true"></span>
+          <svg class="s03-zone" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <ellipse cx="50" cy="50" rx="49" ry="45"/>
+            <ellipse class="s03-zone-draw" cx="50" cy="50" rx="49" ry="45" pathLength="2000"/>
+          </svg>
+          <span class="s03-zone-label" style="left: 50%; top: 82%;">보호 구역</span>
+          <div class="s03-hospital">
+            <img src="images/s03/hospital.png" alt="적십자가 그려진 야전 병원">
+            <img class="s03-hospital-lit" src="images/s03/hospital_lit.png" alt="">
+            <span class="s03-beam" aria-hidden="true"></span>
+          </div>
+          <canvas class="s03-embers" aria-hidden="true"></canvas>
+        </div>
+
+        <div class="s03-head title-stack">
+          <h2 class="scene-title s03-title s03-title--0" id="s03-heading">국제법이 약속한 최후의 안전지대</h2>
+          <p class="scene-title s03-title s03-title--1">국제법이 약속한 <em>최후의 안전지대</em></p>
+          <p class="scene-title s03-title s03-title--2">병원은 어떤 상황에서도 <em>공격 대상이 아니다</em></p>
+        </div>
+
+        <div class="s03-dim" aria-hidden="true"></div>
+        <figure class="s03-card">
+          <p class="s03-card-tag">제네바 제4협약 제18조</p>
+          <blockquote class="s03-card-text">민간 병원은 어떠한 상황에서도<br>공격의 대상이 될 수 없다</blockquote>
+          <span class="s03-card-rule" aria-hidden="true"></span>
+          <figcaption class="s03-card-source">1949 · 전시 민간인 보호에 관한 제네바 협약</figcaption>
+        </figure>
+        <p class="s03-question">이 약속은 현실에서도 지켜지고 있을까요?</p>
+      </div>
+    </section>
+
+    <!-- 다음 장면 자리: SCENE 04부터 이 아래에 같은 구조로 추가 -->
 
   </main>
 
   <footer class="story-footer">
-    <p class="story-footer-next">SCENE 03 — 최후의 안전지대</p>
+    <p class="story-footer-next">SCENE 04 — 하루 10번</p>
     <p class="story-footer-note">다음 장면을 준비하고 있습니다.</p>
   </footer>
 
@@ -185,5 +233,6 @@
   <!-- 장면별 스크립트: 장면을 추가하면 여기에 한 줄 추가 -->
   <script src="js/scenes/s01.js"></script>
   <script src="js/scenes/s02.js"></script>
+  <script src="js/scenes/s03.js"></script>
 </body>
 </html>
