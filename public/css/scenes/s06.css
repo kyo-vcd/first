@@ -1,12 +1,12 @@
 /* =========================================================
    SCENE 06 — 쿤두즈, 2015년 10월 3일
-   방식: 드래그(타임라인 슬라이더) — 스크롤은 장면에 들어오고 나가는 데만 쓴다
+   방식: 스크롤 연동형 — 진행률 0~1 이 02:00~03:15. 타임라인을 끌면 그 시각 위치로 스크롤된다
    부모 영역 : .scene-06          고정 화면 : .scene-06 > .sticky-screen
-   상태      : data-phase 0 정상 → 1 첫 포격 → 2 공격 계속 → 3 무너짐 (슬라이더 시각으로 정함)
+   상태      : data-phase 0 정상 → 1 첫 포격 → 2 공격 계속 → 3 무너짐 (스크롤 시각으로 정함)
    ========================================================= */
 
-.scene-06 { --scene-length: 220vh; }
-@media (pointer: coarse) { .scene-06 { --scene-length: 260vh; } }
+.scene-06 { --scene-length: 460vh; }
+@media (pointer: coarse) { .scene-06 { --scene-length: 620vh; } }
 
 .scene-06 .sticky-screen { background: #0e0a09; }
 .scene-06 .sticky-screen::after { opacity: 0.6; }
@@ -194,6 +194,7 @@
 .s06-intro-title { margin: 0; font-size: clamp(15px, 1.2vw, 20px); font-weight: 800; line-height: 1.5; color: var(--fg); }
 .s06-intro-text { margin: 0; font-size: 13px; color: var(--fg-soft); }
 .s06-hint { margin-top: auto; font-size: 12px; color: var(--muted); animation: s06-hint 1.6s ease-in-out infinite; }
+.s06-hint::first-letter { display: inline-block; }
 @keyframes s06-hint { 50% { color: var(--fg); } }
 .s06-intro { display: flex; flex-direction: column; gap: 8px; flex: 1; transition: opacity 0.4s; }
 .scene-06:not([data-phase="0"]) .s06-intro { display: none; }
@@ -263,22 +264,6 @@
 .s06-marks i { position: absolute; top: 0; width: 2px; height: 8px; margin-left: -1px; background: rgba(229, 38, 43, 0.7); }
 .s06-ticks { display: flex; justify-content: space-between; margin: 2px 11px 0; font-size: 11px; color: var(--muted); }
 .s06-ticks span { width: 0; display: flex; justify-content: center; }
-.scene-06:not(.is-dragged) .s06-range::-webkit-slider-thumb { animation: nudge 1.4s ease-in-out infinite; }
-.s06-play {
-  position: absolute;
-  right: 0;
-  bottom: 54px;
-  min-height: 30px;
-  padding: 0 12px;
-  border: 1px solid rgba(239, 230, 214, 0.25);
-  border-radius: 999px;
-  background: rgba(14, 10, 9, 0.7);
-  color: var(--fg-soft);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-.s06-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 @media (max-width: 760px) {
   .s06-building { left: 2%; width: 96vw; bottom: auto; top: calc(var(--top-space) + 25vh); }
@@ -288,7 +273,6 @@
   .s06-toll dl { row-gap: 4px; font-size: 13px; }
   .s06-toll dt, .s06-toll dd { padding-bottom: 4px; }
   .s06-toll .s06-src { display: none; }
-  .s06-play { bottom: 58px; }
   .s06-smoke { left: 40%; bottom: 55%; width: 60vw; }
   .s06-sky { background: radial-gradient(70% 40% at 40% 38%, rgba(255, 110, 40, 0.55), transparent 75%); }
   .s06-time { left: var(--gutter); right: var(--gutter); }

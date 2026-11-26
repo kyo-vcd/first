@@ -158,6 +158,15 @@
     return util.clamp((-rect.top - lead) / total, 0, 1);
   }
 
+  /* 장면 안의 진행률 p 위치로 바로 스크롤 (연동형 장면의 슬라이더용) */
+  function scrollToProgress(el, p) {
+    var s = null;
+    scenes.forEach(function (x) { if (x.el === el) s = x; });
+    if (!s) return;
+    var total = el.offsetHeight - viewH() - s.lead - s.tail;
+    window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top + s.lead + util.clamp(p, 0, 1) * total);
+  }
+
   /* 장면이 다 나타난 위치로 스크롤 (장면 안 "다음" 버튼용) */
   function scrollToScene(el) {
     var s = null;
@@ -189,7 +198,7 @@
      상태마다 한가운데 진행률 위치에 .snap-point 를 둔다 (CSS scroll-snap, 터치 화면에서만 동작).
      한 번 쓸면 다음 상태에서 멈춰 상태가 여러 개 연달아 넘어가지 않는다. */
   function placeSnapPoints(s) {
-    var steps = s.api.steps;
+    var steps = s.api.steps || [];
     var rest = [0];
     for (var i = 0; i < steps.length; i++) {
       rest.push((steps[i] + (i + 1 < steps.length ? steps[i + 1] : 1)) / 2);
@@ -223,11 +232,7 @@
 
     scenes.forEach(function (s) {
       var rect = s.el.getBoundingClientRect();
-      // 화면 근처에 있는 장면만 갱신한다
-      if (rect.bottom < -vh || rect.top > vh * 2) return;
-      s.target = progressOf(s.el, s.lead, s.tail);
-
-      // 크로스페이드: 앞 장면 위로 서서히 나타남
+      // 크로스페이드: 앞 장면 위로 서서히 나타남 (화면 밖 장면도 갱신해야 빠르게 되돌아올 때 값이 남지 않는다)
       if (s.lead) {
         var enter = util.clamp(-rect.top / s.lead, 0, 1);
         if (enter !== s.enter) {
@@ -239,6 +244,10 @@
           if (prev) prev.el.style.setProperty('--leave', enter.toFixed(3));   // 앞 장면은 그만큼 어두워지며 빠진다
         }
       }
+
+      // 화면 근처에 있는 장면만 진행률 · 상태를 갱신한다
+      if (rect.bottom < -vh || rect.top > vh * 2) return;
+      s.target = progressOf(s.el, s.lead, s.tail);
 
       // 단계형: 스크롤 위치가 정한 상태로 한 칸씩 간다 (전환 속도는 CSS 가 정함).
       // 빠르게 지나가도 상태 사이에 STEP_GAP_MS 를 두어 전환이 겹치거나 중간에 끊기지 않는다.
@@ -289,7 +298,7 @@
     scenes.forEach(function (s, i) {
       s.lead = i > 0 ? Math.round(viewH() * XFADE) : 0;
       s.tail = i < scenes.length - 1 ? Math.round(viewH() * XFADE) : 0;
-      if (s.api.steps) placeSnapPoints(s);
+      if (s.api.steps || s.api.snaps) placeSnapPoints(s);
       if (s.api.resize) s.api.resize();
       s.dirty = true;
     });
@@ -327,6 +336,7 @@
     util: util,
     progressOf: progressOf,
     scrollToScene: scrollToScene,
+    scrollToProgress: scrollToProgress,
     shared: shared,
     setAmount: setAmount
   };
