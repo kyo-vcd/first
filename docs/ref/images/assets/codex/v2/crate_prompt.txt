@@ -1,0 +1,8 @@
+Attached: ref_crate.png (my design: an open wooden emergency medical kit crate filled with supplies).
+1. crate_front.png (transparent_background=true, landscape): ONLY the FRONT of the open wooden crate as in the reference, with NO supplies inside: weathered horizontal wooden planks, dark nails, torn translucent plastic sheet draped over the top edge, a red cross and faded red stencil text "EMERGENCY MEDICAL KIT", a small cardboard tag with a red cross hanging on the right, red rope handles curving out on both sides, dirt/blood stains at the bottom. Above the crate is empty transparent space (the inside is not visible). Isolated.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

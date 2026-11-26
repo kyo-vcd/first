@@ -1,0 +1,9 @@
+Attached: ref_items.png (the whole group in my design), ref_rutf.png, ref_bandage.png.
+1. rutf.png (transparent_background=true, landscape): ONE RUTF food sachet exactly like ref_rutf.png: cream foil packet with crimped zig-zag edges, a red band with big white text "RUTF", small text "READY-TO-USE THERAPEUTIC FOOD", a small blood smear, slightly tilted about -8 degrees. Isolated, nothing else.
+2. bandage.png (transparent_background=true, square): ONE upright roll of tan medical tape/bandage like ref_bandage.png (cylinder seen from the front-top, dark hole in the middle, a small dripping blood stain). Isolated, nothing else.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

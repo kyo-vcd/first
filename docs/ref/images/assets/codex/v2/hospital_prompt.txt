@@ -1,0 +1,10 @@
+Attached: ref_scene.png (my full design frame) and ref_hospital.png (the hospital in it).
+1. war_bg.png (opaque, landscape 16:9): the full scene background WITHOUT the hospital and WITHOUT any text: dark red-brown smoky sky with heavy grain, a dim red sun, thick black smoke columns at the left and right, burning ruined city silhouettes on both sides with orange window lights and fires, dark rubble ground across the bottom third with scattered debris, an empty dark gap in the center where a building will be placed.
+2. hospital.png (transparent_background=true, landscape): ONLY the field hospital from ref_hospital.png: grey-green canvas tarp roof with a faded red-cross circle on top, concrete wall with two dark windows and a dark arched door in the middle, sandbag rows in front, guy ropes to the ground on both sides, small black shrapnel holes. Windows and door are DARK (no light). Isolated.
+3. Edit hospital.png (referenced image) into hospital_lit.png (transparent_background=true): exactly the same building and framing, but both windows and the door glow warm yellow from inside, with a small dark human silhouette standing in the lit door, and the red cross on the roof is bright red.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

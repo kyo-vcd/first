@@ -1,0 +1,10 @@
+Attached: ref_items.png (whole group), ref_vaccine.png, ref_syringe.png, ref_pills.png.
+1. vaccine.png (transparent_background=true, portrait): ONE glass vaccine vial like ref_vaccine.png: grey metal cap, clear glass, white label with "VACCINE", "10 mL", "INJECTION ONLY" and a teal stripe. Isolated.
+2. syringe.png (transparent_background=true, landscape): ONE syringe lying diagonally like ref_syringe.png, barrel filled with dark red blood, teal needle hub. Isolated.
+3. pill.png (transparent_background=true, square): a 3x3 grid of 9 separate single pills/capsules like ref_pills.png (mint green/white capsules, red/white capsules, round white tablets, one yellow/green capsule), each centered in its cell, not touching. Isolated.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

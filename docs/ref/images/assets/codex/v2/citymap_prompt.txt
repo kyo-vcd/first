@@ -1,0 +1,8 @@
+Attached: ref_city.png (my design frame).
+1. city_map.png (opaque, landscape 16:9): ONLY the dark aerial city map background from the reference, WITHOUT any text, UI panels, pins, circles or crosshair lines: a top-down grid of dark brown city blocks with lighter rooftops, darker streets, a few diagonal avenues, a dark blue river winding across the lower third, a few black bomb craters, heavy grain, very dark overall.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

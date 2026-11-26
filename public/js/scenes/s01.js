@@ -348,6 +348,7 @@
       counts.push(Math.max(1, n - counts[0] - counts[1]));
 
       state.amount = amount;
+      Story.setAmount(amount);               // 다음 장면들이 이 금액을 쓴다
       state.fill = 0.45 + 0.2 * (k - 1) / 9;         // 금액이 클수록 높이 쌓인다 (가운데 봉우리가 수조를 넘지 않게)
       state.donated = true;
       state.dropStart = performance.now();

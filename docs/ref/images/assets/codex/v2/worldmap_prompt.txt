@@ -1,0 +1,8 @@
+Attached: ref_map.png (a dotted world map in my design).
+1. world_dots.png (transparent_background=true, wide landscape 2:1): a world map drawn only with small evenly spaced light grey square dots (halftone dot grid) forming all continents, like the reference, no country borders, no text, slightly uneven print grain. Isolated on transparency.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

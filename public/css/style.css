@@ -235,3 +235,151 @@ button, input, output { font: inherit; color: inherit; }
   .snap-point { scroll-snap-align: start; scroll-snap-stop: always; }   /* .scene: JS 가 지점을 만들기 전에도 장면 시작에서 멈춤 */
   .story-footer { scroll-snap-align: end; }
 }
+
+/* =========================================================
+   장면 공통 부품 (S02~S08): 시안의 제목 · 도장 버튼 · 패널 · 숫자
+   ========================================================= */
+
+/* 장면 제목: 크림색 + 붉은 그림자 + 점 구멍 질감 */
+.scene-title {
+  margin: 0;
+  font-size: clamp(22px, 2.5vw, 48px);
+  font-weight: 900;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  text-shadow: 2px 3px 0 var(--red-deep);
+  filter: url(#fx-grain);
+  text-wrap: balance;
+}
+.scene-title em,
+.scene-title strong { font-style: normal; color: var(--red); }
+.scene-title .is-gold { color: #f0a63a; }
+.scene-title .is-green { color: #4fcf86; text-shadow: 2px 3px 0 #0f3d23; }
+
+/* 제목 여러 개를 같은 자리에서 교체 */
+.title-stack { display: grid; text-align: center; }
+.title-stack > * {
+  grid-area: 1 / 1;
+  transition: opacity 0.45s ease, transform 0.7s var(--ease);
+}
+.title-stack > .is-off { opacity: 0; transform: translateY(24px); }
+
+/* 거칠게 찢긴 붉은 종이 버튼 (S01 후원하기와 같은 바탕) */
+.scene-btn {
+  position: relative;
+  isolation: isolate;
+  min-height: 42px;
+  padding: 0 22px;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  font-size: clamp(13px, 0.95vw, 18px);
+  font-weight: 800;
+  cursor: pointer;
+  transform: rotate(-1deg);
+  transition: transform 0.2s var(--ease), opacity 0.4s ease;
+}
+.scene-btn::before {
+  content: "";
+  position: absolute;
+  inset: -3px -5px;
+  z-index: -1;
+  background: url("../images/s01/stamp.png") center / 100% 100% no-repeat;
+  transition: filter 0.2s;
+}
+.scene-btn:hover::before { filter: brightness(1.12); }
+.scene-btn:active { transform: rotate(-1deg) scale(0.95); }
+.scene-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.scene-btn:disabled { cursor: default; }
+.scene-btn:disabled::before { filter: grayscale(0.7) brightness(0.45); }
+
+/* 테두리가 둥근 외곽선 버튼 (S05 · S08) */
+.scene-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 20px;
+  border: 1.5px solid var(--red);
+  border-radius: 999px;
+  background: rgba(229, 38, 43, 0.08);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s var(--ease);
+}
+.scene-link:hover { background: rgba(229, 38, 43, 0.22); }
+.scene-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* 어두운 반투명 패널 (기록 · 좌표 · 통계) */
+.scene-panel {
+  border: 1px solid rgba(239, 230, 214, 0.14);
+  border-radius: 10px;
+  background: rgba(14, 10, 9, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 18px 20px;
+}
+.scene-panel-label { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+
+/* 시각 · 좌표 같은 기계식 숫자 */
+.mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Courier New", monospace; letter-spacing: 0.02em; }
+
+/* 큰 숫자 (거친 붉은 글자) */
+.big-number {
+  font-weight: 900;
+  line-height: 1;
+  color: var(--red);
+  text-shadow: 3px 4px 0 #4a0d0b;
+  filter: url(#fx-rough-grain);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 출처 표기 */
+.scene-source {
+  position: absolute;
+  right: var(--gutter);
+  bottom: calc(10px + var(--toolbar));
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+/* 장면 공통 슬라이더 (S06 타임라인 · S08 반경): 큰 터치 영역 */
+.scene-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.scene-range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(to right, var(--red) calc(var(--p, 0) * 100%), rgba(239, 230, 214, 0.25) calc(var(--p, 0) * 100%));
+}
+.scene-range::-moz-range-track { height: 3px; background: rgba(239, 230, 214, 0.25); }
+.scene-range::-moz-range-progress { height: 3px; background: var(--red); }
+.scene-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px; margin-top: -9.5px;
+  border: 0; border-radius: 50%;
+  background: #efe6d6 radial-gradient(circle, #fff 30%, #cfc4b2 100%);
+  box-shadow: 0 0 0 6px rgba(239, 230, 214, 0.12), 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.scene-range::-moz-range-thumb {
+  width: 22px; height: 22px; border: 0; border-radius: 50%;
+  background: #efe6d6; box-shadow: 0 0 0 6px rgba(239, 230, 214, 0.12);
+}
+.scene-range:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; }
+
+/* 손잡이를 끌어 보라는 신호 */
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }

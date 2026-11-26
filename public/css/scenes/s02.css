@@ -1,0 +1,153 @@
+/* =========================================================
+   SCENE 02 — 화폐에서 생명으로 (구호 키트)
+   방식: 클릭 + 상태 단계형
+   부모 영역 : .scene-02 (스크롤 구간)   고정 화면 : .scene-02 > .sticky-screen
+   상태      : .is-made (버튼 클릭 또는 자동) → is-step-2 (상자에 담김) → is-step-3 (다음 질문)
+   물품 위치 : 무대(.s02-stage) 기준 % — 흩어진 배치(--x,--y,--w,--r), 담긴 배치(--px,--py,--pw,--pr)
+   ========================================================= */
+
+.scene-02 { --scene-length: 260vh; }
+@media (pointer: coarse) { .scene-02 { --scene-length: 440vh; } }
+
+.scene-02 .sticky-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(var(--top-space) + 5vh) var(--gutter) calc(clamp(80px, 12vh, 140px) + var(--toolbar));
+  gap: clamp(14px, 2.4vh, 28px);
+}
+
+.s02-head { display: flex; flex-direction: column; align-items: center; gap: clamp(14px, 2.2vh, 24px); }
+.s02-make { transition: opacity 0.4s ease, transform 0.2s var(--ease); }
+.is-step-2 .s02-make { opacity: 0; pointer-events: none; }
+
+/* ---------- 무대 ---------- */
+.s02-stage {
+  position: relative;
+  flex: 1;
+  width: min(1100px, 100%);
+  max-height: 560px;
+  min-height: 0;
+}
+@supports (aspect-ratio: 1) {
+  .s02-stage { flex: 0 1 auto; aspect-ratio: 1100 / 520; height: auto; max-height: calc(100% - 120px); }
+}
+
+.s02-glow {
+  position: absolute;
+  inset: -10% 0;
+  background: radial-gradient(50% 55% at 52% 58%, rgba(214, 162, 58, 0.32), rgba(214, 162, 58, 0.08) 55%, transparent 75%);
+  opacity: 0.55;
+  transition: opacity 1.2s ease;
+  pointer-events: none;
+}
+.is-made .s02-glow { opacity: 1; }
+
+.s02-fx,
+.s02-dust {
+  position: absolute;
+  inset: -20% -10% 0;
+  width: 120%;
+  height: 120%;
+  pointer-events: none;
+}
+.s02-fx { z-index: 4; }
+
+/* ---------- 물품 ---------- */
+.s02-item {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: auto;
+  z-index: 2;
+  transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scale(0.2);
+  opacity: 0;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+  transition:
+    left 0.9s var(--ease) var(--pd, 0s),
+    top 0.9s var(--ease) var(--pd, 0s),
+    width 0.9s var(--ease) var(--pd, 0s),
+    transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s),
+    opacity 0.4s ease var(--d, 0s);
+  pointer-events: none;
+}
+/* 처음엔 동전 더미 자리에 숨어 있다 */
+.scene-02:not(.is-made) .s02-item { left: 52%; top: 70%; transition-duration: 0.4s; transition-delay: 0s; }
+
+.is-made .s02-item {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scale(1);
+  animation: s02-float var(--f, 4s) ease-in-out var(--d, 0s) infinite;
+}
+@keyframes s02-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+
+/* 상자에 담긴 배치 */
+.is-step-2 .s02-item {
+  left: var(--px);
+  top: var(--py);
+  width: var(--pw);
+  transform: translate(-50%, -50%) rotate(var(--pr, 0deg)) scale(1);
+  animation: none;
+}
+
+.s02-item--rutf    { --x: 21%; --y: 37%; --w: 37%; --r: -2deg;  --px: 37%; --py: 32%; --pw: 29%; --pr: -4deg; --d: 0.05s; --pd: 0.05s; --f: 4.6s; }
+.s02-item--b1      { --x: 19%; --y: 72%; --w: 12%;             --px: 33%; --py: 49%; --pw: 9%;  --d: 0.15s; --pd: 0.12s; --f: 3.8s; z-index: 3; }
+.s02-item--b2      { --x: 31%; --y: 57%; --w: 11%;             --px: 43%; --py: 42%; --pw: 9%;  --d: 0.2s;  --pd: 0.16s; --f: 4.2s; }
+.s02-item--b3      { --x: 31%; --y: 80%; --w: 11%;             --px: 52%; --py: 49%; --pw: 9%;  --d: 0.25s; --pd: 0.2s;  --f: 3.6s; z-index: 3; }
+.s02-item--b4      { --x: 42%; --y: 56%; --w: 11%;             --px: 47%; --py: 48%; --pw: 8%;  --d: 0.3s;  --pd: 0.22s; --f: 4.4s; }
+.s02-item--vaccine { --x: 54%; --y: 57%; --w: 11%;             --px: 60%; --py: 33%; --pw: 8%;  --d: 0.35s; --pd: 0.26s; --f: 5s; }
+.s02-item--syringe { --x: 66%; --y: 79%; --w: 40%; --r: -6deg; --px: 74%; --py: 30%; --pw: 22%; --pr: -38deg; --d: 0.4s; --pd: 0.3s; --f: 4.8s; z-index: 3; }
+.s02-item--p1 { --x: 74%; --y: 22%; --w: 5%;  --r: 25deg;  --px: 64%; --py: 46%; --pw: 3.6%; --pr: 60deg;  --d: 0.45s; --pd: 0.34s; --f: 3.4s; }
+.s02-item--p2 { --x: 83%; --y: 12%; --w: 5%;  --r: -20deg; --px: 67%; --py: 42%; --pw: 3.6%; --pr: 10deg;  --d: 0.48s; --pd: 0.35s; --f: 3.9s; }
+.s02-item--p3 { --x: 92%; --y: 24%; --w: 5%;  --r: 40deg;  --px: 70%; --py: 47%; --pw: 3.6%; --pr: -30deg; --d: 0.5s;  --pd: 0.36s; --f: 4.1s; }
+.s02-item--p4 { --x: 79%; --y: 40%; --w: 5.5%; --r: -35deg; --px: 66%; --py: 50%; --pw: 3.6%; --pr: 80deg;  --d: 0.52s; --pd: 0.37s; --f: 3.7s; }
+.s02-item--p5 { --x: 89%; --y: 45%; --w: 5%;  --r: 15deg;  --px: 72%; --py: 51%; --pw: 3.6%; --pr: 20deg;  --d: 0.55s; --pd: 0.38s; --f: 4.3s; }
+.s02-item--p6 { --x: 71%; --y: 55%; --w: 5%;  --r: 70deg;  --px: 63%; --py: 52%; --pw: 3.4%; --pr: -50deg; --d: 0.58s; --pd: 0.39s; --f: 3.5s; }
+.s02-item--p7 { --x: 96%; --y: 60%; --w: 4.5%; --r: -50deg; --px: 75%; --py: 49%; --pw: 3.4%; --pr: 40deg;  --d: 0.6s;  --pd: 0.4s;  --f: 4s; }
+.s02-item--p8 { --x: 84%; --y: 66%; --w: 4.5%; --r: 30deg;  --px: 69%; --py: 53%; --pw: 3.4%; --pr: -10deg; --d: 0.62s; --pd: 0.41s; --f: 3.8s; }
+.s02-item--p9 { --x: 77%; --y: 70%; --w: 4.5%; --r: -15deg; --px: 77%; --py: 53%; --pw: 3.4%; --pr: 70deg;  --d: 0.65s; --pd: 0.42s; --f: 4.5s; }
+
+/* ---------- 상자 앞판: 아래에서 올라와 물품을 가린다 ---------- */
+.s02-crate {
+  position: absolute;
+  left: 52%;
+  top: 70%;
+  width: 66%;
+  height: auto;
+  z-index: 5;
+  transform: translate(-50%, -50%) translateY(70%);
+  opacity: 0;
+  filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.6));
+  transition: transform 0.9s var(--ease), opacity 0.5s ease;
+  pointer-events: none;
+}
+.is-step-2 .s02-crate {
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  transition-delay: 0.25s;
+  animation: s02-thud 0.5s ease-out 1.05s 1;
+}
+@keyframes s02-thud { 0% { translate: 0 0; } 40% { translate: 0 6px; } 100% { translate: 0 0; } }
+
+/* ---------- 제목 교체 ---------- */
+.is-step-3 .s02-title--ask { opacity: 0; transform: translateY(-20px); }
+.is-step-3 .s02-title--next { opacity: 1; transform: none; transition-delay: 0.35s; }
+
+/* 상자가 다음 장면으로 가며 살짝 어두워짐 */
+.is-step-3 .s02-stage { filter: brightness(0.85); transition: filter 0.8s ease; }
+
+@media (max-width: 640px) {
+  .scene-02 .sticky-screen { padding-top: calc(var(--top-space) + 4vh); }
+  @supports (aspect-ratio: 1) { .s02-stage { aspect-ratio: 1 / 0.82; } }
+  .s02-item--rutf { --w: 44%; --x: 26%; --y: 26%; }
+  .s02-item--syringe { --w: 52%; --x: 60%; --y: 84%; }
+  .s02-item--vaccine { --w: 15%; }
+  .s02-crate { width: 92%; }
+  .is-step-2 .s02-item--rutf { --pw: 38%; --px: 32%; }
+  .is-step-2 .s02-item--syringe { --pw: 30%; --px: 80%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .s02-item, .s02-crate { transition-duration: 0.01s !important; transition-delay: 0s !important; animation: none !important; }
+}

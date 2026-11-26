@@ -1,0 +1,8 @@
+Attached: ref_paper.png (a notice card in my design).
+1. paper.png (transparent_background=true, landscape about 2.4:1): a blank aged cream paper sheet with heavy speckle grain, slightly torn rough edges, translucent brown tape pieces on the four corners, and a red pushpin with a short red drip at the top right, like the reference but with NO text at all. Isolated.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

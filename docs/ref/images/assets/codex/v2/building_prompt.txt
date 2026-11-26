@@ -1,0 +1,10 @@
+Attached: ref_normal.png, ref_burning.png, ref_ruins.png (three states of the same hospital in my design).
+1. building_normal.png (transparent_background=true, wide landscape about 3:1): the long two-storey grey concrete hospital facade from ref_normal.png, front view: two rows of tall windows, some glowing warm yellow and some dark, a small white flag with a red cross on the left of the upper floor, stains, NO text labels. Isolated.
+2. Edit building_normal.png (referenced image) into building_burning.png (transparent_background=true, same size and framing): the middle section collapsed into a pile of rubble with big orange-yellow flames rising from it, flames in several upper windows on the right, cracks, soot; left part still standing. Like ref_burning.png, NO text labels.
+3. Edit building_normal.png (referenced image) into building_ruins.png (transparent_background=true, same size and framing): only dark broken wall fragments remain at the far left (with the red-cross flag) and the right, the middle is a low pile of dark rubble with a few glowing embers, no fire, like ref_ruins.png, NO text labels.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

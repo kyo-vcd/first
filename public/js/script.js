@@ -49,8 +49,79 @@
     easeInOut: function (t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; },
     easeOut: function (t) { return 1 - Math.pow(1 - t, 3); },
     won: function (n) { return Math.round(n).toLocaleString('ko-KR') + '원'; },
-    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+
+    /** 숫자가 from → to 로 올라가는 모션 (format: 숫자 → 문자열) */
+    countUp: function (el, to, ms, format, from) {
+      format = format || function (n) { return Math.round(n).toLocaleString('ko-KR'); };
+      from = from || 0;
+      if (el._countRaf) cancelAnimationFrame(el._countRaf);
+      if (util.reducedMotion || !ms) { el.textContent = format(to); return; }
+      var t0 = performance.now();
+      (function step(now) {
+        var k = util.clamp((now - t0) / ms, 0, 1);
+        el.textContent = format(from + (to - from) * util.easeOut(k));
+        if (k < 1) el._countRaf = requestAnimationFrame(step);
+      })(t0);
+    },
+
+    /** 위로 떠오르는 불씨 파티클 (canvas). 반환: { start, stop, resize, burst } */
+    embers: function (canvas, opt) {
+      opt = opt || {};
+      var ctx = canvas.getContext('2d');
+      var rate = opt.rate || 40;              // 초당 입자 수
+      var colors = opt.colors || ['#ffb347', '#ff7a2f', '#ffd27a', '#e5262b'];
+      var area = opt.area || function (w, h) { return { x: Math.random() * w, y: h * (0.6 + Math.random() * 0.4) }; };
+      var parts = [], raf = 0, last = 0, acc = 0, w = 0, h = 0, dpr = 1;
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.clientWidth; h = canvas.clientHeight;
+        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      }
+      function spawn(p) {
+        p = p || area(w, h);
+        parts.push({ x: p.x, y: p.y, vx: (Math.random() - 0.5) * 30, vy: -(30 + Math.random() * (opt.speed || 70)),
+          life: 0, max: 1.2 + Math.random() * 2, r: 0.6 + Math.random() * (opt.size || 1.8),
+          c: colors[(Math.random() * colors.length) | 0], wob: Math.random() * 6 });
+      }
+      function frame(now) {
+        var dt = Math.min((now - last) / 1000, 0.05); last = now;
+        acc += dt * rate;
+        while (acc > 1) { spawn(); acc -= 1; }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+        for (var i = parts.length - 1; i >= 0; i--) {
+          var q = parts[i];
+          q.life += dt;
+          if (q.life > q.max) { parts.splice(i, 1); continue; }
+          q.x += (q.vx + Math.sin(q.life * 3 + q.wob) * 14) * dt;
+          q.y += q.vy * dt;
+          var a = Math.sin(Math.PI * q.life / q.max);
+          ctx.globalAlpha = a * (opt.alpha || 0.9);
+          ctx.fillStyle = q.c;
+          ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+        raf = requestAnimationFrame(frame);
+      }
+      return {
+        resize: resize,
+        start: function () { if (raf || util.reducedMotion) return; resize(); last = performance.now(); raf = requestAnimationFrame(frame); },
+        stop: function () { cancelAnimationFrame(raf); raf = 0; },
+        burst: function (x, y, n) { for (var i = 0; i < (n || 30); i++) spawn({ x: x + (Math.random() - 0.5) * 40, y: y + (Math.random() - 0.5) * 20 }); },
+        setRate: function (r) { rate = r; }
+      };
+    }
   };
+
+  /* ---------- 장면끼리 함께 쓰는 값 ----------
+     amount: S01 에서 고른 후원 금액. 바뀌면 document 에 'story:amount' 이벤트가 난다. */
+  var shared = { amount: 10000 };
+  function setAmount(n) {
+    shared.amount = n;
+    document.dispatchEvent(new CustomEvent('story:amount', { detail: n }));
+  }
 
   function register(id, factory) {
     factories[id] = factory;
@@ -229,6 +300,17 @@
       scenes.push(s);
       if (api.steps) applyStep(s, 0);
     });
+    // 장면이 화면에 보일 때만 반복 애니메이션을 돌린다 (api.visible(true|false))
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          scenes.forEach(function (s) {
+            if (s.el === e.target && s.api.visible) s.api.visible(e.isIntersecting);
+          });
+        });
+      }, { rootMargin: '10% 0px' });
+      scenes.forEach(function (s) { if (s.api.visible) io.observe(s.el); });
+    }
     window.addEventListener('scroll', requestTick, { passive: true });
     window.addEventListener('resize', onResize);
     onResize();
@@ -237,7 +319,9 @@
   window.Story = {
     register: register,
     util: util,
-    progressOf: progressOf
+    progressOf: progressOf,
+    shared: shared,
+    setAmount: setAmount
   };
 
   if (document.readyState === 'loading') {

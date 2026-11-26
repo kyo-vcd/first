@@ -1,0 +1,9 @@
+Attached: ref_night.png (my design frame) and ref_plane.png.
+1. night_map.png (opaque, landscape 16:9): ONLY the dark terrain map background from ref_night.png WITHOUT the glowing dots, text, icon or slider: very dark brown-black land with faint thin topographic lines and faint road lines, a dark blue river crossing horizontally through the middle, heavy grain.
+2. plane.png (transparent_background=true, landscape): a black silhouette of a military gunship airplane seen from the side, flying left to right, like ref_plane.png. Isolated.
+
+Style rules for every image (match the attached reference crops from my web design exactly):
+- Gritty hand-printed illustration: flat shapes, risograph / screen-print look, dense fine black speckle grain over every surface, slightly rough hand-drawn edges.
+- Muted, dark, war-documentary palette: dirty creams, khaki, rust, desaturated greys, blood red #D9252A accents.
+- Front view, flat 2D, no glossy highlights, no 3D render look, no photorealism.
+Use the built-in image_gen tool. Save each file in the current directory with exactly the given name and print its pixel size.

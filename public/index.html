@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/style.css">
   <!-- 장면별 스타일: 장면을 추가하면 여기에 한 줄 추가 -->
   <link rel="stylesheet" href="css/scenes/s01.css">
+  <link rel="stylesheet" href="css/scenes/s02.css">
 
 </head>
 <body>
@@ -130,12 +131,52 @@
       </div>
     </section>
 
-    <!-- 다음 장면 자리: SCENE 02부터 이 아래에 같은 구조로 추가 -->
+    <!-- =========================================================
+         SCENE 02 — 화폐에서 생명으로 (구호 키트)
+         부모: .scene-02  >  .sticky-screen
+         자식: .s02-head (제목 · 버튼) / .s02-stage (동전 더미 · 물품 · 상자)
+         ========================================================= -->
+    <section class="scene scene-02" id="scene-02" data-scene="s02" data-no="02" data-title="화폐에서 생명으로" aria-labelledby="s02-heading">
+      <div class="sticky-screen">
+        <div class="s02-head">
+          <div class="title-stack">
+            <h2 class="scene-title s02-title s02-title--ask" id="s02-heading">이 <em class="s02-amount">8,600원</em>은 현장에서 무엇이 될까요?</h2>
+            <p class="scene-title s02-title s02-title--next is-off">그렇다면 이 물품들이 모인 <em>전장의 병원</em>은 안전할까요?</p>
+          </div>
+          <button class="scene-btn s02-make" type="button">긴급 구호 키트 만들기</button>
+        </div>
+
+        <div class="s02-stage">
+          <div class="s02-glow" aria-hidden="true"></div>
+          <canvas class="s02-dust" aria-hidden="true"></canvas>
+          <img class="s02-item s02-item--rutf" src="images/s02/rutf.png" alt="RUTF 치료식">
+          <img class="s02-item s02-item--b1" src="images/s02/bandage.png" alt="붕대">
+          <img class="s02-item s02-item--b2" src="images/s02/bandage.png" alt="">
+          <img class="s02-item s02-item--b3" src="images/s02/bandage.png" alt="">
+          <img class="s02-item s02-item--b4" src="images/s02/bandage.png" alt="">
+          <img class="s02-item s02-item--vaccine" src="images/s02/vaccine.png" alt="백신">
+          <img class="s02-item s02-item--syringe" src="images/s02/syringe.png" alt="주사기">
+          <img class="s02-item s02-item--p1" src="images/s02/pill_1.png" alt="항생제">
+          <img class="s02-item s02-item--p2" src="images/s02/pill_2.png" alt="">
+          <img class="s02-item s02-item--p3" src="images/s02/pill_3.png" alt="">
+          <img class="s02-item s02-item--p4" src="images/s02/pill_4.png" alt="">
+          <img class="s02-item s02-item--p5" src="images/s02/pill_5.png" alt="">
+          <img class="s02-item s02-item--p6" src="images/s02/pill_6.png" alt="">
+          <img class="s02-item s02-item--p7" src="images/s02/pill_7.png" alt="">
+          <img class="s02-item s02-item--p8" src="images/s02/pill_8.png" alt="">
+          <img class="s02-item s02-item--p9" src="images/s02/pill_9.png" alt="">
+          <img class="s02-crate" src="images/s02/crate_front.png" alt="긴급 의료 키트 상자">
+          <canvas class="s02-fx" aria-hidden="true"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 다음 장면 자리: SCENE 03부터 이 아래에 같은 구조로 추가 -->
 
   </main>
 
   <footer class="story-footer">
-    <p class="story-footer-next">SCENE 02 — 화폐에서 생명으로</p>
+    <p class="story-footer-next">SCENE 03 — 최후의 안전지대</p>
     <p class="story-footer-note">다음 장면을 준비하고 있습니다.</p>
   </footer>
 
@@ -143,5 +184,6 @@
   <script src="js/script.js"></script>
   <!-- 장면별 스크립트: 장면을 추가하면 여기에 한 줄 추가 -->
   <script src="js/scenes/s01.js"></script>
+  <script src="js/scenes/s02.js"></script>
 </body>
 </html>
