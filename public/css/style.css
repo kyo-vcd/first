@@ -94,13 +94,13 @@ button, input, output { font: inherit; color: inherit; }
   background: #16110f url("../images/bg.jpg") center / cover no-repeat;
 }
 
-/* 화면 아래 붉은 바닥과 철조망 (images/floor.png, 가로로 이어 붙임) */
+/* 화면 아래 붉은 바닥과 철조망 (images/floor.webp, 가로로 이어 붙임) */
 .sticky-screen::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
   height: clamp(70px, 10vh, 112px);
-  background: url("../images/floor.png") center bottom / auto 100% repeat-x;
+  background: url("../images/floor.webp") center bottom / auto 100% repeat-x;
   pointer-events: none;
   z-index: -1;
 }
@@ -225,7 +225,7 @@ button, input, output { font: inherit; color: inherit; }
   position: absolute;
   inset: -3px -5px;
   z-index: -1;
-  background: url("../images/s01/stamp.png") center / 100% 100% no-repeat;
+  background: url("../images/s01/stamp.webp") center / 100% 100% no-repeat;
   transition: filter 0.2s;
 }
 .scene-btn:hover::before { filter: brightness(1.12); }

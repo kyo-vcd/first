@@ -159,13 +159,13 @@
   transition: transform 0.2s var(--ease);
 }
 
-/* 거칠게 찢긴 붉은 종이 (images/s01/stamp.png) */
+/* 거칠게 찢긴 붉은 종이 (images/s01/stamp.webp) */
 .s01-donate::before {
   content: "";
   position: absolute;
   inset: -4px -6px;
   z-index: -1;
-  background: url("../../images/s01/stamp.png") center / 100% 100% no-repeat;
+  background: url("../../images/s01/stamp.webp") center / 100% 100% no-repeat;
   transition: filter 0.2s;
 }
 

@@ -19,6 +19,21 @@
 | GitHub Pages에서 HTML · CSS · JS 정상 작동 | https://kyo-vcd.github.io/first/ — 데스크톱 · 모바일에서 후원 · 스크롤 · 글꼴 · 이미지 확인 |
 | 로컬과 배포 페이지 차이 점검 | 모든 경로를 상대 경로로 써서 `/first/` 하위에서도 동일하게 동작 |
 
+장면별 부모 · 자식 · 실행 조건 (class12 "다섯 가지 정보"로 쓴 명세: `docs/scenes/S0N.md`)
+
+| 장면 | 부모 영역 | 이벤트 대상 | 변경할 자식 | 강의 내용 |
+| --- | --- | --- | --- | --- |
+| 01 | `.scene-01` | 금액 슬라이더 · 후원하기 버튼 · 스크롤 | `.s01-tank` · `.s01-coins` · `.s01-title` | 클릭 상태 변경, 단계형 스크롤 |
+| 02 | `.scene-02` | 키트 만들기 버튼 · 스크롤 | `.s02-item` · `.s02-crate` · `.s02-title` | 클릭 상태 변경 |
+| 03 | `.scene-03` | 스크롤 | `.s03-zone` · `.s03-hospital-lit` · `.s03-card` | 이미지 교체(Replace), 화면 진입형 |
+| 04 | `.scene-04` | 스크롤 진행률 | `.s04-hit` · `.s04-count` · `.s04-year` | 스크롤 진행률 0~1 연동 |
+| 05 | `.scene-05` | 공식 보호 좌표 / 실제 공습 타깃 버튼 | `.s05-panel` · `.s05-scope` · `.s05-stat` | 버튼 A/B 전환 (12주차 공통 예제와 같은 구조) |
+| 06 | `.scene-06` | 타임라인 슬라이더 (드래그 · 키보드 · 재생) | `.s06-building` · `.s06-log` · `.s06-toll` | 입력값에 따른 상태 변경 |
+| 07 | `.scene-07` | 스크롤 | `.s07-lamp` · `.s07-ecg` · `.s07-kit` | 단계형 스크롤 |
+| 08 | `.scene-08` | 반경 슬라이더 · 서명 버튼 | `.s08-lights` · `.s08-stats` · `.s08-end` | 입력값 연동 + 클릭 |
+
+검토 · 배포: 장면 하나를 만들 때마다 데스크톱 · 노트북 · 휴대폰 크기로 실행해 확인 → 커밋 → GitHub Pages 배포 → 배포 주소에서 다시 확인 (git 이력).
+
 파일 이름 규칙 (강의안 2쪽): `index.html` 필수, 이미지는 폴더에, 한글 · 띄어쓰기 금지, 여러 단어는 camelCase 또는 snake_case.
 → 적용함: 이미지 폴더 `images/`, 파일 · 폴더 이름은 모두 snake_case (예: `images/s01/coin_gold_1.png`, `fonts/noto_sans_kr_400.woff2`, `docs/ref/images/mockup/`).
 
